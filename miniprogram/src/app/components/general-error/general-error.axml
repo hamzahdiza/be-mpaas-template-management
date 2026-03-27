@@ -1,0 +1,26 @@
+<view class="nofull">
+  <popup visible="{{ generalError }}" style="z-index:1111;" maskClassName="mask-class-name-background">
+    <view class="d-f-row">
+      <view class="h-32-px w-32-px mg-r-8-px">
+        <image
+          mode="scaleToFill"
+          src="/src/assets/icons/ic_common_error_filled.svg"
+          class="h-32-px w-32-px"
+        />
+      </view>
+      <view class="txt-h3-px txt-black d-f-row ai-center">
+        {{lang[errorTitle] ? lang[errorTitle] : (errorCode + '_errorTitle')}}
+      </view>
+    </view>
+    <view class="mg-b-24-px mg-t-8-px">
+      <view class="txt-body2-px txt-black">
+        {{lang[errorMessage] ? lang[errorMessage] : (errorCode + '_errorMessage')}}
+      </view>
+    </view>
+    <view>
+      <bni-button class="local-primary-btn txt-black" onTap="change">
+        {{lang[errorButton] ? lang[errorButton] : lang['commonGeneralErrorResponseCTAButton']}}
+      </bni-button>
+    </view>
+  </popup>
+</view>

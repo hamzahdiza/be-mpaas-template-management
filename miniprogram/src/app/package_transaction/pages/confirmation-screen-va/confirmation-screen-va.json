@@ -1,0 +1,12 @@
+{
+  "usingComponents": {
+    "bni-button": "@bni-maverick-mpaas/lib/es/bni-button/bni-button",
+    "top-bar": "@bni-maverick-mpaas/lib/es/top-bar/top-bar",
+    "loading": "@bni-maverick-mpaas/lib/es/loading/loading"
+  },
+  "transparentTitle": "always",
+  "titlePenetrate": "YES",
+  "defaultTitle": "",
+  "allowsBounceVertical": "NO",
+  "pullRefresh": false
+}

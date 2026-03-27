@@ -1,0 +1,32 @@
+.intf .ant-popup-transform-bottom {
+  display: flex;
+  bottom: 96rpx;
+  right: 48rpx;
+  left: 48rpx;
+  padding: 48rpx 32rpx;
+  border-radius: 32rpx;
+  background: var(--functional-bw-tones-white, #FFF);
+  box-shadow: 0 10px 32px 0 rgba(78, 78, 78, 0.27);
+}
+
+.intf .ant-popup-content {
+  display: grid;
+  flex-direction: column;
+}
+
+.default-btn {
+  max-width: 654rpx;
+  max-height: 96rpx;
+  border: 2rpx solid #7a7a7a;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.primary-btn {
+  max-width: 654rpx;
+  max-height: 96rpx;
+  border: none;
+  font-size: 28rpx;
+  font-weight: 600;
+  line-height: 96rpx;
+}

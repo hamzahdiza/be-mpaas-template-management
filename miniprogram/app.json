@@ -1,0 +1,31 @@
+{
+  "subPackageBuildType": "shared",
+  "pages": [
+    "src/app/pages/landing/landing",
+    "src/app/pages/index/index",
+    "src/app/pages/tnc-details/tnc-details",
+    "src/app/pages/result-screen/result-screen",
+    "src/app/pages/page-not-found/page-not-found",
+    "src/app/pages/visitor-input-screen/visitor-input-screen",
+    "src/app/pages/visitor-list-screen/visitor-list-screen",
+    "src/app/pages/book-ticket/book-ticket"
+  ],
+  "subPackages": [
+    {
+      "root": "src/app/package_transaction",
+      "pages": [
+        "pages/input-pin/input-pin",
+        "pages/gather-screen-va/gather-screen-va",
+        "pages/confirmation-screen-va/confirmation-screen-va",
+        "pages/change-sof-va/change-sof-va"
+      ]
+    }
+  ],
+  "window": {},
+  "useDynamicPlugins": false,
+  "usingComponents": {
+    "feature-modal": "/src/app/components/intf-featureOFF/intf-featureOFF",
+    "general-error": "/src/app/components/general-error/general-error",
+    "error-internet": "/src/app/components/error-internet/error-internet"
+  }
+}

@@ -1,0 +1,266 @@
+<view a:if="{{ !isLoading }}" class="container-billpayment-gather">
+  <view class="sticky-top">
+    <top-bar
+      type="navigation"
+      navigate
+      backgroundColor="bg-white"
+      title="{{eventTitle}}"
+      iconL="../../../../assets/icons/ic_common_arrow_back.svg"
+      safeArea={{true}}
+      onIconLTap="openModal"
+      pixel
+    />
+  </view>
+
+  <scroll-view
+    scroll-y="{{true}}"
+    style="height: 100%;"
+    onScrollToUpper="upper"
+    onScrollToLower="lower"
+    onScroll="scroll"
+    scroll-into-view="{{toView}}"
+    scroll-top="{{scrollTop}}"
+  >
+    <view a:if="{{ !isLoading }}" class="content-billpayment-gather">
+      <view class="container-product-info-title ">
+        <view class="image-product-container">
+          <image
+            id="java-jazz-festival-gather-screen-icon"
+            mode="scaleToFill"
+            src={{partnerMenu.icon}}
+            class="image-product-tag"
+          />
+        </view>
+        <view>
+          <view class="container-detail-user">
+            <view class="txt-h4-px">
+              <text id="java-jazz-festival-gather-screen-full-name">
+                {{personalData.fullName}}
+              </text>
+            </view>
+            <view class="detail-user-number txt-body3-px txt-granite">
+              <text id="java-jazz-festival-gather-screen-title-orderid">
+                {{eventTitle}}
+              </text>
+              <view class="rounded" />
+              <text>{{orderData.orderId}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-detail-user">
+        <view class="container-package-detail-section">
+          <view class="txt-label2-px" id="java-jezz-bill-payment-gather-data-package-label">
+            {{lang.javaJazzFestivalGatherScreenBillPaymentLabel}}
+          </view>
+          <view class="main-expense-amount" style="{{buttonDisabled ? 'border-bottom: 1px solid; border-color: #D65C5C' : 'border-bottom: 1px solid; border-color: #C6C6C6'}}">
+            <text id="java-jazz-festival-gather-screen-price-count" class="txt-amount2-px">
+              {{currency === 'USD'?'USD':'Rp'}}{{' '}} {{formatPriceCount}}
+            </text>
+          </view>
+
+          <view a:if="{{ buttonDisabled }}" class="txt-label2-px txt-error information-area">
+            <image
+              class="icon-product-info-title"
+              mode="scaleToFill"
+              src="../../../../assets/icons/ic_common_error_filled.svg"
+            />
+            <view class="information-area-text">
+              <text>{{lang.lifestyleVAGatherScreenErrorInsufficientBalance}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="container-transaction-detail-section">
+          <view class="txt-h5-px p-x-4" id="lifestyle-bill-payment-gather-detail-transaction-label">
+            {{lang.javaJazzFestivalGatherScreenDetailTransactionLabel }}
+          </view>
+          <view class="border-bottom" />
+          <!-- tag detail -->
+          <view class="label-detail txt-body2-px">
+            <view>
+              {{lang.javaJazzFestivalGatherScreenFeeAmountLabel }}
+            </view>
+            <view id="java-jazz-festival-gather-screen-fee">
+              {{valueAdminFee || "RP 0"}}
+            </view>
+          </view>
+          <!-- end tag detail -->
+          <!-- show hide -->
+          <view a:if="{{ showDetail }}" class="show-hide-container">
+            <view class="label-detail txt-body2-px">
+              <view>
+                {{lang.javaJazzFestivalGatherScreenCustomerNameLabel}}
+              </view>
+              <view id="java-jazz-festival-gather-screen-full-name
+              ">
+                {{personalData.fullName}}
+              </view>
+            </view>
+            <view class="label-detail txt-body2-px">
+              <view>
+                {{lang.javaJazzFestivalGatherScreenEmailReceiverLabel}}
+              </view>
+              <view id="java-jazz-festival-gather-screen-email
+              ">
+                {{personalData.email}}
+              </view>
+            </view>
+            <view a:for="{{ ticketList }}" class="label-detail txt-body2-px">
+              <view id="java-jazz-festival-gather-screen-ticket-title">
+                {{item.ticketName}} {{`(x${item.total})`}}
+              </view>
+              <view id="java-jazz-festival-gather-screen-amount">
+                {{item.formatTotalPrice}}
+              </view>
+            </view>
+          </view>
+
+          <view class="show-hide-button" onTap="showHideDetail">
+            <view
+              class="underline txt-h5-px txt-orange-300"
+              id="lifestyle-bill-payment-gather-change-options-button"
+              style="justify-content:center"
+            >
+              {{showDetail ? lang.lifestyleVAGatherScreenCloseDetailLabel:lang.lifestyleVAGatherScreenViewDetailLabel}}
+            </view>
+            <image
+              id="lifestyle-bill-payment-gather-sof-hide-button"
+              class="hide-button"
+              mode="scaleToFill"
+              src="{{ isLoading ? '/assets/icons/ic_common_pull_up.svg' : showDetail ? '../../../../assets/icons/ic_common_pull_up.svg' : '../../../../assets/icons/ic_common_pull_down.svg'}}"
+            />
+          </view>
+        </view>
+      </view>
+
+      <!-- Sof Account -->
+      <view class="container-source-of-fund-section">
+        <view class="title">
+          <view class="txt-label2-px" id="java-jazz-festival-gather-screen-sof-product-name">
+            {{lang.javaJazzFestivalGatherScreenSOFLabel }}
+          </view>
+          <view class="hide-button">
+            <image
+              id="lifestyle-bill-payment-gather-sof-hide-button"
+              class="hide-button"
+              mode="scaleToFill"
+              catchTap="showAccount"
+              src="{{ isLoading ? '/assets/icons/ic_common_visibility_close.svg' : showBalance ? '../../../../assets/icons/ic_common_visibility_false.svg' : '../../../../assets/icons/ic_common_visibility_true.svg'}}"
+            />
+          </view>
+        </view>
+        <view
+          a:if="{{ changeSofArrow }}"
+          class="box border-box border-light-gray"
+          onTap="changeSof"
+        >
+          <view class="text">
+            <view class="txt-body2-px" id="java-jazz-festival-gather-screen-sof-product-name">
+              {{mainSourceOfFund.productName}}
+            </view>
+            <view class="center-text txt-body2-px" id="java-jazz-festival-gather-screen-sof-account-number">
+              {{mainSourceOfFund.accountNumber}}
+            </view>
+            <view class="txt-body2-sb-px" id="java-jazz-festival-gather-screen-sof-effective-balance">
+             {{currency === 'IDR' ? 'Rp': 'USD '}}{{isNegative && showBalance ? '-' : ''}}{{showBalance ? mainAccountBalance : '********'}}
+            </view>
+          </view>
+          <view class="icon">
+            <image
+              id="lifestyle-bill-payment-gather-sof-icon"
+              mode="scaleToFill"
+              src="../../../../assets/icons/ic_common_chevron_right.svg"
+            />
+          </view>
+        </view>
+        <view a:if="{{ !changeSofArrow }}" class="box border-box border-light-gray">
+          <view class="text">
+            <view class="txt-body2-px" id="lifestyle-bill-payment-gather-sof-name-label">
+              {{mainSourceOfFund.productName}}
+            </view>
+            <view class="center-text txt-body2-px" id="lifestyle-bill-payment-gather-id-label">
+              {{mainSourceOfFund.accountNumber}}
+            </view>
+            <view class="txt-body2-sb-px" id="lifestyle-bill-payment-gather-balance-label">
+             {{currency === 'IDR' ? 'Rp': 'USD '}}{{isNegative && showBalance ? '-' : ''}}{{showBalance ? mainAccountBalance : '********'}}
+            </view>
+          </view>
+
+        </view>
+      </view>
+    </view>
+    <view class="container-footer-section-empty">
+
+    </view>
+  </scroll-view>
+</view>
+
+<view a:if="{{ !isLoading }}" class="container-footer-section">
+  <bni-button
+    class="{{buttonDisabled ? 'bg-pale-gray txt-label1-sb-px':'bg-turquoise-300 txt-label1-sb-px'}}"
+    onTap="nextButton"
+    disabled={{buttonDisabled}}
+    pixel
+  >
+    {{lang.javaJazzFestivalGatherScreenButtonLabel}}
+  </bni-button>
+</view>
+
+<loading pixel loading={{isLoading}}></loading>
+<!-- return 503 -->
+<feature-modal></feature-modal>
+<!-- error internet -->
+<error-internet></error-internet>
+<!-- general error-->
+<general-error></general-error>
+
+
+<!-- Confirmation Modal  stay in  screen or back -->
+<view class="not-full">
+  <popup visible={{basicVisible}} maskClassName="mask-class-name-background">
+    <view class="popup-card-content">
+      <view class="popup-header mg-b-8-px">
+        <image
+          id="java-jazz-festival-gather-screen-icon"
+          mode="scaleToFill"
+          src="/src/assets/icons/ic_common_warning_filled.svg"
+          class="popup-icon"
+        />
+        <view class="textTitle-px">
+          <text class="txt-black txt-h3-px">
+            {{lang.javaJazzFestivalGatherScreenTitleConfirmationModal}}
+          </text>
+        </view>
+      </view>
+
+      <view class="popup-description mg-b-24-px">
+        <text>{{lang.javaJazzFestivalGatherScreenDescriptionConfirmationModal}}</text>
+      </view>
+
+      <view>
+        <view>
+          <navigator open-type="exit">
+            <bni-button
+              type="primary"
+              className="txt-body2-sb-px bg-turquoise-300 mg-b-8-px"
+              pixel={{true}}
+            >
+              {{lang.javaJazzFestivalGatherScreenButtonConfirmationLabel}}
+            </bni-button>
+          </navigator>
+        </view>
+
+        <bni-button
+          type="primary"
+          className="txt-body2-sb-px  bg-white border-granite border"
+          onTap="backToLifestyle"
+          pixel={{true}}
+        >
+          {{lang.javaJazzFestivalGatherScreenButtonCancelLabel}}
+        </bni-button>
+      </view>
+    </view>
+  </popup>
+</view>

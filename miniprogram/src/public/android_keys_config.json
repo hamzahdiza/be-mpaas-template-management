@@ -1,0 +1,47 @@
+[
+  {
+    "key": "language",
+    "type": "plain",
+    "nativeKey": "preferredLanguage"
+  },
+  {
+    "key": "deviceId",
+    "type": "secure",
+    "nativeKey": "deviceInfo"
+  },
+  {
+    "key": "refreshToken",
+    "type": "secure",
+    "nativeKey": "refreshToken"
+  },
+  {
+    "key": "accessToken",
+    "type": "secure",
+    "nativeKey": "accessToken"
+  },
+  {
+    "key": "beEncryptPublicKey",
+    "type": "secure",
+    "nativeKey": "encPublicKey"
+  },
+  {
+    "key": "beE2EEPublicKey",
+    "type": "secure",
+    "nativeKey": "pwPublicKey"
+  },
+  {
+    "key": "signingPrivateKey",
+    "type": "secure",
+    "nativeKey": "signPrivateKey"
+  },
+  {
+    "key": "signingPublicKey",
+    "type": "secure",
+    "nativeKey": "signPublicKey"
+  },
+  {
+    "key": "userId",
+    "type": "secure",
+    "nativeKey": "userId"
+  }
+]

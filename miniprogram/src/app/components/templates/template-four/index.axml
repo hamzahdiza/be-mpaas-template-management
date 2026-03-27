@@ -1,0 +1,107 @@
+<view class="t4-container">
+    <!-- Back Button -->
+    <view class="t4-back-btn" onTap="goBack">
+        <image src="/src/assets/icons/ic_common_arrow_back.svg" />
+    </view>
+
+    <!-- Hero Section -->
+    <view class="t4-hero">
+        <swiper
+          current="{{ currentPoster }}"
+          autoplay="{{ true }}"
+          duration="1000"
+          circular="{{ true }}"
+          onChange="onSwipeChangePoster"
+          class="t4-swiper"
+        >
+          <block a:for="{{ detailEvent.banner }}" a:for-index="index" a:for-item="item" a:key="{{ index }}">
+            <swiper-item>
+              <view class="t4-banner-image" style="background: url('{{ item }}') center / cover no-repeat;" />
+            </swiper-item>
+          </block>
+        </swiper>
+        <view class="t4-hero-overlay">
+             <text class="t4-hero-title">{{detailEvent.eventName}}</text>
+        </view>
+    </view>
+
+    <view class="t4-content">
+        <!-- Info Grid -->
+        <view class="t4-info-grid">
+            <view class="t4-info-item">
+                <text class="t4-label">DATE</text>
+                <text class="t4-value">{{formattedDate}}</text>
+            </view>
+            <view class="t4-info-item" onTap="openMap">
+                <text class="t4-label">LOCATION</text>
+                <text class="t4-value t4-link">{{detailEvent.location}}</text>
+                <text class="t4-sub-value" a:if="{{detailEvent.locationAddress}}">{{detailEvent.locationAddress}}</text>
+            </view>
+        </view>
+
+        <!-- About -->
+        <view class="t4-section">
+             <text class="t4-section-title">About Event</text>
+             <text class="t4-desc-text {{isDescExpanded ? '' : 'line-clamp-3'}}">
+                {{detailEvent.description}}
+             </text>
+             <view class="t4-read-more" onTap="toggleDescExpanded">
+                <text>{{isDescExpanded ? 'Read Less' : 'Read More'}}</text>
+             </view>
+
+             <!-- Socials -->
+             <view class="t4-socials" a:if="{{(detailEvent.socials && detailEvent.socials.instagram && detailEvent.socials.instagram.visible) || (detailEvent.socials && detailEvent.socials.website && detailEvent.socials.website.visible) || detailEvent.instagram || detailEvent.website}}" style="display: flex; gap: 12px; margin-top: 16px;">
+                 <view class="t4-social-link" a:if="{{(detailEvent.socials && detailEvent.socials.instagram && detailEvent.socials.instagram.visible) || detailEvent.instagram}}" style="display: flex; align-items: center; gap: 6px; background: #F0F0F0; padding: 4px 12px; border-radius: 20px;">
+                     <image src="/src/assets/icons/ic_common_instagram.svg" style="width: 14px; height: 14px;" />
+                     <text style="font-size: 12px; font-weight: 500;">{{detailEvent.instagram}}</text>
+                 </view>
+                 <view class="t4-social-link" a:if="{{(detailEvent.socials && detailEvent.socials.website && detailEvent.socials.website.visible) || detailEvent.website}}" style="display: flex; align-items: center; gap: 6px; background: #F0F0F0; padding: 4px 12px; border-radius: 20px;">
+                     <image src="/src/assets/icons/ic_common_browser.svg" style="width: 14px; height: 14px;" />
+                     <text style="font-size: 12px; font-weight: 500;">{{detailEvent.website}}</text>
+                 </view>
+             </view>
+        </view>
+
+        <!-- Tickets -->
+        <view class="t4-section">
+             <text class="t4-section-title">Select Ticket</text>
+             <view class="t4-tickets-list">
+                 <block a:for="{{ticketDataList}}" a:key="{{index}}">
+                     <view class="t4-ticket-card" onTap="goToTicketList" data-ticket-data="{{item}}">
+                         <view class="t4-card-header">
+                             <text class="t4-ticket-name">{{item.name}}</text>
+                             <view class="t4-arrow-circle">
+                                 <image class="t4-icon-white" src="/src/assets/icons/ic_common_chevron_right.svg" />
+                             </view>
+                         </view>
+                         <text class="t4-ticket-desc">{{item.description}}</text>
+                         
+                         <view class="t4-card-footer">
+                             <text class="t4-price-label">Starting from</text>
+                             <view class="t4-price-wrapper">
+                                 <!-- <text class="t4-price-normal" a:if="{{item.normalPriceFormatted}}">{{item.normalPriceFormatted}}</text> -->
+                                 <text class="t4-price-value">{{item.formatPriceTaxService}}</text>
+                             </view>
+                         </view>
+                     </view>
+                 </block>
+             </view>
+        </view>
+
+        <!-- Seating Plan (Template 4: After Tickets) -->
+        <view class="t4-section" a:if="{{detailEvent.seatingPlanUrl}}" style="border-top: 1px solid #E5E5E5; padding-top: 32px; margin-top: 16px;">
+            <text class="t4-section-title">Floor Plan</text>
+            <view style="border-radius: 12px; overflow: hidden; background: #FAFAFA; border: 1px solid #E5E5E5;">
+                <image src="{{detailEvent.seatingPlanUrl}}" mode="widthFix" style="width: 100%; display: block;" />
+            </view>
+        </view>
+
+        <!-- Terms & Conditions (Template 4: After Seating) -->
+        <view class="t4-section" a:if="{{detailEvent.termsAndConditions}}" style="margin-top: 32px;">
+            <text class="t4-section-title">Good to Know</text>
+            <view style="background: #F5F5F7; padding: 20px; border-radius: 12px;">
+                <text style="font-size: 14px; color: #4A4A4A; line-height: 1.6; white-space: pre-line;">{{detailEvent.termsAndConditions}}</text>
+            </view>
+        </view>
+    </view>
+</view>

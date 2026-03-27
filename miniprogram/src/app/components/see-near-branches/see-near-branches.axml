@@ -1,0 +1,42 @@
+<view class="see-branch">
+  <popup animation={{false}} visible={{ seeNearBranchesModal }}>
+    <view class="sticky-top">
+      <top-bar type="primary" backgroundColor="bg-white" />
+      <view class="show-near-error d-f-row jc-end bg-white ai-center">
+        <navigator open-type="exit">
+          <image
+            mode="scaleToFill"
+            src="../../../assets/icons/ic_common_close.svg"
+            class="w-48 h-48"
+          />
+        </navigator>
+      </view>
+    </view>
+    <scroll-view scroll-y="{{true}}" style="height:calc(100vh - 282rpx - {{statusBarHeight}}px )">
+      <view class="d-f-column ai-center pd-h-48">
+        <view class="nohaveSID-noportfolios-image">
+          <image
+            mode="scaleToFill"
+            src="../../../assets/icons/ic_common_groups.svg"
+            class="w-253h-193"
+          />
+        </view>
+        <view class="txt-h3 txt-center mg-t-48 txt-black" id="portfolioLandingScreenNoHaveSIDNoPortfolioTitle">
+          {{lang.portfolioLandingScreenNoHaveSIDNoPortfolioTitle}}
+        </view>
+        <view class="txt-center txt-body2 mg-t-32 txt-black" id="portfolioLandingScreenNoHaveSIDNoPortfolioBody">
+          {{lang.portfolioLandingScreenNoHaveSIDNoPortfolioBody}}
+        </view>
+        <view class="nohaveSID-noportfolios-button pf p-b-0 p-l-0 pd-t-32 pd-h-48">
+          <bni-button
+            class="txt-label1-sb primary-btn br-64 bg-turquoise-300 txt-black txt-center"
+            onTap="toSeeNearestBranchLocations"
+            id="portfolioLandingScreenNoHaveSIDNoPortfolioButton"
+          >
+            {{lang.portfolioLandingScreenNoHaveSIDNoPortfolioButton}}
+          </bni-button>
+        </view>
+      </view>
+    </scroll-view>
+  </popup>
+</view>

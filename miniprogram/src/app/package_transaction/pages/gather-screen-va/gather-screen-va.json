@@ -1,0 +1,15 @@
+{
+  "usingComponents": {
+    "top-bar": "@bni-maverick-mpaas/lib/es/top-bar/top-bar",
+    "bni-button": "@bni-maverick-mpaas/lib/es/bni-button/bni-button",
+    "feature-modal": "/src/app/components/intf-featureOFF/intf-featureOFF",
+    "loading": "@bni-maverick-mpaas/lib/es/loading/loading",
+    "popup": "antd-mini/es/Popup/index"
+
+  },
+  "transparentTitle": "always",
+  "titlePenetrate": "YES",
+  "defaultTitle": "",
+  "allowsBounceVertical": "NO",
+  "pullRefresh": false
+}

@@ -1,0 +1,279 @@
+<view class="sticky-top">
+  <top-bar
+    type="{{ isLoading ? 'navigation' : 'chipButton'}}"
+    navigate={{true}}
+    backgroundColor="#9B7EDC"
+    color="#FFFFFF"
+    title="{{lang.lifestyleLandingPageScreenHeaderTitleLabel ? lang.lifestyleLandingPageScreenHeaderTitleLabel : ''}}"
+    iconL="../../../assets/icons/ic_common_arrow_back_white.svg"
+    onIconLTap="goToNative"
+    typeChipButton="primary"
+    onChipButtonTap="{{errorReload == 0 ? 'goToTransactionHistory' : ''}}"
+    titleChipButton="{{lang.lifestyleLandingPageScreenHeaderHistoryLabel}}"
+    iconChipButton="../../../assets/icons/ic_common_history_black.svg"
+    classChipButton="txt-label2-sb border-pale-gray"
+    safeArea
+    pixel
+  />
+</view>
+
+<view class="{{ errorReload == 0 ? 'base-background-0' : 'base-background'}}">
+</view>
+
+<scroll-view
+  a:if="{{ errorReload == 0 }}"
+  scroll-y="{{true}}"
+  style="height:calc(100vh - 56px - {{statusBarHeight}}px);"
+  onScroll="onScroll"
+  class="scroll-container"
+>
+
+  <view class="background-content-base">
+  </view>
+
+  <view class="main-hero-header">
+    <view class="hero-header">
+      <image mode="widthFix" class="landing-image-left" src="../../../assets/images/lifestyle-header-left-images.svg" />
+      <image mode="widthFix" class="landing-image-right" src="../../../assets/images/lifestyle-header-right-images.svg" />
+      <view class="header-content">
+        <view a:if="{{ isLoading }}" class="header-content-left">
+          <text class="header-content-title-loading skeleton" />
+          <text class="header-content-description-loading skeleton" />
+        </view>
+        <view a:else class="header-content-left">
+          <text class="header-content-title">
+            {{lang.lifestyleLandingPageScreenTitleLabel}}
+          </text>
+          <text class="header-content-description">
+            {{lang.lifestyleLandingPageScreenSubTitleLabel}}
+          </text>
+        </view>
+      </view>
+    </view>
+    <view class="color-base-hero-header">
+    </view>
+  </view>
+
+  <!-- CONTENT -->
+  <view class="main-container-content">
+    <view class="content-categories">
+      <view class="{{isOneData ? 'content-partners-1' : 'content-partners'}}">
+        <block
+          a:for="{{ dataPartner }}"
+          a:for-index="index"
+          a:for-item="item"
+          a:if="{{ !isLoading}}"
+        >
+          <view
+            id="{{'lifestyle-landing-page-screen-card-' + item.partnerTitle}}"
+            onTap="goToPartnerWebview"
+            data-selectedPartner={{item}}
+            class="{{isOneData ? 'transactional-card-banner-1' : 'transactional-card-banner'}}"
+          >
+            <view class="{{isOneData ? 'partner-image-container-1' : 'partner-image-container'}}">
+              <view a:if="{{ item.isImageLoading }}" class="{{isOneData ? 'partner-image-1-skeleton skeleton' : 'skeleton partner-image-skeleton'}}">
+              </view>
+
+              <view
+                id="{{'lifestyle-landing-page-screen-card-image-' + item.partnerTitle}}"
+                class="{{isOneData ? 'partner-image-1' : 'partner-image'}}"
+                style="
+                  background-image: url('{{item.pertnerDisplayImage}}');
+                  {{item.isImageLoading ? 'display: none' : ''}}
+                "
+                data-index="{{index}}"
+              >
+              </view>
+              <image
+                id="{{'lifestyle-landing-page-screen-card-image-' + item.partnerTitle}}"
+                class="{{isOneData ? 'partner-image-1' : 'partner-image'}}"
+                mode="scaleToFill"
+                src="{{item.pertnerDisplayImage}}"
+                style="display: none"
+                data-index="{{index}}"
+                onLoad="imageLoad"
+              />
+            </view>
+            <view class="partner-content-container">
+              <view class="partner-tag-title">
+                <view class="partner-title-subtitle">
+                  <text class="partner-title-teks" id="{{'lifestyle-landing-page-screen-card-title-' + item.partnerTitle}}">
+                    {{lang[item.partnerTitle]}}
+                  </text>
+                  <text class="partner-subtitle-teks" id="{{'lifestyle-landing-page-screen-description-' + item.partnerTitle}}">
+                    {{lang[item.partnerDescription]}}
+                  </text>
+                </view>
+              </view>
+            </view>
+            <view class="{{isOneData ? 'content-secondary-tabs-1':'content-secondary-tabs'}}">
+              <image
+                class="content-secondary-tabs-image"
+                mode="scaleToFill"
+                src="{{item.partnerChipIcon}}"
+              />
+              <text a:if="{{ isOneData }}" class="content-secondary-tabs-text">
+                {{item.partnerCategory}}
+              </text>
+            </view>
+          </view>
+        </block>
+        <!-- LOADING CONTENT -->
+        <block a:for="{{ loadingArr }}" a:for-item="item" a:if="{{ isLoading }}">
+          <view class="{{isOneData ? 'transactional-card-banner-1' : 'transactional-card-banner'}} skeleton">
+            <view class="{{isOneData ? 'partner-image-container-1' : 'partner-image-container'}}">
+              <image
+                class="{{isOneData ? 'partner-image-1' : 'partner-image'}}"
+                mode="{{isOneData ? 'scaleToFill' : ''}}"
+                src="{{item.pertnerDisplayImage}}"
+              />
+            </view>
+            <view class="partner-content-container">
+              <view class="partner-tag-title">
+                <view class="partner-title-subtitle">
+                  <text class="partner-title-teks">
+                    {{item.pertnertTitle}}
+                  </text>
+                  <text class="partner-subtitle-teks">
+                    {{item.partnerDescriptiom}}
+                  </text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- ALL EVENTS SECTION -->
+  <view a:if="{{ !isLoading }}" class="events-section">
+    <!-- Section Header -->
+    <view class="events-section-header">
+      <text class="events-section-title">Upcoming Events</text>
+    </view>
+
+    <!-- Events List -->
+    <view class="events-list">
+      <block a:if="{{ !isEventsLoading }}" a:for="{{ allEvents }}" a:for-index="idx" a:for-item="event">
+        <view
+          class="event-card"
+          onTap="goToEventDetail"
+          data-event="{{event}}"
+          id="{{'event-card-' + event.id}}"
+        >
+          <!-- Event Banner Image -->
+          <view class="event-banner-wrapper">
+            <view a:if="{{ event.isImageLoading }}" class="event-banner-skeleton skeleton"></view>
+            <image
+              class="event-banner-img"
+              mode="scaleToFill"
+              src="{{event.bannerUrl}}"
+              data-index="{{idx}}"
+              onLoad="eventImageLoad"
+              style="{{ event.isImageLoading ? 'opacity: 0' : 'opacity: 1' }}"
+            />
+            <!-- Price Badge -->
+            <view class="event-price-badge">
+              <text class="event-price-badge-label">Mulai dari</text>
+              <text class="event-price-badge-amount">{{event.formattedPrice}}</text>
+            </view>
+          </view>
+
+          <!-- Event Info -->
+          <view class="event-info">
+            <text class="event-name">{{event.name}}</text>
+            <view class="event-meta">
+              <view class="event-meta-row">
+                <image class="event-meta-icon" src="../../../assets/icons/ic_common_calendar_today.svg" mode="scaleToFill" />
+                <text class="event-meta-text">{{event.formattedDate}}</text>
+              </view>
+              <view class="event-meta-row">
+                <image class="event-meta-icon" src="../../../assets/icons/ic_common_location.svg" mode="scaleToFill" />
+                <text class="event-meta-text">{{event.location}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- Events Loading Skeleton -->
+      <block a:for="{{ eventsLoadingArr }}" a:for-item="skItem" a:if="{{ isEventsLoading }}">
+        <view class="event-card">
+          <view class="event-banner-wrapper skeleton" style="height: 180px;"></view>
+          <view class="event-info">
+            <text class="event-name skeleton" style="width: 80%; height: 18px; min-height: 18px; margin-bottom: 8px;">  </text>
+            <view class="event-meta">
+              <view class="event-meta-row skeleton" style="width: 60%; height: 14px; min-height: 14px; margin-bottom: 6px;">  </view>
+              <view class="event-meta-row skeleton" style="width: 70%; height: 14px; min-height: 14px;">  </view>
+            </view>
+          </view>
+        </view>
+      </block>
+
+      <!-- Events Empty State -->
+      <view a:if="{{ !isEventsLoading && allEvents.length == 0 }}" class="events-empty">
+        <image class="events-empty-icon" src="../../../assets/icons/ic_common_illustration_failed.svg" />
+        <text class="events-empty-text">Belum ada event tersedia</text>
+      </view>
+    </view>
+  </view>
+  <!-- END ALL EVENTS SECTION -->
+
+
+  <view class="tnc-container">
+    <text class="tnc-main-text">
+      {{lang.lifestyleLandingPageScreenTncFirstLabel}}
+      <text onTap="goToTnc" class="tnc-hightlight-text">
+        &nbsp;{{lang.lifestyleLandingPageScreenTncMiddleLabel}}&nbsp;
+      </text> {{lang.lifestyleLandingPageScreenTncLastLabel}}
+    </text>
+  </view>
+
+</scroll-view>
+
+<!-- Failed Get Data -->
+<view a:if="{{ !isLoading && errorReload == 2 }}" class="transaction-history-body-prompt">
+  <image class="image-illustration" src="../../../assets/icons/ic_common_illustration_failed.svg" />
+  <text class="txt-h3-px mg-t-24-px">
+    {{ lang.lifestyleTransactionHistoryFailedToLoadScreenTitleLabel }}
+  </text>
+  <text class="txt-center txt-body2-px mg-t-16-px">
+    {{ lang.lifestyleTransactionHistoryFailedToLoadScreenDescLabel }}
+  </text>
+  <view id="btn-reload" class="mg-t-32-px d-f-row jc-center ai-center" onTap="handleRequest">
+    <image class="mg-r-8-px icon-size-48" src="../../../assets/icons/ic_common_refresh.svg" />
+    <text class="txt-h5-px txt-orange-300">
+      {{ lang.lifestyleTransactionHistoryFailedToLoadScreenRetryButtonLabel }}
+    </text>
+  </view>
+</view>
+
+
+<popup visible="{{isShowLottery && !isLoading && errorReload == 0}}">
+  <view class="container-content-comp-modal">
+    <view class="comp-title">
+      <image mode="scaleToFill" class="comp-image-error" src="/src/assets/icons/ic_common_error_filled.svg" />
+      <text class="comp-title-text">
+        {{lang["lifestyleLandingPageScreenNoSOFModalTitleLabel"]}}
+      </text>
+    </view>
+    <view class="comp-description">
+      <text class="comp-description-text">
+        {{lang["lifestyleLandingPageScreenNoSOFModalDescLabel"]}}
+      </text>
+    </view>
+  </view>
+  <view>
+    <bni-button pixel class="local-primary-btn" onTap="closeModal">
+      {{lang["lifestyleLandingPageScreenNoSOFModalOpenSavingAccountButton"]}}
+    </bni-button>
+  </view>
+</popup>
+
+<!-- The interface returns a 503 popup -->
+<feature-modal></feature-modal>
+<!-- error internet -->
+<error-internet></error-internet>
+<!-- general-error -->
+<general-error></general-error>

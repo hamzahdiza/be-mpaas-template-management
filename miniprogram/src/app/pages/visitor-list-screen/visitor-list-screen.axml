@@ -1,0 +1,120 @@
+<view a:if="{{ !isLoading }}" class="sticky-top" style="position: sticky; top:0; left: 0;">
+  <top-bar
+    type="navigation"
+    navigate={{true}}
+    title={{lang.javaJazzFestivalListInputDataVisitorScreenHeaderTitleLabel}}
+    iconL="../../../assets/icons/ic_common_arrow_back.svg"
+    iconR="../../../assets/icons/ic_common_history.svg"
+    onIconRTap="goToTransactionHistory"
+    onIconLTap="handleBackButton"
+    backgroundColor="var(--white)"
+    safeArea={{true}}
+    pixel
+  />
+</view>
+
+<view a:if="{{ !isLoading }}" class="page-container">
+  <view class="detail-ticket-card mg-b-24-px" id="java-jazz-festival-list-input-data-screen-banner">
+    <view class="detail-ticket-image-container mg-r-12-px">
+      <image class="detail-ticket-image" id="java-jazz-festival-list-input-data-screen-selected-ticket" src="{{eventDetail.image}}" />
+    </view>
+    <view class="detail-ticket-content">
+      <text class="txt-body3-sb-px mg-b-4-px">{{lang.javaJazzFestivalListInputDataVisitorScreenTitleTicketLabel}}</text>
+      <view class="d-f-row ai-center mg-b-4-px">
+        <image src="/src/assets/icons/ic_common_cc_refund.svg" class="icon-size-32 mg-r-8-px"/>
+        <text class="txt-body3-px">{{lang.javaJazzFestivalListInputDataVisitorScreenNonRefundLabel}}</text>
+      </view>
+      <view class="d-f-row ai-center mg-b-8-px">
+        <image src="/src/assets/icons/ic_common_id_card.svg" class="icon-size-32 mg-r-8-px "/>
+        <text class="txt-body3-px">{{lang.javaJazzFestivalListInputDataVisitorScreenIdentityLabel}}</text>
+      </view>
+      <text class="txt-body3-sb-px">{{lang.javaJazzFestivalListInputDataVisitorScreenEmailTitleTicketLabel}}</text>
+      <view class="d-f-row ai-center">
+        <image src="/src/assets/icons/ic_common_mail.svg" class="icon-size-32 mg-r-8-px"/>
+        <text class="txt-body3-px" id="java-jazz-festival-list-input-data-screen-email">{{personalData.email}}</text>
+      </view>
+      
+    </view>
+    <image class="circle-accessories" src="/src/assets/icons/ic_common_circle_vector_purple.svg" />
+  </view>
+  <view id="java-jazz-festival-list-input-data-screen-selected-ticket">
+    <text class="txt-h4-px">{{lang.javaJazzFestivalListInputDataVisitorScreenTitleDetailVisitorLabel}}</text>
+    <view a:for="{{ selectedTicket }}" a:for-item="ticket" a:for-index="ticketIndex" id="java-jazz-festival-list-input-data-screen-ticket" class="visitor-data-container mg-t-16-px">
+      <view class="visitor-title-card d-f-col mg-b-12-px">
+        <text class="mg-b-4-px txt-body2-sb-px" id="java-jazz-festival-list-input-data-screen-ticket-name">{{ticket.tickets[0].title}}</text>
+        <view class="d-f-row ai-center txt-body3-px" id="java-jazz-festival-list-input-data-screen-ticket-date">
+          <text>{{ selectedTicket[ticketIndex].ticketDate }}</text>
+          <text class="mg-r-4-px mg-l-4-px">•</text>
+          <text>{{ticket.customerTicketCount + " " + lang.javaJazzFestivalListInputDataVisitorScreenTicketDetailLabel}}</text>
+        </view>
+      </view>
+      <block a:for="{{ ticket.customerTicketTemp }}" a:for-item="customer" a:for-index="secondIndex">
+        <view class="d-f-column">
+          <view onTap="navigateToVisitorInput" data-ticketIndex={{ticketIndex}} data-visitorIndex={{secondIndex}}  data-userData={{customer}} data-ticketId={{customer.ticketId}} class="visitor-data-content d-f-row jc-between ai-center">
+            <view class="d-f-column" id="java-jazz-festival-list-input-data-screen-customer-ticket-temp">
+              <text class="{{ customer.customerData.fullName ? 'txt-body2-sb-px' : 'txt-body2-px'}}" id="java-jazz-festival-list-input-data-screen-customer-ticket-fullname">{{customer.customerData.fullName || `${lang.javaJazzFestivalListInputDataVisitorScreenFillTicketDetailLabel} ${secondIndex + 1}`}}</text>
+              <text 
+              a:if="{{customer.customerData.idCard }}" 
+              id="java-jazz-festival-list-input-data-screen-customer-ticket-idcard" 
+              class="txt-body2-px mg-t-4-px txt-granite">
+              {{ customer.customerData.idCard }}
+            </text>
+            </view>
+            <image class="icon-size-32" src="{{customer.customerData ? '/src/assets/icons/ic_common_edit.svg' : '/src/assets/icons/ic_common_chevron_right.svg'}}" />
+          </view>
+          <view class="line-divider" a:if="{{ ticket.customerTicketTemp.length - 1 !== secondIndex }}">
+          </view>
+        </view> 
+      </block>
+     
+    </view>
+
+  </view>
+</view>
+<view a:if="{{ !isLoading }}" class="cta-container">
+  <view class="d-f-row jc-between mg-b-4-px">
+    <text class="txt-body1-px">{{lang.javaJazzFestivalListInputDataVisitorScreenTotalLabel}}</text>
+    <text class="txt-amount3-px" id="java-jazz-festival-list-input-data-screen-price-count">{{priceCount.displayFormat}}</text>
+  </view>
+  <view class="d-f-row jc-between mg-b-32">
+    <text class="txt-body3-px">{{lang.javaJazzFestivalListInputDataVisitorScreenAmountLabel}}</text>
+    <text class="txt-body2-sb-px" id="java-jazz-festival-list-input-data-screen-ticket-count">{{ticketCount + " " + lang.javaJazzFestivalListInputDataVisitorScreenTicketLabel}}</text>
+  </view>
+  <view>
+    <bni-button
+      type="primary"
+      pixel
+      onTap="handleContinueButton"
+      disabled="{{!isDataValid}}"
+      className="{{ isDataValid ? 'bg-turquoise-300 txt-label1-sb-px' : 'bg-snow-white txt-gray txt-label1-sb-px'}}"
+    >
+      {{lang.javaJazzFestivalListInputDataVisitorScreenNextButtonLabel}}
+    </bni-button>
+  </view>
+</view>
+<loading-bni pixel loading="{{isLoading}}"></loading-bni>
+<view class="not-full">
+  <popup zIndex={{2100}} visible="{{visiblePopup}}" maskClassName="mask-class-name-background">
+    <view class="d-f-column w-p-100 mg-b-16" onTap="onClosePopup">
+      <view class="mg-b-8-px d-f-row ai-center">
+        <image class="icon-size-64 mg-r-8-px" src="/src/assets/icons/ic_common_warning_filled.svg" />
+        <text class="txt-h3-px">{{lang.javaJazzFestivalListInputDataVisitorScreenTitleConfirmationModal}}</text>
+      </view>
+      
+      <text class="mg-b-24-px txt-body2-px">{{lang.javaJazzFestivalListInputDataVisitorScreenDescriptionConfirmationModal}}</text>
+      <view style="width:100%;" class="mg-b-8-px">
+        <bni-button className="bg-turquoise-300 txt-label1-sb-px" onTap="handlePopup">{{lang.javaJazzFestivalListInputDataVisitorScreenButtonConfirmationLabel}}</bni-button>
+      </view>
+      <view style="width:100%;">
+        <bni-button className="txt-label1-sb-px border-black-button" onTap="handlePopupClose">{{lang.javaJazzFestivalListInputDataVisitorScreenButtonCancelLabel}}</bni-button>
+      </view>
+    </view>
+  </popup>
+</view>
+
+<!-- return 503 -->
+<feature-modal></feature-modal>
+<!-- error internet -->
+<error-internet></error-internet>
+<!-- general error-->
+<general-error></general-error>

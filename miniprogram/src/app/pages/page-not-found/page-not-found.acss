@@ -1,0 +1,28 @@
+.not-found-image{
+  padding: 150px 62px 63px 62px;
+  display: flex;
+  justify-content: center;
+}
+.not-found-img{
+  height:250px;
+  width:252px;
+}
+.not-found-text{
+  padding-bottom: 101px;
+}
+.not-found-button {
+	height: 85px;
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+}
+
+.primary-btn {
+  max-height: 48px;
+  max-width: 100%;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 48px;
+}

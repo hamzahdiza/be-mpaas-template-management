@@ -1,0 +1,33 @@
+<view a:if="{{ !submitting }}" class="d-f-column  sticky-top" style="z-index: 100">
+  <top-bar pixel type="navigation" navigate backgroundColor="bg-white" title=" " iconL="/src/assets/icons/ic_common_arrow_back.svg" safeArea="{{true}}" />
+</view>
+
+<scroll-view scroll-y="{{true}}">
+  <view a:if="{{ !isErrorApi }}">
+    <view class="containerTNC" style="{{ !scroolVisiable ? (type === 'transaction' ? 'margin-bottom: 280rpx' : 'margin-bottom: 202rpx') : ''  }}">
+      <mp-html id="javajazz-festival-tnc-screen-webview" content="{{html}}" />
+
+    </view>
+
+    <button
+      a:if="{{ scroolVisiable && !submitting }}"
+      id="javajazz-tnc-screen-down-arrow"
+      class="conditional-provisions-to-bottom-button pf d-f-column jc-center ai-center w-96 h-96 bg-black b-0"
+      onTap="scrollToButtom"
+      size="default"
+      type="primary"
+    >
+      <image class="icon-size-48" src={{`/src/assets/images/down_logo.svg`}} />
+    </button>
+
+   
+  </view>
+
+</scroll-view>
+
+<general-error></general-error>
+<!-- 503 -->
+<feature-modal></feature-modal>
+<!-- error internet -->
+<error-internet></error-internet>
+<loading loading="{{ submitting }}" pixel></loading>

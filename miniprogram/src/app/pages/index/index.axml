@@ -1,0 +1,149 @@
+<view a:if="{{ successFetch }}">
+  <view class="top-bar" a:if="{{templateId != 4 && templateId != 5}}">
+    <top-bar
+      type="navigation"
+      navigate
+      exit
+      safeArea
+      pixel
+      backgroundColor="var(--white)"
+      title="{{detailEvent.eventName}}"
+      iconL="/src/assets/icons/ic_common_arrow_back.svg"
+    />
+  </view>
+
+  <!-- Template Switcher -->
+  <template-one 
+    a:if="{{templateId == 1 || !templateId}}" 
+    detailEvent="{{detailEvent}}" 
+    ticketDataList="{{ticketDataList}}" 
+    lang="{{lang}}"
+    onGoToTicketList="goToTicketList"
+    onPopupPromo="popupPromo"
+  />
+
+  <template-two 
+    a:if="{{templateId == 2}}" 
+    detailEvent="{{detailEvent}}" 
+    ticketDataList="{{ticketDataList}}" 
+    onGoToTicketList="goToTicketList"
+  />
+
+  <template-three 
+    a:if="{{templateId == 3}}" 
+    detailEvent="{{detailEvent}}" 
+    ticketDataList="{{ticketDataList}}" 
+    onGoToTicketList="goToTicketList"
+  />
+
+  <template-four 
+    a:if="{{templateId == 4}}" 
+    detailEvent="{{detailEvent}}" 
+    ticketDataList="{{ticketDataList}}" 
+    onGoToTicketList="goToTicketList"
+  />
+
+  <template-five 
+    a:if="{{templateId == 5}}" 
+    detailEvent="{{detailEvent}}" 
+    ticketDataList="{{ticketDataList}}" 
+    lang="{{lang}}"
+    onGoToTicketList="goToTicketList"
+  />
+
+</view>
+
+<popup-image visible="{{isFullscreen}}" position="center" height="100vh" maskStyle="background-color: rgba(14, 14, 14, 0.80)">
+  <view class="icon-close-fullscreen" onTap="popupPromoClose">
+    <image class="icon-size-48" src="/src/assets/icons/ic_common_close_white.svg" />
+  </view>
+  <view class="image-fullscreen">
+    <image class="zoomable-image" src="{{imageFullScreen}}" />
+  </view>
+</popup-image>
+
+<view a:if="{{ !successFetch && !isLoading }}">
+  <view class="top-bar">
+    <top-bar
+      type="navigation"
+      navigate
+      exit
+      safeArea
+      pixel
+      backgroundColor="var(--white)"
+      title="{{lang.lifestyleJavaJazzFestivalLandingScreenHeaderTitleLabel}}"
+      iconL="/src/assets/icons/ic_common_arrow_back.svg"
+    />
+  </view>
+  <error-reload
+    reloadId="lifestyle-java-jazz-festival-landing-page-screen-refresh"
+    onReload="getPendingOrder"
+    title="{{lang.lifestyleJavaJazzFestivalLandingScreenMuatUlangTitleLabel}}"
+    desc="{{lang.lifestyleJavaJazzFestivalLandingScreenMuatUlangDescLabel}}"
+  >
+  </error-reload>
+</view>
+
+<loading pixel  loading="{{ isLoading }}"></loading>
+
+<!-- The interface returns a 503 popup -->
+<feature-modal></feature-modal>
+<!-- error internet -->
+<error-internet></error-internet>
+<!-- general-error -->
+<general-error></general-error>
+
+
+<!-- <view a:if="{{ isLoading }}">
+  <view class="top-bar">
+    <top-bar
+      type="navigation"
+      navigate
+      exit
+      safeArea
+      pixel
+      backgroundColor="var(--white)"
+      title="{{lang.lifestyleJavaJazzFestivalLandingScreenHeaderTitleLabel}}"
+      iconL="/src/assets/icons/ic_common_arrow_back.svg"
+    />
+  </view>
+  <view class="loading-container">
+    <view class="loading-poster skeleton" />
+    <view class="loading-title-container">
+      <view class="loading-title skeleton" />
+      <view class="loading-location-container">
+        <view class="loading-location-icon skeleton" />
+        <view class="loading-location-gap">
+          <view class="loading-location skeleton" />
+          <view class="loading-location skeleton" />
+        </view>
+      </view>
+    </view>
+    <view style="padding: 16px;">
+      <view class="skeleton" style="height:12px;border-radius:8px;margin-bottom:8px;"></view>
+      <view class="skeleton" style="height:12px;border-radius:8px;width:80%;"></view>
+    </view>
+    <view style="padding: 0 16px 16px 16px;">
+      <view class="skeleton" style="width:100%;height:160px;border-radius:12px;"></view>
+    </view>
+    <view class="loading-ticket-container">
+      <text class="txt-h4-px">
+        {{lang.lifestyleJavaJazzFestivalLandingScreenChooseTicketLabel}}
+      </text>
+      <view style="display:flex;gap:12px;padding-top:8px;flex-wrap:wrap;">
+        <view class="skeleton" style="height:88px;border-radius:12px;flex:1;min-width:44%;"></view>
+        <view class="skeleton" style="height:88px;border-radius:12px;flex:1;min-width:44%;"></view>
+        <view class="skeleton" style="height:88px;border-radius:12px;flex:1;min-width:44%;"></view>
+      </view>
+    </view>
+    <view class="section-header" style="padding-top:8px;">
+      <text class="txt-h4-px">
+        {{lang.lifestyleJavaJazzFestivalLandingScreenInfoSectionTitleLabel}}
+      </text>
+      <image class="icon-size-48" src="/src/assets/icons/ic_common_chevron_down.svg" />
+    </view>
+    <view style="padding: 8px 16px 16px 16px;">
+      <view class="skeleton" style="width:100%;height:120px;border-radius:12px;"></view>
+    </view>
+  </view>
+</view> -->

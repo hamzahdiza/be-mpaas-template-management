@@ -1,0 +1,10 @@
+/node_modules
+/configTest
+/es
+/coverage
+/.mini-ide
+/utils/e2ee
+/patches
+.npmrc
+env.json
+vitest.config.js

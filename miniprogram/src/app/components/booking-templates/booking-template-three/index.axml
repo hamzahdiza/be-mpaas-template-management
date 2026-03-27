@@ -1,0 +1,178 @@
+<view a:if="{{!errorApi}}" style="background-color: #F8F9FA; min-height: 100vh;">
+    <view a:if="{{ !isLoading }}" class="sticky-top">
+      <top-bar
+        type="navigation"
+        navigate="{{true}}"
+        exit="{{isExit}}"
+        backgroundColor="white"
+        title="{{lang.javaJazzFestivalListTicketScreenHeaderTitleLabel}}"
+        iconL="/src/assets/icons/ic_common_arrow_back.svg"
+        safeArea="{{true}}"
+        pixel
+      />
+      <view a:if="{{ isCopyTriggered }}" onTap="disableToast" class="{{isToastIn?'toast-container-in' : 'toast-container-out'}} toast-position">
+        <snackbar
+          pixel
+          class="snackbar-container"
+          isSnackbarVisible="true"
+          iconCustom="/src/assets/icons/ic_common_warning_filled.svg"
+          txt="{{lang.javaJazzFestivalListTicketScreenToastMaxTicketLabel}}"
+        >
+        </snackbar>
+      </view>
+    </view>
+
+    <loading pixel loading="{{ isLoading }}" />
+
+    <view a:if="{{ !isLoading }}" class="container-book" style="padding-bottom:{{footerHeight}}px">
+      <view class="m-t-16 ">
+        <text id="java-jazz-festival-list-ticket-screen-title" class="txt-h4-pro">
+          {{ticketData.title}}
+        </text>
+      </view>
+
+      <view class="mg-t-8-px">
+        <text id="java-jazz-festival-list-ticket-screen-description" class="txt-body2-px txt-granite" style="font-size: 12px;">
+          {{ticketData.description}}
+        </text>
+      </view>
+
+      <!-- Professional Tab Filter -->
+      <view a:if="{{ showTab }}" class="tab-segmented">
+        <block a:for="{{ tabFilter }}">
+          <view onTap="handleFilter" data-idx={{index}} class="tab-pill {{tabActive === index ? 'active' : 'inactive'}}">
+            <text class="tab-text">
+              {{item.title}}
+            </text>
+          </view>
+        </block>
+      </view>
+
+      <view
+        a:for="{{ tabActive === 0 ? dataPromoList : dataRegulerList }}"
+        a:for-index="idx"
+        id="java-jazz-festival-list-ticket-screen-selected-data-list"
+        class="{{item.isAvailable==0?'disabled':'ticket-pro'}}"
+      >
+        <view class="card-description-row">
+            <!-- Left Section: Info -->
+            <view class="left-section">
+                <view style="display: flex; align-items: center; margin-bottom: 4px;">
+                     <text
+                        id="java-jazz-festival-list-ticket-screen-selected-data-list-index-ticket-name"
+                        class="txt-body1-sb-px"
+                        style="color: #0E0E0E;"
+                      > {{item.ticketName }}
+                      </text>
+                      <view a:if="{{ tabActive === 0 }}" class="bni-chip {{item.isAvailable==0 ? 'bg-light-gray': 'bg-lime-200'}}" style="margin-left: 8px; padding: 2px 6px; height: auto;">
+                        <text
+                          id="java-jazz-festival-list-ticket-screen-selected-data-list-index-type"
+                          class="txt-chip-promo"
+                          style="font-size: 10px;"
+                        >
+                          {{item.type == 'disc25' ? 'DISC 25%' : 'B1G1'}}
+                        </text>
+                      </view>
+                </view>
+                
+                <text
+                    id="java-jazz-festival-list-ticket-screen-selected-data-list-index-ticket-date"
+                    class="txt-label3-px txt-granite"
+                    style="display: block; margin-bottom: 6px;"
+                  > {{item.formatedTicketDate}}
+                </text>
+                <view class="txt-label3-px {{item.isAvailable==0 ? 'txt-light-gray':'txt-granite'}} ticket-desc ">
+                    <view class="d-f-row ai-center">
+                        <text style="font-size: 11px;">• {{item.category}}</text>
+                    </view>
+                </view>
+                
+                <view class="txt-label3-px {{item.isAvailable==0 ? 'txt-light-gray':'txt-granite'}} ticket-desc ">
+                    <block a:for="{{ item.description }}" a:for-item="desc">
+                      <view
+                        id="java-jazz-festival-list-ticket-screen-selected-data-list-index-description"
+                        class="d-f-row ai-center"
+                      >
+                        <text style="font-size: 11px;">• {{desc}}</text>
+                      </view>
+                    </block>
+                </view>
+            </view>
+            
+            <!-- Right Section: Price & Action -->
+            <view class="right-section">
+                <text
+                    id="java-jazz-festival-list-ticket-screen-selected-data-list-index-price-tax-service"
+                    class="txt-price-pro"
+                    style="margin-bottom: 4px;"
+                  >
+                    {{item.formatPriceTaxService}}
+                  </text>
+                  <text
+                    a:if="{{ item.oldPrice > item.price }}"
+                    class="txt-strikethrough txt-gray"
+                    style="font-size: 11px; margin-bottom: 12px;"
+                  >
+                    {{item.oldPriceFormat}}
+                  </text>
+                  
+                <view class="d-f-row ai-center">
+                    <block a:if="{{item.count > 0}}">
+                      <view onTap="handleRemove"
+                            data-index="{{idx}}"
+                            data-item="{{item}}"
+                            data-count="{{item.count}}"
+                            data-amount="{{item.price}}"
+                            data-title="{{item.ticketName}}"
+                            data-type="{{item.type}}"
+                            data-ticket-id="{{item.ticketId}}"
+                            data-count-add="{{1}}">
+                        <image class="icon-size-24" src="/src/assets/icons/ic_common_remove_circle_outline.svg" />
+                      </view>
+                    </block>
+                    <block a:else>
+                      <view class="disabled-icon">
+                        <image class="icon-size-24" src="/src/assets/icons/ic_common_remove_circle_outline.svg" />
+                      </view>
+                    </block>
+                    <text class="txt-h4-px" style="font-size: 16px; margin: 0 16px;">{{item.count}}</text>
+                    <view onTap="handlePlus"
+                          data-index="{{idx}}"
+                          data-item="{{item}}"
+                          data-count="{{item.count}}"
+                          data-amount="{{item.price}}"
+                          data-title="{{item.ticketName}}"
+                          data-type="{{item.type}}"
+                          data-ticket-id="{{item.ticketId}}"
+                          data-count-add="{{1}}"
+                          class="{{item.count >= item.maxOrder ? 'disabled-icon' : ''}}">
+                        <image class="icon-size-24" src="/src/assets/icons/ic_common_add_circle_outline.svg" />
+                    </view>
+                </view>
+            </view>
+        </view>
+      </view>
+      <view style="height: 100px;"></view> 
+    </view>
+    
+    <!-- Footer for Total Amount -->
+    <view a:if="{{ !isLoading }}" class="bottom-container" style="padding-bottom: {{safeAreaBottom + 16}}px;">
+        <view class="bottom-container-text">
+            <view>
+                 <text class="txt-body2-px txt-granite" style="display: block; font-size: 12px;">{{lang.javaJazzFestivalListTicketScreenTotalLabel}}</text>
+                 <text class="txt-h4-pro" style="font-size: 20px; color: #0E0E0E;">{{totalPrice}}</text>
+            </view>
+            <view style="width: 140px;">
+                <bni-button
+                    id="java-jazz-festival-list-ticket-screen-buy-button"
+                    type="primary"
+                    className="{{ totalTicket === 0 ? 'txt-label1-sb-px bg-gray' : 'txt-label1-sb-px bg-turquoise-300' }}"
+                    disabled="{{totalTicket === 0}}"
+                    onTap="nextPage"
+                >
+                  {{lang.javaJazzFestivalListTicketScreenNextButtonLabel}}
+                </bni-button>
+            </view>
+        </view>
+    </view>
+</view>

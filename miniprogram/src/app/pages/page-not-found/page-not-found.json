@@ -1,0 +1,10 @@
+{
+  "usingComponents": {
+    "bni-button": "/node_modules/@bni-maverick-mpaas/lib/es/bni-button/bni-button"
+  },
+    "transparentTitle": "always",
+    "titlePenetrate": "YES",
+    "defaultTitle": "",
+    "allowsBounceVertical": "NO",
+    "pullRefresh": false
+}

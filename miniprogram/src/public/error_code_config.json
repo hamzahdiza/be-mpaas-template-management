@@ -1,0 +1,12 @@
+{
+  "toNearestBranch": ["UMS-002-115", "GNR-000-005", "GNR-000-006"],
+  "toSplashScreen": ["UMS-001-103", "UMS-002-116", "UMS-002-117", "UMS-002-109"],
+  "validateUSerCredentialResetPassword": ["GNR-000-004"],
+  "validateUSerCredentialProvisioning": ["GNR-000-003"],
+  "toHomeScreen": ["GNR-000-904"],
+  "downTimeErrorTrue": ["GNR-000-998"],
+  "downTimeErrorFalse": ["GNR-000-999"],
+  "normalFeatureOff": ["GNR-000-997"],
+  "errorInputPinNonTransactionalTwoButton": ["SID-064-006", "SID-064-007", "SID-064-008", "SID-064-009", "SID-064-010", "SID-064-011", "SID-064-017"],
+  "errorInputPinNonTransactionalOneButton": ["SID-064-018", "SID-064-019", "GNR-000-995"]
+}

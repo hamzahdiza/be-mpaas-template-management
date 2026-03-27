@@ -1,0 +1,95 @@
+<template name="template3">
+  <view class="template3-container" style="background-color: #000000; min-height: 100vh; color: white; padding-bottom: 100px; font-family: 'Futura', 'Helvetica Neue', sans-serif;">
+    
+    <!-- Immersive Hero Section -->
+    <view style="position: relative; height: 400px; width: 100%;">
+        <image src="{{detailEvent.banner[0]}}" mode="aspectFill" style="width: 100%; height: 100%;" />
+        <view style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.9) 100%);"></view>
+        
+        <view style="position: absolute; bottom: 40px; left: 20px; right: 20px;">
+             <view style="background: rgba(255, 0, 85, 0.2); border: 1px solid #ff0055; padding: 4px 12px; border-radius: 20px; display: inline-block; margin-bottom: 12px; backdrop-filter: blur(4px);">
+                <text style="color: #ff0055; font-weight: bold; font-size: 12px; letter-spacing: 1px;">UPCOMING FESTIVAL</text>
+             </view>
+             <text style="display: block; font-size: 42px; font-weight: 900; line-height: 1.1; margin-bottom: 8px; text-transform: uppercase; text-shadow: 0 0 10px rgba(255,0,85,0.5);">{{detailEvent.eventName}}</text>
+             <text style="display: block; font-size: 16px; color: #ccc;">{{detailEvent.eventDate}} • {{detailEvent.location}}</text>
+        </view>
+    </view>
+
+    <view style="padding: 0 20px;">
+        
+        <!-- Countdown Timer (Mock) -->
+        <view style="display: flex; justify-content: space-between; margin-bottom: 30px; text-align: center; background: #111; padding: 20px; border-radius: 12px; border: 1px solid #333;">
+            <view>
+                <text style="display: block; font-size: 24px; font-weight: bold; color: #fff;">02</text>
+                <text style="display: block; font-size: 10px; color: #666; letter-spacing: 1px;">DAYS</text>
+            </view>
+            <view>
+                <text style="display: block; font-size: 24px; font-weight: bold; color: #fff;">14</text>
+                <text style="display: block; font-size: 10px; color: #666; letter-spacing: 1px;">HOURS</text>
+            </view>
+            <view>
+                <text style="display: block; font-size: 24px; font-weight: bold; color: #fff;">30</text>
+                <text style="display: block; font-size: 10px; color: #666; letter-spacing: 1px;">MINS</text>
+            </view>
+            <view>
+                <text style="display: block; font-size: 24px; font-weight: bold; color: #fff;">45</text>
+                <text style="display: block; font-size: 10px; color: #666; letter-spacing: 1px;">SECS</text>
+            </view>
+        </view>
+
+        <!-- Lineup Section (Mock) -->
+        <view style="margin-bottom: 30px;">
+            <text style="display: block; font-size: 20px; font-weight: 900; margin-bottom: 16px; letter-spacing: 1px; color: #ff0055;">LINEUP</text>
+            <view style="display: flex; flex-wrap: wrap; gap: 10px;">
+                <view style="background: #222; padding: 10px 16px; border-radius: 20px; border: 1px solid #444;">
+                    <text style="font-weight: bold;">HEADLINER 1</text>
+                </view>
+                <view style="background: #222; padding: 10px 16px; border-radius: 20px; border: 1px solid #444;">
+                    <text style="font-weight: bold;">HEADLINER 2</text>
+                </view>
+                <view style="background: #222; padding: 10px 16px; border-radius: 20px; border: 1px solid #444;">
+                    <text style="font-weight: bold;">SUPPORT ACT</text>
+                </view>
+                <view style="background: #222; padding: 10px 16px; border-radius: 20px; border: 1px solid #444;">
+                    <text style="font-weight: bold;">DJ SET</text>
+                </view>
+                <view style="background: #222; padding: 10px 16px; border-radius: 20px; border: 1px solid #444;">
+                    <text style="font-weight: bold;">SPECIAL GUEST</text>
+                </view>
+            </view>
+        </view>
+
+        <!-- About Section -->
+        <view style="margin-bottom: 30px;">
+            <text style="display: block; font-size: 20px; font-weight: 900; margin-bottom: 12px; letter-spacing: 1px; color: #fff;">THE EXPERIENCE</text>
+            <text style="color: #aaa; line-height: 1.6;">{{detailEvent.description}}</text>
+        </view>
+
+        <!-- Ticket Cards -->
+        <view style="margin-bottom: 20px;">
+             <text style="display: block; font-size: 20px; font-weight: 900; margin-bottom: 16px; letter-spacing: 1px; color: #fff;">GET TICKETS</text>
+             <view a:for="{{ ticketDataList }}" a:for-item="item" style="background: linear-gradient(45deg, #1a1a1a, #2a2a2a); border-radius: 16px; padding: 20px; margin-bottom: 16px; border: 1px solid #333; position: relative; overflow: hidden;">
+                <!-- Decorative Circle -->
+                <view style="position: absolute; top: -20px; right: -20px; width: 60px; height: 60px; background: #ff0055; filter: blur(40px); opacity: 0.3;"></view>
+                
+                <text style="display: block; font-size: 18px; font-weight: 800; margin-bottom: 4px;">{{item.title}}</text>
+                <text style="display: block; font-size: 12px; color: #aaa; margin-bottom: 16px;">{{item.description}}</text>
+                
+                <view style="display: flex; justify-content: space-between; align-items: center;">
+                    <text style="color: #ff0055; font-size: 18px; font-weight: bold;">{{item.price}}</text>
+                    <view onTap="goToTicketList" data-ticketData={{item}} style="background: white; color: black; width: 32px; height: 32px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+                        <image src="/src/assets/icons/ic_common_chevron_right.svg" style="width: 16px; height: 16px;" />
+                    </view>
+                </view>
+             </view>
+        </view>
+
+    </view>
+
+    <!-- Floating Action Button (Optional, if we want a main CTA too) -->
+    <view style="position: fixed; bottom: 20px; left: 20px; right: 20px; z-index: 100;">
+        <button onTap="goToTicketList" data-ticketData={{ticketDataList[0]}} style="width: 100%; background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; height: 50px; border-radius: 25px; font-weight: 800; font-size: 16px; box-shadow: 0 4px 20px rgba(255,0,85,0.4);">BUY TICKETS NOW</button>
+    </view>
+
+  </view>
+</template>

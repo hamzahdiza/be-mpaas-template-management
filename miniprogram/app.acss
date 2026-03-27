@@ -1,0 +1,150 @@
+@import "@bni-maverick-mpaas/lib/es/utils/styles/theme.acss";
+@import "@bni-maverick-mpaas/lib/es/utils/styles/shimmer.acss";
+@import "@bni-maverick-mpaas/lib/es/utils/styles/typography.acss";
+@import "@bni-maverick-mpaas/lib/es/utils/styles/spacing.acss";
+@import "@bni-maverick-mpaas/lib/es/utils/styles/layout.acss";
+
+/* Font Regular */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url(/src/assets/fonts/TTInterphasesProRegular.ttf);
+  font-weight: 400;
+}
+/* Font Medium */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url(/src/assets/fonts/TTInterphasesProMedium.ttf);
+  font-weight: 500;
+}
+
+/* Font Semibold */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url(/src/assets/fonts/TTInterphasesProDemiBold.ttf);
+  font-weight: 600;
+}
+
+/* Font Bold */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url(/src/assets/fonts/TTInterphasesProBold.ttf);
+  font-weight: 700;
+}
+/* Font ExtraBold */
+@font-face {
+  font-family: 'TT Interphases Pro';
+  src: url(/src/assets/fonts/TTInterphasesProExtraBold.ttf);
+  font-weight: 800;
+}
+page {
+  background: #fff;
+  color: #0E0E0E;
+  font-family: TT Interphases Pro;
+  font-style: normal;
+}
+
+.fund-main {
+  width: 100%;
+  height: 100%;
+}
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.icon-size-32 {
+  height: 16px !important;
+  width: 16px !important;
+}
+
+.icon-size-48 {
+  height: 24px !important;
+  width: 24px !important;
+}
+
+.icon-size-64 {
+  height: 32px !important;
+  width: 32px !important;
+}
+
+.icon-size-96 {
+  height: 48px !important;
+  width: 48px !important;
+}
+
+.icon-size-112 {
+  height: 56px !important;
+  width: 56px !important;
+}
+
+
+.local-primary-btn {
+  max-width: 100%;
+  max-height: 48px;
+  border-radius: 32px;
+  background: #71DBD3;
+  border: none;
+  color: #0E0E0E;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 48px;
+}
+
+.local-disabled-btn {
+  max-width: 100% !important;
+  max-height: 48px;
+  border-radius: 32px;
+  background: #F0F0F0;
+  border: none;
+  color: #A0A0A0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 48px;
+  text-align: center;
+}
+
+.local-default-btn {
+  max-width: 100% !important;
+  max-height: 48px;
+  color: #0E0E0E;
+  border-radius: 32px;
+  background-color: #FFFFFF;
+  border: 1px solid #7A7A7A;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.custom-titleBar-image {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+}
+
+.local-between-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 0 24px;
+  /* position: relative; */
+}
+
+.btn-position {
+  position: fixed;
+  padding: 0 24px;
+  width: calc(100% - 48px);
+  bottom: 32px;
+}
+
+.modal-scroll {
+  height: 100vh;
+  overflow: scroll;
+}
+
+.mask-class-name-background{
+  background-color: rgba(14, 14, 14, 0.80) !important;
+}

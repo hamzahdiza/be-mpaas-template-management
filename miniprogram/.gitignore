@@ -1,0 +1,7 @@
+/node_modules
+/es
+/coverage
+/.mini-ide
+/src/utils/e2ee
+/.mini-ide*
+/.mini*

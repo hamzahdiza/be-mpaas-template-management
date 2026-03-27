@@ -1,0 +1,147 @@
+.container-result {
+  height: 100vh;
+}
+
+.m-t-16 {
+  margin-top: 16px;
+}
+
+.m-y-8 {
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.container-book {
+  padding: 0 24px;
+}
+
+.ticket {
+  position: relative;
+  border: 1px solid #9B7EDC;
+  background: var(--white);
+  color: var(--black);
+  display: inline-block;
+  /* padding: 1em 2em; */
+  width: calc(100% - 32px);
+  border-radius: 8px;
+  padding: 0 16px;
+}
+
+.ticket:before,
+.ticket:after {
+  /* height: 80px; */
+  /* width:100%; */
+  content: '';
+  position: absolute;
+  background-color: var(--white) !important;
+  bottom: 56px;
+  height: 15px;
+  width: 10px;
+  border: 1px solid #9B7EDC;
+}
+
+.ticket:before {
+  left: -1.5px;
+  border-radius: 0 99px 99px 0;
+  background-color: var(--white) !important;
+  border-left-color: white;
+}
+
+.ticket:after {
+  right: -1.5px;
+  border-radius: 99px 0 0 99px;
+  background-color: var(--white) !important;
+  border-right-color: white;
+}
+
+.bottom-container {
+  background-color: var(--white);
+  position: fixed;
+  bottom: 0;
+  width: calc(100% - 48px);
+  padding: 16px 24px 32px 24px;
+  box-shadow: 0px -3px 10px 0px rgba(78, 78, 78, 0.15);
+}
+
+.resize-indicator {
+  width: 34px;
+  height: 3px;
+  border-radius: 3px;
+}
+
+
+.sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.card-description {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  padding: 12px 0;
+}
+
+.m-b-16 {
+  margin-bottom: 16px;
+}
+
+.bottom-container-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.line-image {
+  border-top: 2px dashed var(--pale-gray);
+  margin: 12px 0;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.icon-size-24 {
+  width: 24px;
+  height: 24px;
+}
+
+.disabled-icon {
+    opacity: 0.3;
+}
+
+/* Premium Segmented Tab Style */
+.tab-segmented {
+  display: flex;
+  background-color: #F0F0F0;
+  border-radius: 12px;
+  padding: 4px;
+  margin-top: 24px;
+  margin-bottom: 8px;
+}
+
+.tab-pill {
+  flex: 1;
+  text-align: center;
+  padding: 10px 0;
+  border-radius: 9px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tab-pill.active {
+  background-color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #017A71;
+  font-weight: 700;
+}
+
+.tab-pill.inactive {
+  color: #7A7A7A;
+  font-weight: 500;
+}
+
+.tab-text {
+  font-size: 14px;
+}
