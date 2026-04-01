@@ -1,0 +1,18 @@
+{
+  "usingComponents": {
+    "top-bar": "@bni-maverick-mpaas/lib/es/top-bar/top-bar",
+    "see-near-branches":"/src/app/components/see-near-branches/see-near-branches",
+    "error-reload":"/src/app/components/error-reload/error-reload",
+    "popup": "antd-mini/es/Popup/index",
+    "bni-button": "@bni-maverick-mpaas/lib/es/bni-button/bni-button",
+    "loading": "@bni-maverick-mpaas/lib/es/loading/loading",
+    "room-template-one": "/src/app/components/room-templates/room-template-one/room-template-one",
+    "room-template-two": "/src/app/components/room-templates/room-template-two/room-template-two",
+    "room-template-three": "/src/app/components/room-templates/room-template-three/room-template-three"
+  },
+  "transparentTitle": "always",
+  "titlePenetrate": "YES",
+  "defaultTitle": "",
+  "allowsBounceVertical": "NO",
+  "pullRefresh": false
+}

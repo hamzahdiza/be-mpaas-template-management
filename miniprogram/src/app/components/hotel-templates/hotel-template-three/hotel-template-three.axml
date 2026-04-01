@@ -1,0 +1,43 @@
+<view class="container-luxury animate-in">
+  <view class="header-immersive">
+    <swiper 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      class="header-swiper"
+    >
+      <block a:for="{{[data.bannerUrl]}}">
+        <swiper-item>
+          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
+        </swiper-item>
+      </block>
+    </swiper>
+    <view class="overlay-gradient" />
+    
+    <view class="header-content-center">
+      <text class="luxury-tag">LUXURY EXPERIENCE</text>
+      <text class="hotel-name-serif">{{data.name}}</text>
+    </view>
+  </view>
+
+  <view class="content-overlap">
+    <view class="card-luxury-main">
+      <text class="suite-selection-title">Select Your Suite</text>
+      
+      <view class="suite-grid">
+        <block a:for="{{data.categories}}">
+          <view 
+            class="suite-item" 
+            onTap="handleRoomTap" 
+            data-item="{{item}}"
+          >
+            <view class="suite-img-wrapper">
+              <image class="suite-img" src="{{item.images[0]}}" mode="aspectFill" />
+            </view>
+            <text class="suite-name">{{item.name}}</text>
+            <text class="suite-price-italic">Explore this room — Rp {{item.pricePerNight}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+</view>

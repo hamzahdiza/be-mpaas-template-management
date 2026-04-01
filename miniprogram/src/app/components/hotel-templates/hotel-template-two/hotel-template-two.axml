@@ -1,0 +1,68 @@
+<view class="container-urban">
+  <view class="header-section">
+    <view class="header-left">
+      <text class="hotel-name">{{data.name}}</text>
+      <text class="location-text">📍 {{data.location}}</text>
+    </view>
+    <view class="profile-circle">
+      <text class="profile-icon">👤</text>
+    </view>
+  </view>
+
+  <view class="banner-wrapper">
+    <swiper 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      class="banner-swiper"
+    >
+      <block a:for="{{[data.bannerUrl]}}">
+        <swiper-item>
+          <image src="{{item}}" mode="aspectFill" class="banner-img" />
+        </swiper-item>
+      </block>
+    </swiper>
+  </view>
+
+  <scroll-view scroll-x="{{true}}" class="tab-scroll" class="mb-32">
+    <view class="tab-container">
+      <view class="tab-item active">
+        <text class="tab-text-active">All Rooms</text>
+      </view>
+      <view class="tab-item inactive">
+        <text class="tab-text-inactive">Recommended</text>
+      </view>
+      <view class="tab-item inactive">
+        <text class="tab-text-inactive">Popular</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="room-grid">
+    <block a:for="{{data.categories}}">
+      <view 
+        class="room-entry" 
+        onTap="handleRoomTap" 
+        data-item="{{item}}"
+      >
+        <view class="room-img-container">
+          <image src="{{item.images[0]}}" mode="aspectFill" class="room-img" />
+        </view>
+        
+        <view class="floating-info">
+          <view class="info-content">
+            <view class="text-group">
+              <text class="room-title">{{item.name}}</text>
+              <view class="price-row">
+                <text class="price-label">Starting from </text>
+                <text class="price-val">Rp {{item.pricePerNight}}</text>
+              </view>
+            </view>
+            <view class="black-arrow">
+              <text class="arrow-text">→</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

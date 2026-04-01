@@ -1,0 +1,25 @@
+<view class="room-detail-container">
+  <room-template-one
+    a:if="{{ templateId == 1 || !templateId }}"
+    room="{{ roomData }}"
+    hotel="{{ hotelData }}"
+    onBack="onBackToIndex"
+    onBook="handleBooking"
+  />
+
+  <room-template-two
+    a:if="{{ templateId == 2 }}"
+    room="{{ roomData }}"
+    hotel="{{ hotelData }}"
+    onBack="onBackToIndex"
+    onBook="handleBooking"
+  />
+
+  <room-template-three
+    a:if="{{ templateId == 3 }}"
+    room="{{ roomData }}"
+    hotel="{{ hotelData }}"
+    onBack="onBackToIndex"
+    onBook="handleBooking"
+  />
+</view>

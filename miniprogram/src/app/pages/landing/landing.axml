@@ -94,6 +94,7 @@
                 onLoad="imageLoad"
               />
             </view>
+
             <view class="partner-content-container">
               <view class="partner-tag-title">
                 <view class="partner-title-subtitle">
@@ -146,6 +147,38 @@
     </view>
   </view>
 
+  <view id="lifestyle-landing-page-hotel-list" onTap="goToHotelIndex" class="{{isOneData ? 'transactional-card-banner-1' : 'transactional-card-banner'}}">
+    <view class="{{isOneData ? 'partner-image-container-1' : 'partner-image-container'}}">
+      <view class="hotel-icon-wrapper">
+        <image
+          class="hotel-menu-icon"
+          src="../../../assets/icons/ic_hotel_primary.svg"
+          mode="aspectFit"
+        />
+      </view>
+    </view>
+
+    <view class="partner-content-container">
+      <view class="partner-tag-title">
+        <view class="partner-title-subtitle">
+          <text class="partner-title-teks">
+            {{lang.lifestyleLandingHotelTitleLabel || 'Reservasi Hotel'}}
+          </text>
+          <text class="partner-subtitle-teks">
+            {{lang.lifestyleLandingHotelDescLabel || 'Cari penginapan terbaik untuk liburanmu'}}
+          </text>
+        </view>
+      </view>
+    </view>
+
+    <view class="{{isOneData ? 'content-secondary-tabs-1' : 'content-secondary-tabs'}}">
+      <image class="content-secondary-tabs-image" mode="scaleToFill" src="../../../assets/icons/ic_common_location.svg" />
+      <text a:if="{{ isOneData }}" class="content-secondary-tabs-text">
+        Travel
+      </text>
+    </view>
+  </view>
+
   <!-- ALL EVENTS SECTION -->
   <view a:if="{{ !isLoading }}" class="events-section">
     <!-- Section Header -->
@@ -155,7 +188,7 @@
 
     <!-- Events List -->
     <view class="events-list">
-      <block a:if="{{ !isEventsLoading }}" a:for="{{ allEvents }}" a:for-index="idx" a:for-item="event">
+      <block a:for="{{ allEvents }}" a:for-index="idx" a:for-item="event" a:if="{{ !isEventsLoading }}">
         <view
           class="event-card"
           onTap="goToEventDetail"
@@ -164,7 +197,8 @@
         >
           <!-- Event Banner Image -->
           <view class="event-banner-wrapper">
-            <view a:if="{{ event.isImageLoading }}" class="event-banner-skeleton skeleton"></view>
+            <view a:if="{{ event.isImageLoading }}" class="event-banner-skeleton skeleton">
+            </view>
             <image
               class="event-banner-img"
               mode="scaleToFill"
@@ -185,11 +219,19 @@
             <text class="event-name">{{event.name}}</text>
             <view class="event-meta">
               <view class="event-meta-row">
-                <image class="event-meta-icon" src="../../../assets/icons/ic_common_calendar_today.svg" mode="scaleToFill" />
+                <image
+                  class="event-meta-icon"
+                  src="../../../assets/icons/ic_common_calendar_today.svg"
+                  mode="scaleToFill"
+                />
                 <text class="event-meta-text">{{event.formattedDate}}</text>
               </view>
               <view class="event-meta-row">
-                <image class="event-meta-icon" src="../../../assets/icons/ic_common_location.svg" mode="scaleToFill" />
+                <image
+                  class="event-meta-icon"
+                  src="../../../assets/icons/ic_common_location.svg"
+                  mode="scaleToFill"
+                />
                 <text class="event-meta-text">{{event.location}}</text>
               </view>
             </view>
@@ -202,10 +244,10 @@
         <view class="event-card">
           <view class="event-banner-wrapper skeleton" style="height: 180px;"></view>
           <view class="event-info">
-            <text class="event-name skeleton" style="width: 80%; height: 18px; min-height: 18px; margin-bottom: 8px;">  </text>
+            <text class="event-name skeleton" style="width: 80%; height: 18px; min-height: 18px; margin-bottom: 8px;"></text>
             <view class="event-meta">
-              <view class="event-meta-row skeleton" style="width: 60%; height: 14px; min-height: 14px; margin-bottom: 6px;">  </view>
-              <view class="event-meta-row skeleton" style="width: 70%; height: 14px; min-height: 14px;">  </view>
+              <view class="event-meta-row skeleton" style="width: 60%; height: 14px; min-height: 14px; margin-bottom: 6px;"></view>
+              <view class="event-meta-row skeleton" style="width: 70%; height: 14px; min-height: 14px;"></view>
             </view>
           </view>
         </view>

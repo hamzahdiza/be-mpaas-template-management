@@ -111,6 +111,66 @@ export const ticketsRelations = relations(tickets, ({ one }) => ({
   }),
 }));
 
+export const hotels = sqliteTable("hotels", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  
+  templates: text("templates", { mode: 'json' }).$type<{
+    index: { id: number; title?: string; bannerUrl?: string };
+    hotelDetail: { id: number; title?: string; bannerUrl?: string };
+  }>(),
+
+  location: text("location"),
+  locationAddress: text("location_address"),
+  locationUrl: text("location_url"),
+  starRating: integer("star_rating").default(0),
+  checkInTime: text("check_in_time").default("14:00"),
+  checkOutTime: text("check_out_time").default("12:00"),
+  bannerUrl: text("banner_url"),
+  images: text("images", { mode: 'json' }).$type<string[]>(), 
+  amenities: text("amenities", { mode: 'json' }).$type<string[]>(),
+  
+  userId: text("user_id").references(() => users.id),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const hotelCategories = sqliteTable("hotel_categories", {
+  id: text("id").primaryKey(),
+  hotelId: text("hotel_id").notNull().references(() => hotels.id, { onDelete: 'cascade' }),
+  name: text("name").notNull(),
+  roomType: text("room_type"), 
+  
+  description: text("description"), 
+
+  bedConfig: text("bed_config", { mode: 'json' }).$type<{
+    type: string;
+    count: number;
+  }>(),
+
+  roomAmenities: text("room_amenities", { mode: 'json' }).$type<string[]>(), 
+  bathAmenities: text("bath_amenities", { mode: 'json' }).$type<string[]>(),
+  images: text("images", { mode: 'json' }).$type<string[]>(), 
+  
+  pricePerNight: integer("price_per_night").notNull(),
+  capacity: integer("capacity").default(2),
+  stock: integer("stock").default(0),
+  isAvailable: integer("is_available").default(1),
+
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const hotelsRelations = relations(hotels, ({ many, one }) => ({
+  categories: many(hotelCategories),
+  user: one(users, { fields: [hotels.userId], references: [users.id] }),
+}));
+
+export const hotelCategoriesRelations = relations(hotelCategories, ({ one }) => ({
+  hotel: one(hotels, { fields: [hotelCategories.hotelId], references: [hotels.id] }),
+}));
+
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type TicketCategory = typeof ticketCategories.$inferSelect;
@@ -119,3 +179,8 @@ export type Ticket = typeof tickets.$inferSelect;
 export type NewTicket = typeof tickets.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+
+export type Hotel = typeof hotels.$inferSelect;
+export type NewHotel = typeof hotels.$inferInsert;
+export type HotelCategory = typeof hotelCategories.$inferSelect;
+export type NewHotelCategory = typeof hotelCategories.$inferInsert;

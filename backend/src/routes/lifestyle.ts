@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { desc, eq } from 'drizzle-orm';
-import { events } from '../db/schema';
+import { events, hotels } from '../db/schema';
 
 
 export const lifestyleRoutes = new Hono();
@@ -77,5 +77,29 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
   } catch (error) {
     console.error(error);
     return c.json({ error: 'Failed to fetch events' }, 500);
+  }
+});
+
+lifestyleRoutes.get('/v1/all-hotels', async (c) => {
+  try {
+    const allHotels = await db.query.hotels.findMany({
+      orderBy: [desc(hotels.createdAt)],
+      with: {
+        categories: true 
+      }
+    });
+
+    return c.json({
+      data: allHotels,
+      latency: 0,
+      statusCode: 200,
+      message: "Success"
+    });
+  } catch (error: any) {
+    console.error('Fetch Hotels Error:', error);
+    return c.json({ 
+      error: 'Failed to fetch hotels', 
+      details: error.message 
+    }, 500);
   }
 });

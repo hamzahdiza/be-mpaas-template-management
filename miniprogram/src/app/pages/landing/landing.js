@@ -44,12 +44,12 @@ Page({
   onShow() {
     my.call("enableSwipe", {
       isSwipe: false
-    }, () => { });
+    }, () => {});
     getNetWork();
     my.call("showAppBar", {
       isShow: false,
       title: ""
-    }, () => { });
+    }, () => {});
 
   },
 
@@ -79,7 +79,7 @@ Page({
     my.call("showAppBar", {
       isShow: false,
       title: ""
-    }, () => { });
+    }, () => {});
 
 
     const statusBarHeight = my.getSystemInfoSync().statusBarHeight;
@@ -200,7 +200,7 @@ Page({
         my.call("showAppBar", {
           isShow: false,
           title: ""
-        }, () => { });
+        }, () => {});
         const dataNative = {
           clientRelease: getApp().globalData.nativeData.clientRelease,
           clientPlatform: getApp().globalData.nativeData.clientPlatform,
@@ -223,7 +223,7 @@ Page({
         my.call("showAppBar", {
           isShow: true,
           title: partnerMenu.title
-        }, () => { });
+        }, () => {});
         customNavigateTo({
           url: "/src/app/pages/microsite/webview-lifestyle/webview-lifestyle",
           data: {
@@ -255,7 +255,7 @@ Page({
   },
 
   goToNative() {
-    my.call("goToHomeScreen", {}, () => { })
+    my.call("goToHomeScreen", {}, () => {})
   },
 
   async hitApiListAccount() {
@@ -307,7 +307,7 @@ Page({
         } else {
           my.call("enableSwipe", {
             isSwipe: false
-          }, () => { });
+          }, () => {});
 
           this.setData({
             errorReload: 0
@@ -345,7 +345,7 @@ Page({
   },
 
   goSavingAccount() {
-    my.call("goToSavingAccountDataVerification", {}, () => { });
+    my.call("goToSavingAccountDataVerification", {}, () => {});
   },
 
   closeModal() {
@@ -366,7 +366,9 @@ Page({
   },
 
   async fetchAllEvents() {
-    this.setData({ isEventsLoading: true });
+    this.setData({
+      isEventsLoading: true
+    });
     try {
       const res = await getAllEvents();
 
@@ -381,24 +383,33 @@ Page({
         }),
         isImageLoading: true
       }));
-      this.setData({ allEvents: formatted, isEventsLoading: false });
+      this.setData({
+        allEvents: formatted,
+        isEventsLoading: false
+      });
     } catch (e) {
-      this.setData({ isEventsLoading: false, allEvents: [] });
+      this.setData({
+        isEventsLoading: false,
+        allEvents: []
+      });
     }
   },
 
   goToEventDetail(e) {
- const event = e.currentTarget.dataset.event;
+    const event = e.currentTarget.dataset.event;
 
     if (event.externalLink) {
       my.call("showAppBar", {
         isShow: true,
         title: event.name
-      }, () => { });
+      }, () => {});
       customNavigateTo({
         url: "/src/app/pages/microsite/webview-lifestyle/webview-lifestyle",
         data: {
-          partnerMenu: { title: event.name, urlMicrosite: event.externalLink },
+          partnerMenu: {
+            title: event.name,
+            urlMicrosite: event.externalLink
+          },
           isFromLanding: true
         },
       });
@@ -417,7 +428,9 @@ Page({
     let allEvents = this.data.allEvents;
     if (allEvents[index]) {
       allEvents[index].isImageLoading = false;
-      this.setData({ allEvents });
+      this.setData({
+        allEvents
+      });
     }
   },
 
@@ -434,7 +447,17 @@ Page({
     const url = clientPlatform === "ios" ? "https://apps.apple.com/id/app/wondr-by-bni/id6499518320" : "https://play.google.com/store/apps/details?id=id.bni.wondr";
     my.call("openURL", {
       url
-    }, () => { })
-  }
+    }, () => {})
+  },
+
+  goToHotelIndex() {
+    customNavigateTo({
+      url: "/src/app/pages/package_hotel/landing-hotel/landing-hotel",
+      data: {
+        source: 'landing_lifestyle',
+        category: 'hotel'
+      },
+    });
+  },
 });
 /* JShield-obfus:disable */

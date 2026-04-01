@@ -12,8 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HotelsCreateRouteImport } from './routes/hotels/create'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
 import { Route as EventsEventIdIndexRouteImport } from './routes/events/$eventId.index'
+import { Route as HotelsIdEditRouteImport } from './routes/hotels/$id.edit'
 import { Route as EventsEventIdEditRouteImport } from './routes/events/$eventId.edit'
 
 const RegisterRoute = RegisterRouteImport.update({
@@ -31,6 +33,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HotelsCreateRoute = HotelsCreateRouteImport.update({
+  id: '/hotels/create',
+  path: '/hotels/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsCreateRoute = EventsCreateRouteImport.update({
   id: '/events/create',
   path: '/events/create',
@@ -39,6 +46,11 @@ const EventsCreateRoute = EventsCreateRouteImport.update({
 const EventsEventIdIndexRoute = EventsEventIdIndexRouteImport.update({
   id: '/events/$eventId/',
   path: '/events/$eventId/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsIdEditRoute = HotelsIdEditRouteImport.update({
+  id: '/hotels/$id/edit',
+  path: '/hotels/$id/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
@@ -52,7 +64,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
   '/events/$eventId/': typeof EventsEventIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -60,7 +74,9 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
   '/events/$eventId': typeof EventsEventIdIndexRoute
 }
 export interface FileRoutesById {
@@ -69,7 +85,9 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
   '/events/$eventId/': typeof EventsEventIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -79,7 +97,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/events/create'
+    | '/hotels/create'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
     | '/events/$eventId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -87,7 +107,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/events/create'
+    | '/hotels/create'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
     | '/events/$eventId'
   id:
     | '__root__'
@@ -95,7 +117,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/events/create'
+    | '/hotels/create'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
     | '/events/$eventId/'
   fileRoutesById: FileRoutesById
 }
@@ -104,7 +128,9 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   EventsCreateRoute: typeof EventsCreateRoute
+  HotelsCreateRoute: typeof HotelsCreateRoute
   EventsEventIdEditRoute: typeof EventsEventIdEditRoute
+  HotelsIdEditRoute: typeof HotelsIdEditRoute
   EventsEventIdIndexRoute: typeof EventsEventIdIndexRoute
 }
 
@@ -131,6 +157,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hotels/create': {
+      id: '/hotels/create'
+      path: '/hotels/create'
+      fullPath: '/hotels/create'
+      preLoaderRoute: typeof HotelsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/create': {
       id: '/events/create'
       path: '/events/create'
@@ -143,6 +176,13 @@ declare module '@tanstack/react-router' {
       path: '/events/$eventId'
       fullPath: '/events/$eventId/'
       preLoaderRoute: typeof EventsEventIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels/$id/edit': {
+      id: '/hotels/$id/edit'
+      path: '/hotels/$id/edit'
+      fullPath: '/hotels/$id/edit'
+      preLoaderRoute: typeof HotelsIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/$eventId/edit': {
@@ -160,7 +200,9 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   EventsCreateRoute: EventsCreateRoute,
+  HotelsCreateRoute: HotelsCreateRoute,
   EventsEventIdEditRoute: EventsEventIdEditRoute,
+  HotelsIdEditRoute: HotelsIdEditRoute,
   EventsEventIdIndexRoute: EventsEventIdIndexRoute,
 }
 export const routeTree = rootRouteImport

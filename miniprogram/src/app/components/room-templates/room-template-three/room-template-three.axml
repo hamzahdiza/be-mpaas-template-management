@@ -1,0 +1,80 @@
+<view class="room-detail-luxury animate-slide-right">
+  <view class="header-immersive">
+    <swiper indicator-dots="{{true}}" autoplay="{{true}}" class="room-swiper">
+      <block a:for="{{room.images}}">
+        <swiper-item>
+          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
+        </swiper-item>
+      </block>
+    </swiper>
+    
+    <view class="luxury-overlay" />
+    
+    <view class="back-button-luxury" onTap="onBackTap">
+      <text class="back-icon-light">✕</text>
+    </view>
+
+    <view class="header-title-container">
+      <text class="luxury-sub-label">Premium {{room.roomType}} Selection</text>
+      <text class="luxury-title-serif">{{room.name}}</text>
+    </view>
+  </view>
+
+  <scroll-view scroll-y="{{true}}" class="content-scroll-dark">
+    <view class="px-32">
+      <view class="gold-divider" />
+
+      <text class="description-luxury">{{room.description}}</text>
+
+      <view class="grid-2-col mb-48 border-b-luxury">
+        <view class="grid-item">
+          <text class="grid-label">THE SPACE</text>
+          <text class="grid-value-serif">{{room.capacity}} Distinguished Guests</text>
+        </view>
+        <view class="grid-item">
+          <text class="grid-label">RESTING</text>
+          <text class="grid-value-serif">{{room.bedConfig.count}} {{room.bedConfig.type}}</text>
+        </view>
+        <view class="grid-item">
+          <text class="grid-label">AVAILABILITY</text>
+          <text class="grid-value-serif">{{room.stock}} Suites Remaining</text>
+        </view>
+        <view class="grid-item">
+          <text class="grid-label">ATMOSPHERE</text>
+          <text class="grid-value-serif">Signature View</text>
+        </view>
+      </view>
+
+      <view class="mb-40">
+        <text class="section-label-amber">IN-SUITE EXPERIENCE</text>
+        <view class="amenities-grid-2">
+          <block a:for="{{room.roomAmenities}}">
+            <view class="amenity-item-luxury">
+              <view class="gold-dot" />
+              <text class="amenity-text-luxury">{{item}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="mb-100">
+        <text class="section-label-amber">BATH & WELLNESS</text>
+        <view class="flex-wrap-wellness">
+          <block a:for="{{room.bathAmenities}}">
+            <text class="wellness-tag-luxury">{{item}}</text>
+          </block>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="footer-luxury">
+    <view class="price-info-luxury">
+      <text class="rate-label">NIGHTLY RATE</text>
+      <text class="rate-val-serif">Rp {{room.pricePerNight}}</text>
+    </view>
+    <view class="btn-reserve-gold" onTap="onBookTap">
+      <text class="btn-reserve-text-dark">RESERVE SUITE</text>
+    </view>
+  </view>
+</view>

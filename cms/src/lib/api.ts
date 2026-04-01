@@ -87,3 +87,101 @@ export const updateEvent = async (id: string, event: Partial<Event>) => {
 export const deleteEvent = async (id: string) => {
   await api.delete(`/events/${id}`);
 };
+export interface Hotel {
+  categories: never[];
+  id: string;
+  name: string;
+  description: string;
+  templates: {
+    index: {
+      id: number;
+      title?: string;
+      bannerUrl?: string
+    };
+    hotelDetail: {
+      id: number;
+      title?: string
+    };
+  };
+  location: string;
+  locationAddress: string;
+  locationUrl: string | null;
+  starRating: number;
+  bannerUrl: string;
+  images: string[] | null;
+  amenities: string[] | null;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Interface untuk response Dashboard sesuai data allData.json
+export interface DashboardData {
+  summary: {
+    id: string;
+    name: string;
+    type: 'HOTEL' | 'EVENT';
+    createdAt: string;
+    status: string;
+    location: string;
+  }[];
+  raw: {
+    events: Event[]; // Menggunakan interface Event yang sudah ada
+    hotels: Hotel[];
+  }
+}
+
+export const getDashboardData = async () => {
+  const { data } = await api.get<{ data: DashboardData }>('/dashboard/all-services');
+  return data.data;
+};
+export const deleteHotel = async (id: string) => {
+  await api.delete(`/hotels/${id}`);
+};
+
+export interface RoomCategory {
+  id: string;
+  name: string;
+  roomType: string;
+  description: string;
+  pricePerNight: number;
+  capacity: number;
+  stock: number;
+  bedConfig: { type: string; count: number };
+  roomAmenities: string[];
+  bathAmenities: string[];
+  images: string[];
+}
+
+export interface HotelFormState {
+  name: string;
+  description: string;
+  location: string;
+  locationAddress: string;
+  starRating: number;
+  bannerUrl: string[];
+  templates: {
+    index: { id: number; title: string; bannerUrl: string };
+    hotelDetail: { id: number; title: string };
+  };
+  categories: RoomCategory[];
+}
+
+export const createHotel = async (hotelData: HotelFormState) => {
+  console.log(hotelData, "<<< HOTEL DATA");
+  
+  const { data } = await api.post('/hotels', hotelData);
+  console.log(data, "<<< DATA");
+  
+  return data;
+};
+
+export const getHotel = async (id: string) => {
+  const { data } = await api.get<{ data: Hotel }>(`/hotels/${id}`);
+  return data.data;
+};
+
+export const updateHotel = async (id: string, hotelData: Partial<HotelFormState>) => {
+  const { data } = await api.put(`/hotels/${id}`, hotelData);
+  return data.data;
+};
