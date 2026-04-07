@@ -11,7 +11,10 @@
     "src/app/pages/book-ticket/book-ticket",
     "src/app/pages/package_hotel/detail-hotel/detail-hotel",
     "src/app/pages/package_hotel/landing-hotel/landing-hotel",
-    "src/app/pages/package_hotel/index/index"
+    "src/app/pages/package_hotel/index/index",
+    "src/app/pages/package_culinary/landing-culinary/landing-culinary",
+    "src/app/pages/package_culinary/index/index",
+    "src/app/pages/package_culinary/detail-culinary/detail-culinary"
   ],
   "subPackages": [
     {

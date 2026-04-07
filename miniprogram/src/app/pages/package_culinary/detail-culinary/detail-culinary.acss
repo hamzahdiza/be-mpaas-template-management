@@ -1,0 +1,4 @@
+.hotel-detail-page {
+  background-color: #f6f8fb;
+  min-height: 100vh;
+}

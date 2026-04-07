@@ -1,0 +1,217 @@
+.room-detail-luxury {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background-color: #020617; /* slate-950 */
+}
+
+.header-immersive {
+  height: 50vh;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.image-slider {
+  width: 100%;
+  height: 100%;
+}
+
+.room-swiper { width: 100%; height: 100%; }
+
+.luxury-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 50%, #020617 100%);
+  z-index: 10;
+}
+
+.back-button-luxury {
+  position: absolute;
+  top: 48px;
+  left: 24px;
+  z-index: 50;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.back-icon-light { color: white; font-size: 18px; font-weight: 300; }
+
+.header-title-container {
+  position: absolute;
+  bottom: 48px;
+  left: 32px;
+  z-index: 20;
+}
+
+.luxury-sub-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: rgba(251, 191, 36, 0.8); /* amber-200/80 */
+  margin-bottom: 8px;
+  display: block;
+}
+
+.luxury-title-serif {
+  color: white;
+  font-size: 32px;
+  font-style: italic;
+  font-family: serif;
+  line-height: 1;
+}
+
+.content-scroll-dark { flex: 1; margin-top: -16px; }
+
+.px-32 { padding: 0 32px; }
+
+.gold-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(to right, rgba(251, 191, 36, 0.5), transparent);
+  margin-bottom: 40px;
+}
+
+.description-luxury {
+  font-size: 14px;
+  color: #94a3b8; /* slate-400 */
+  line-height: 1.8;
+  font-style: italic;
+  margin-bottom: 48px;
+  display: block;
+}
+
+/* GRID 2 COLUMNS */
+.grid-2-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 40px; /* space-y-10 equivalent */
+}
+
+.border-b-luxury {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 40px;
+}
+
+.grid-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: #64748b; /* slate-500 */
+  margin-bottom: 8px;
+  display: block;
+  font-weight: bold;
+}
+
+.grid-value-serif {
+  font-size: 14px;
+  font-family: serif;
+  color: #fef3c7; /* amber-100 */
+  font-style: italic;
+}
+
+.section-label-amber {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+  color: rgba(251, 191, 36, 0.6);
+  font-weight: 900;
+  margin-bottom: 24px;
+  display: block;
+}
+
+/* AMENITIES GRID */
+.amenities-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 16px;
+}
+
+.amenity-item-luxury {
+  display: flex;
+  align-items: center;
+}
+
+.gold-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: rgba(251, 191, 36, 0.3);
+  margin-right: 12px;
+}
+
+.amenity-text-luxury {
+  font-size: 11px;
+  color: #cbd5e1;
+  letter-spacing: 0.5px;
+}
+
+/* WELLNESS TAGS */
+.flex-wrap-wellness { display: flex; flex-wrap: wrap; }
+
+.wellness-tag-luxury {
+  font-size: 10px;
+  color: #94a3b8;
+  font-style: italic;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
+  margin: 0 16px 16px 0;
+}
+
+/* FOOTER */
+.footer-luxury {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 32px;
+  background: linear-gradient(to top, #020617 80%, transparent 100%);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 50;
+}
+
+.rate-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  color: #64748b;
+  font-weight: bold;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.rate-val-serif {
+  font-size: 24px;
+  font-family: serif;
+  color: #fde68a; /* amber-200 */
+  font-style: italic;
+}
+
+.btn-reserve-gold {
+  background-color: #fde68a;
+  padding: 20px 32px;
+  border-radius: 100px;
+  box-shadow: 0 10px 30px rgba(251, 243, 129, 0.15);
+}
+
+.btn-reserve-text-dark {
+  color: #020617;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  font-size: 10px;
+}
+
+.mb-40 { margin-bottom: 40px; }
+.mb-48 { margin-bottom: 48px; }
+.mb-100 { margin-bottom: 100px; }
+
+@keyframes slideRight {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+.animate-slide-right { animation: slideRight 0.5s ease-out; }

@@ -3682,3 +3682,32 @@ export function getAllHotels() {
     }
   });
 };
+
+export function getAllCafes() {
+  return request({
+    url: '/lifestyle/v1/all-cafes',
+    headers: {
+      'Screen-Id': 'lifestyleLandingPageScreen'
+    }
+  });
+};
+
+export function getAllRestaurants() {
+  return request({
+    url: '/lifestyle/v1/all-restaurants',
+    headers: {
+      'Screen-Id': 'lifestyleLandingPageScreen'
+    }
+  });
+};
+
+export function createServiceOrder(data) {
+  return request({
+    url: '/api/orders',
+    method: 'POST',
+    data,
+    headers: {
+      'Screen-Id': 'lifestyleOrderScreen'
+    }
+  });
+};

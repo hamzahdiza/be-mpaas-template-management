@@ -1,12 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 function ImageSlider({ images }: { images: string[] }) {
     const [current, setCurrent] = useState(0);
     const [isDragging, setIsDragging] = useState(false);
     const [startX, setStartX] = useState(0);
     const [translateX, setTranslateX] = useState(0);
-    const sliderRef = useRef<HTMLDivElement>(null);
-
     useEffect(() => {
         if (images.length <= 1 || isDragging) return;
         const interval = setInterval(() => {
@@ -36,7 +34,7 @@ function ImageSlider({ images }: { images: string[] }) {
     };
 
     return (
-        <div className="relative w-full h-full overflow-hidden cursor-grab active:cursor-grabbing touch-none"
+        <div className="overflow-hidden relative w-full h-full cursor-grab active:cursor-grabbing touch-none"
             onTouchStart={handleStart} onTouchMove={handleMove} onTouchEnd={handleEnd}
             onMouseDown={handleStart} onMouseMove={handleMove} onMouseUp={handleEnd} onMouseLeave={handleEnd}>
 
@@ -47,7 +45,7 @@ function ImageSlider({ images }: { images: string[] }) {
                         key={i}
                         src={img || 'https://via.placeholder.com/400x300?text=No+Image'}
                         onDragStart={(e) => e.preventDefault()}
-                        className="min-w-full h-full object-cover pointer-events-none select-none"
+                        className="object-cover min-w-full h-full pointer-events-none select-none"
                     />
                 ))}
             </div>
@@ -90,9 +88,9 @@ export function HotelMobilePreview({ data, activeScreen, onScreenChange }: any) 
                 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
 
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-7 bg-slate-900 rounded-b-3xl z-50" />
+            <div className="absolute top-0 left-1/2 z-50 w-32 h-7 rounded-b-3xl -translate-x-1/2 bg-slate-900" />
 
-            <div className="h-full overflow-y-auto scrollbar-hide bg-white">
+            <div className="overflow-y-auto h-full bg-white scrollbar-hide">
                 {activeScreen === 'index' ? renderGeneral() : renderDetail()}
             </div>
         </div>
@@ -101,15 +99,15 @@ export function HotelMobilePreview({ data, activeScreen, onScreenChange }: any) 
 
 function DefaultGeneral({ data, onScreenChange }: any) {
     return (
-        <div className="animate-in fade-in duration-500 flex flex-col min-h-full bg-slate-50">
+        <div className="flex flex-col min-h-full duration-500 animate-in fade-in bg-slate-50">
             <div className="h-[300px] w-full relative flex-shrink-0 shadow-lg">
                 <ImageSlider images={data.bannerUrl} />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-t to-transparent from-black/90 via-black/20" />
 
-                <div className="absolute top-12 left-6 right-6 z-20 flex justify-between items-center">
+                <div className="flex absolute right-6 left-6 top-12 z-20 justify-between items-center">
                     <div className="flex items-center gap-1.5 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
                         {[...Array(data.starRating)].map((_, i) => (
-                            <span key={i} className="text-amber-400 text-xs">⭐</span>
+                            <span key={i} className="text-xs text-amber-400">⭐</span>
                         ))}
                     </div>
                     <p className="text-white/80 text-[10px] uppercase tracking-widest font-bold">
@@ -117,8 +115,8 @@ function DefaultGeneral({ data, onScreenChange }: any) {
                     </p>
                 </div>
 
-                <div className="absolute bottom-8 left-6 right-6 z-20">
-                    <h2 className="text-white text-3xl font-black leading-tight tracking-tight">
+                <div className="absolute right-6 left-6 bottom-8 z-20">
+                    <h2 className="text-3xl font-black tracking-tight leading-tight text-white">
                         {data.name}
                     </h2>
                     <p className="text-white/70 text-xs mt-2 mb-3 flex items-center gap-1.5 font-medium">
@@ -132,7 +130,7 @@ function DefaultGeneral({ data, onScreenChange }: any) {
                     <h4 className="text-[10px] font-black uppercase text-slate-300 mb-3 tracking-widest">
                         Overview
                     </h4>
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    <p className="text-sm font-medium leading-relaxed text-slate-600">
                         {data.description}
                     </p>
                 </div>
@@ -147,16 +145,16 @@ function DefaultGeneral({ data, onScreenChange }: any) {
                             onClick={() => onScreenChange('detail')}
                             className="group flex gap-5 p-5 bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all duration-300 cursor-pointer"
                         >
-                            <div className="w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
+                            <div className="overflow-hidden flex-shrink-0 w-24 h-24 rounded-2xl shadow-inner">
                                 <img
                                     src={c.images[0]}
-                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                                     alt={c.name}
                                 />
                             </div>
-                            <div className="flex flex-col justify-between py-1 flex-1">
+                            <div className="flex flex-col flex-1 justify-between py-1">
                                 <div>
-                                    <h5 className="font-extrabold text-slate-800 text-base tracking-tight">{c.name}</h5>
+                                    <h5 className="text-base font-extrabold tracking-tight text-slate-800">{c.name}</h5>
                                     <p className="text-[10px] text-slate-400 font-bold mt-1 uppercase tracking-wider">
                                         {c.roomType} • Max {c.capacity} Guests
                                     </p>
@@ -166,7 +164,7 @@ function DefaultGeneral({ data, onScreenChange }: any) {
                                         Rp {c.pricePerNight?.toLocaleString()}
                                         <span className="text-[10px] text-slate-400 font-normal"> /night</span>
                                     </p>
-                                    <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs shadow-md leading-none">→</div>
+                                    <div className="flex justify-center items-center w-8 h-8 text-xs leading-none text-white rounded-full shadow-md bg-slate-900">→</div>
                                 </div>
                             </div>
                         </div>
@@ -181,17 +179,17 @@ function DefaultDetail({ data, onScreenChange }: any) {
     const room = data.categories[0];
 
     return (
-        <div className="animate-in slide-in-from-right duration-500 bg-white min-h-full flex flex-col">
+        <div className="flex flex-col min-h-full bg-white duration-500 animate-in slide-in-from-right">
             {/* 1. Header Navigation & Gallery */}
-            <div className="h-80 w-full relative flex-shrink-0">
+            <div className="relative flex-shrink-0 w-full h-80">
                 <button
                     onClick={() => onScreenChange('index')}
-                    className="absolute top-12 left-6 z-50 w-12 h-12 bg-white/20 backdrop-blur-xl rounded-2xl flex items-center justify-center text-white border border-white/20 hover:bg-white hover:text-black transition-all"
+                    className="flex absolute left-6 top-12 z-50 justify-center items-center w-12 h-12 text-white rounded-2xl border backdrop-blur-xl transition-all bg-white/20 border-white/20 hover:bg-white hover:text-black"
                 >
                     ←
                 </button>
                 <ImageSlider images={room?.images || []} />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent z-10" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-b via-transparent to-transparent from-black/50" />
             </div>
 
             <div className="p-8 -mt-10 bg-white rounded-t-[3rem] relative z-20 flex-1 shadow-[0_-20px_40px_rgba(0,0,0,0.05)]">
@@ -207,11 +205,11 @@ function DefaultDetail({ data, onScreenChange }: any) {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 py-[16px] border-y border-slate-100 mb-6">
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
+                    <div className="flex flex-col items-center p-5 text-center rounded-2xl border bg-slate-50 border-slate-100">
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-2">Bed</p>
                         <p className="text-[14px] font-bold text-slate-800 leading-none">{room?.bedConfig?.count} {room?.bedConfig?.type}</p>
                     </div>
-                    <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col items-center text-center">
+                    <div className="flex flex-col items-center p-5 text-center rounded-2xl border bg-slate-50 border-slate-100">
                         <p className="text-[10px] text-slate-400 uppercase font-black tracking-wider mb-2">Max Guests</p>
                         <p className="text-[14px] font-bold text-slate-800 leading-none">{room?.capacity} Persons</p>
                     </div>
@@ -219,7 +217,7 @@ function DefaultDetail({ data, onScreenChange }: any) {
 
                 <div className="mb-10">
                     <h4 className="text-[10px] font-black uppercase text-slate-300 mb-3 tracking-widest">Description</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed font-medium">
+                    <p className="text-sm font-medium leading-relaxed text-slate-600">
                         {room?.description}
                     </p>
                 </div>
@@ -268,13 +266,13 @@ function DefaultDetail({ data, onScreenChange }: any) {
 
 function UrbanMinimalistGeneral({ data, onScreenChange }: any) {
     return (
-        <div className="animate-in fade-in duration-500 p-6 pt-12">
+        <div className="p-6 pt-12 duration-500 animate-in fade-in">
             <div className="flex justify-between items-center mb-6">
                 <div>
                     <h2 className="text-[26px] font-black text-slate-800 tracking-tight leading-none mb-2">{data.name}</h2>
-                    <p className="text-slate-400 text-xs flex items-center gap-1">📍 {data.location}</p>
+                    <p className="flex gap-1 items-center text-xs text-slate-400">📍 {data.location}</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg">👤</div>
+                <div className="flex justify-center items-center w-10 h-10 text-lg rounded-full bg-slate-100">👤</div>
             </div>
 
             <div className="relative h-48 rounded-[2.5rem] overflow-hidden mb-8 shadow-lg">
@@ -282,7 +280,7 @@ function UrbanMinimalistGeneral({ data, onScreenChange }: any) {
             </div>
 
             <div className="space-y-6">
-                <div className="flex gap-4 overflow-x-auto scrollbar-hide py-1">
+                <div className="flex overflow-x-auto gap-4 py-1 scrollbar-hide">
                     {['All Rooms', 'Recommended', 'Popular'].map((tab, i) => (
                         <span key={i} className={`text-xs font-bold px-4 py-2 rounded-full whitespace-nowrap ${i === 0 ? 'bg-black text-white' : 'bg-slate-50 text-slate-400'}`}>
                             {tab}
@@ -291,17 +289,17 @@ function UrbanMinimalistGeneral({ data, onScreenChange }: any) {
                 </div>
 
                 {data.categories.map((c: any) => (
-                    <div key={c.id} onClick={() => onScreenChange('detail')} className="group relative">
+                    <div key={c.id} onClick={() => onScreenChange('detail')} className="relative group">
                         <div className="w-full h-56 rounded-[2.5rem] overflow-hidden">
-                            <img src={c.images[0]} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <img src={c.images[0]} className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105" />
                         </div>
                         <div className="absolute bottom-4 left-4 right-4 bg-white/90 backdrop-blur-md p-4 rounded-[1.5rem] shadow-xl">
                             <div className="flex justify-between items-center">
                                 <div>
-                                    <h5 className="font-bold text-slate-800 text-sm">{c.name}</h5>
-                                    <p className="text-[10px] text-slate-500 font-medium">Starting from <span className="text-black font-bold">Rp {c.pricePerNight?.toLocaleString()}</span></p>
+                                    <h5 className="text-sm font-bold text-slate-800">{c.name}</h5>
+                                    <p className="text-[10px] text-slate-500 font-medium">Starting from <span className="font-bold text-black">Rp {c.pricePerNight?.toLocaleString()}</span></p>
                                 </div>
-                                <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center text-xs">→</div>
+                                <div className="flex justify-center items-center w-8 h-8 text-xs text-white bg-black rounded-full">→</div>
                             </div>
                         </div>
                     </div>
@@ -315,21 +313,21 @@ function UrbanMinimalistDetail({ data, onScreenChange }: any) {
     const room = data.categories[0];
 
     return (
-        <div className="animate-in slide-in-from-bottom duration-500 h-full flex flex-col bg-white">
-            <div className="h-80 relative flex-shrink-0">
+        <div className="flex flex-col h-full bg-white duration-500 animate-in slide-in-from-bottom">
+            <div className="relative flex-shrink-0 h-80">
                 <ImageSlider images={room?.images || []} />
                 <button
                     onClick={() => onScreenChange('index')}
-                    className="absolute top-12 left-6 bg-white/90 backdrop-blur-md shadow-xl p-3 rounded-2xl text-black active:scale-90 transition-transform z-50"
+                    className="absolute left-6 top-12 z-50 p-3 text-black rounded-2xl shadow-xl backdrop-blur-md transition-transform bg-white/90 active:scale-90"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto scrollbar-hide p-8">
+            <div className="overflow-y-auto flex-1 p-8 scrollbar-hide">
                 <div className="flex justify-between items-start mb-6">
                     <div className="max-w-[70%]">
-                        <h2 className="text-2xl font-black text-slate-900 leading-tight tracking-tighter">{room?.name}</h2>
+                        <h2 className="text-2xl font-black tracking-tighter leading-tight text-slate-900">{room?.name}</h2>
                         <p className="text-blue-600 text-[10px] font-black uppercase tracking-widest mt-1">{room?.roomType} Suite</p>
                     </div>
                     <span className="bg-slate-900 text-white text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-tighter">
@@ -349,13 +347,13 @@ function UrbanMinimalistDetail({ data, onScreenChange }: any) {
                     </div>
                 </div>
 
-                <p className="text-slate-500 text-xs leading-relaxed mb-10 font-medium">{room?.description}</p>
+                <p className="mb-10 text-xs font-medium leading-relaxed text-slate-500">{room?.description}</p>
 
                 <h4 className="text-[10px] font-black text-slate-900 uppercase tracking-[0.2em] mb-6">Core Amenities</h4>
                 <div className="grid grid-cols-4 gap-6 mb-10">
                     {room?.roomAmenities?.slice(0, 4).map((item: string) => (
-                        <div key={item} className="flex flex-col items-center gap-2 text-center">
-                            <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-lg border border-slate-100">
+                        <div key={item} className="flex flex-col gap-2 items-center text-center">
+                            <div className="flex justify-center items-center w-12 h-12 text-lg rounded-2xl border bg-slate-50 border-slate-100">
                                 {item.toLowerCase().includes('wifi') ? '📶' :
                                     item.toLowerCase().includes('ac') ? '❄️' :
                                         item.toLowerCase().includes('tv') ? '📺' : '✨'}
@@ -365,7 +363,7 @@ function UrbanMinimalistDetail({ data, onScreenChange }: any) {
                     ))}
                 </div>
 
-                <div className="space-y-6 pb-10">
+                <div className="pb-10 space-y-6">
                     <div>
                         <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-3">Room Features</h4>
                         <div className="flex flex-wrap gap-2">
@@ -379,10 +377,10 @@ function UrbanMinimalistDetail({ data, onScreenChange }: any) {
                 </div>
             </div>
 
-            <div className="p-6 bg-white border-t border-slate-50 flex items-center justify-between z-20">
+            <div className="flex z-20 justify-between items-center p-6 bg-white border-t border-slate-50">
                 <div>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Price /Night</p>
-                    <p className="text-xl font-black text-blue-600 tracking-tighter">Rp {room?.pricePerNight?.toLocaleString()}</p>
+                    <p className="text-xl font-black tracking-tighter text-blue-600">Rp {room?.pricePerNight?.toLocaleString()}</p>
                 </div>
                 <button className="px-10 py-4 bg-slate-900 text-white rounded-[1.5rem] font-black text-xs uppercase tracking-[0.15em] shadow-xl active:scale-95 transition-transform">
                     Reserve
@@ -394,25 +392,25 @@ function UrbanMinimalistDetail({ data, onScreenChange }: any) {
 
 function LuxuryImmersiveGeneral({ data, onScreenChange }: any) {
     return (
-        <div className="animate-in fade-in duration-700">
+        <div className="duration-700 animate-in fade-in">
             <div className="h-[450px] relative">
                 <ImageSlider images={data.bannerUrl} />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-white" />
-                <div className="absolute top-20 w-full text-center px-6">
+                <div className="absolute inset-0 bg-gradient-to-b via-transparent to-white from-black/40" />
+                <div className="absolute top-20 px-6 w-full text-center">
                     <p className="text-white/80 text-[10px] uppercase tracking-[0.3em] font-light mb-2">Luxury Experience</p>
-                    <h2 className="text-white text-4xl font-serif italic">{data.name}</h2>
+                    <h2 className="font-serif text-4xl italic text-white">{data.name}</h2>
                 </div>
             </div>
 
-            <div className="p-8 -mt-20 relative z-10">
+            <div className="relative z-10 p-8 -mt-20">
                 <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-slate-50">
-                    <h3 className="text-slate-900 font-bold text-lg mb-6 text-center">Select Your Suite</h3>
+                    <h3 className="mb-6 text-lg font-bold text-center text-slate-900">Select Your Suite</h3>
                     <div className="space-y-10">
                         {data.categories.map((c: any) => (
                             <div key={c.id} onClick={() => onScreenChange('detail')} className="text-center cursor-pointer">
                                 <img src={c.images[0]} className="w-full h-48 object-cover rounded-[2rem] mb-4" />
-                                <h4 className="text-slate-800 font-black text-sm uppercase tracking-widest">{c.name}</h4>
-                                <p className="text-amber-600 font-serif text-sm mt-1 italic">Explore this room — Rp {c.pricePerNight?.toLocaleString()}</p>
+                                <h4 className="text-sm font-black tracking-widest uppercase text-slate-800">{c.name}</h4>
+                                <p className="mt-1 font-serif text-sm italic text-amber-600">Explore this room — Rp {c.pricePerNight?.toLocaleString()}</p>
                             </div>
                         ))}
                     </div>
@@ -426,52 +424,52 @@ function LuxuryImmersiveDetail({ data, onScreenChange }: any) {
     const room = data.categories[0];
 
     return (
-        <div className="animate-in slide-in-from-right duration-700 bg-slate-950 h-full text-white flex flex-col overflow-hidden">
+        <div className="flex overflow-hidden flex-col h-full text-white duration-700 animate-in slide-in-from-right bg-slate-950">
             <div className="h-[50vh] relative flex-shrink-0 group">
                 <ImageSlider images={room?.images || []} />
                 
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-slate-950 z-10" />
+                <div className="absolute inset-0 z-10 bg-gradient-to-b via-transparent from-black/60 to-slate-950" />
                 
                 <button 
                     onClick={() => onScreenChange('index')} 
-                    className="absolute top-12 left-6 z-50 w-10 h-10 flex items-center justify-center border border-white/20 rounded-full backdrop-blur-md hover:bg-white hover:text-black transition-all duration-500"
+                    className="flex absolute left-6 top-12 z-50 justify-center items-center w-10 h-10 rounded-full border backdrop-blur-md transition-all duration-500 border-white/20 hover:bg-white hover:text-black"
                 >
                     <span className="text-xl font-light">✕</span>
                 </button>
 
-                <div className="absolute bottom-12 left-8 z-20">
+                <div className="absolute left-8 bottom-12 z-20">
                     <span className="text-[9px] uppercase tracking-[0.4em] text-amber-200/80 font-medium mb-2 block">
                         Premium {room?.roomType} Selection
                     </span>
-                    <h2 className="text-4xl font-serif italic text-white leading-none tracking-tight">
+                    <h2 className="font-serif text-4xl italic tracking-tight leading-none text-white">
                         {room?.name}
                     </h2>
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto scrollbar-hide px-8 pb-32 -mt-4 relative z-20">
+            <div className="overflow-y-auto relative z-20 flex-1 px-8 pb-32 -mt-4 scrollbar-hide">
                 <div className="h-[1px] w-full bg-gradient-to-r from-amber-200/50 to-transparent mb-10" />
 
                 <p className="text-slate-400 text-sm leading-[1.8] font-light italic mb-12 tracking-wide">
                     {room?.description}
                 </p>
 
-                <div className="grid grid-cols-2 gap-y-10 mb-12 border-b border-white/5 pb-10">
+                <div className="grid grid-cols-2 gap-y-10 pb-10 mb-12 border-b border-white/5">
                     <div>
                         <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 mb-2 font-bold">The Space</p>
-                        <p className="text-sm font-serif text-amber-100 italic">{room?.capacity} Distinguished Guests</p>
+                        <p className="font-serif text-sm italic text-amber-100">{room?.capacity} Distinguished Guests</p>
                     </div>
                     <div>
                         <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 mb-2 font-bold">Resting</p>
-                        <p className="text-sm font-serif text-amber-100 italic">{room?.bedConfig?.count} {room?.bedConfig?.type}</p>
+                        <p className="font-serif text-sm italic text-amber-100">{room?.bedConfig?.count} {room?.bedConfig?.type}</p>
                     </div>
                     <div>
                         <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 mb-2 font-bold">Availability</p>
-                        <p className="text-sm font-serif text-amber-100 italic">{room?.stock} Suites Remaining</p>
+                        <p className="font-serif text-sm italic text-amber-100">{room?.stock} Suites Remaining</p>
                     </div>
                     <div>
                         <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 mb-2 font-bold">Atmosphere</p>
-                        <p className="text-sm font-serif text-amber-100 italic">Signature View</p>
+                        <p className="font-serif text-sm italic text-amber-100">Signature View</p>
                     </div>
                 </div>
 
@@ -480,7 +478,7 @@ function LuxuryImmersiveDetail({ data, onScreenChange }: any) {
                         <h4 className="text-[10px] uppercase tracking-[0.4em] text-amber-200/60 font-black mb-6">In-Suite Experience</h4>
                         <div className="grid grid-cols-2 gap-4">
                             {room?.roomAmenities?.map((item: string) => (
-                                <div key={item} className="flex items-center gap-3 group">
+                                <div key={item} className="flex gap-3 items-center group">
                                     <div className="w-1.5 h-1.5 rounded-full bg-amber-200/30 group-hover:bg-amber-200 transition-colors" />
                                     <span className="text-[11px] text-slate-300 font-light tracking-wider">{item}</span>
                                 </div>
@@ -501,11 +499,11 @@ function LuxuryImmersiveDetail({ data, onScreenChange }: any) {
                 </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent z-50">
-                <div className="flex items-end justify-between gap-6">
+            <div className="absolute right-0 bottom-0 left-0 z-50 p-8 bg-gradient-to-t to-transparent from-slate-950 via-slate-950/95">
+                <div className="flex gap-6 justify-between items-end">
                     <div className="mb-1">
                         <p className="text-[9px] uppercase tracking-[0.3em] text-slate-500 font-bold mb-1">Nightly Rate</p>
-                        <p className="text-2xl font-serif italic text-amber-200">
+                        <p className="font-serif text-2xl italic text-amber-200">
                             Rp {room?.pricePerNight?.toLocaleString()}
                         </p>
                     </div>

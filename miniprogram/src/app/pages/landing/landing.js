@@ -459,5 +459,23 @@ Page({
       },
     });
   },
+  goToCafeIndex() {
+    customNavigateTo({
+      url: "/src/app/pages/package_culinary/landing-culinary/landing-culinary",
+      data: {
+        source: "landing_lifestyle",
+        category: "cafe",
+      },
+    });
+  },
+  goToRestaurantIndex() {
+    customNavigateTo({
+      url: "/src/app/pages/package_culinary/landing-culinary/landing-culinary",
+      data: {
+        source: "landing_lifestyle",
+        category: "restaurant",
+      },
+    });
+  },
 });
 /* JShield-obfus:disable */

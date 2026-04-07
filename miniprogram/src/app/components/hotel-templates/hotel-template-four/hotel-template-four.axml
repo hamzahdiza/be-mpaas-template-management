@@ -1,0 +1,62 @@
+<view class="container-index">
+  <view class="banner-section">
+    <image class="banner-img" src="{{data.bannerUrl}}" mode="aspectFill" />
+    <view class="banner-overlay" />
+    
+    <view class="floating-top">
+      <view class="star-container">
+        <text a:for="{{data.starRating}}" class="star-icon">⭐</text>
+      </view>
+      <text class="location-text">{{data.location}}</text>
+    </view>
+
+    <view class="floating-bottom">
+      <text class="hotel-title">{{data.name}}</text>
+      <view class="address-row">
+        <text class="address-text">📍 {{data.locationAddress}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="content-body">
+    <view class="section-container">
+      <text class="section-label">OVERVIEW</text>
+      <text class="overview-desc">{{data.description}}</text>
+    </view>
+
+    <view class="section-container">
+      <text class="section-label">OUR ROOMS</text>
+      
+      <view class="room-grid">
+        <block a:for="{{data.categories}}">
+          <view 
+            class="room-card" 
+            onTap="handleRoomTap" 
+            data-item="{{item}}"
+          >
+            <view class="room-img-wrapper">
+              <image class="room-img" src="{{item.images[0]}}" mode="aspectFill" />
+            </view>
+            
+            <view class="room-details">
+              <view>
+                <text class="room-name">{{item.name}}</text>
+                <text class="room-type">{{item.roomType}} • Max {{item.capacity}} Guests</text>
+              </view>
+              
+              <view class="room-price-row">
+                <view>
+                  <text class="price-val">Rp {{item.pricePerNight}}</text>
+                  <text class="price-unit"> /night</text>
+                </view>
+                <view class="arrow-circle">
+                  <text class="arrow-icon">→</text>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+</view>

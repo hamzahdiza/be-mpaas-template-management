@@ -22,4 +22,18 @@
     onBack="onBackToIndex"
     onBook="handleBooking"
   />
+  <room-template-four
+    a:if="{{ templateId == 4 }}"
+    room="{{ roomData }}"
+    hotel="{{ hotelData }}"
+    onBack="onBackToIndex"
+    onBook="handleBooking"
+  />
+  <room-template-five
+    a:if="{{ templateId == 5 }}"
+    room="{{ roomData }}"
+    hotel="{{ hotelData }}"
+    onBack="onBackToIndex"
+    onBook="handleBooking"
+  />
 </view>

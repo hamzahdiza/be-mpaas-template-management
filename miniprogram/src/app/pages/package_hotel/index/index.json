@@ -8,7 +8,9 @@
     "loading": "@bni-maverick-mpaas/lib/es/loading/loading",
     "hotel-template-one": "/src/app/components/hotel-templates/hotel-template-one/hotel-template-one",
     "hotel-template-two": "/src/app/components/hotel-templates/hotel-template-two/hotel-template-two",
-    "hotel-template-three": "/src/app/components/hotel-templates/hotel-template-three/hotel-template-three"
+    "hotel-template-three": "/src/app/components/hotel-templates/hotel-template-three/hotel-template-three",
+    "hotel-template-four": "/src/app/components/hotel-templates/hotel-template-four/hotel-template-four",
+    "hotel-template-five": "/src/app/components/hotel-templates/hotel-template-five/hotel-template-five"
   },
   "transparentTitle": "always",
   "titlePenetrate": "YES",

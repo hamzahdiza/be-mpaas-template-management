@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { desc, eq } from 'drizzle-orm';
-import { events, hotels } from '../db/schema';
+import { cafesRestaurants, events, hotels } from '../db/schema';
 
 
 export const lifestyleRoutes = new Hono();
@@ -101,5 +101,29 @@ lifestyleRoutes.get('/v1/all-hotels', async (c) => {
       error: 'Failed to fetch hotels', 
       details: error.message 
     }, 500);
+  }
+});
+
+lifestyleRoutes.get('/v1/all-cafes', async (c) => {
+  try {
+    const data = await db.query.cafesRestaurants.findMany({
+      where: eq(cafesRestaurants.category, 'cafe'),
+      orderBy: [desc(cafesRestaurants.createdAt)],
+    });
+    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+  } catch (error: any) {
+    return c.json({ error: 'Failed to fetch cafes', details: error.message }, 500);
+  }
+});
+
+lifestyleRoutes.get('/v1/all-restaurants', async (c) => {
+  try {
+    const data = await db.query.cafesRestaurants.findMany({
+      where: eq(cafesRestaurants.category, 'restaurant'),
+      orderBy: [desc(cafesRestaurants.createdAt)],
+    });
+    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+  } catch (error: any) {
+    return c.json({ error: 'Failed to fetch restaurants', details: error.message }, 500);
   }
 });

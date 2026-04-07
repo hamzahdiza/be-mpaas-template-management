@@ -21,9 +21,11 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
 
   const hasEvents = dashboardData?.raw.events && dashboardData.raw.events.length > 0;
   const hasHotels = dashboardData?.raw.hotels && dashboardData.raw.hotels.length > 0;
+  const hasCafeRestaurants = dashboardData?.raw.cafesRestaurants && dashboardData.raw.cafesRestaurants.length > 0;
 
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : { name: 'Admin User', email: 'admin@wondr.id' };
+  const isAdmin = user?.role === 'admin';
   const initials = user.name ? user.name.substring(0, 2).toUpperCase() : 'AD';
 
   const handleLogout = () => {
@@ -61,10 +63,38 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
             <span className="text-lg leading-none mr-0.5">+</span>
             {!isCollapsed && <span className="ml-1 whitespace-nowrap">New Event</span>}
           </Link>
+          <Link
+            to="/hotels/create"
+            className={`w-full flex items-center justify-center py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 mb-6 transition-all duration-300 ${isCollapsed ? 'px-0' : 'px-4'}`}
+            title="Create New Hotel"
+          >
+            <span className="text-lg leading-none mr-0.5">+</span>
+            {!isCollapsed && <span className="ml-1 whitespace-nowrap">New Hotel</span>}
+          </Link>
+          <Link
+            to="/cafes-restaurants/create"
+            className={`w-full flex items-center justify-center py-2 border border-transparent text-sm font-medium rounded-md text-white bg-emerald-600 shadow-sm hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 mb-6 transition-all duration-300 ${isCollapsed ? 'px-0' : 'px-4'}`}
+            title="Create New Cafe/Restaurant"
+          >
+            <span className="text-lg leading-none mr-0.5">+</span>
+            {!isCollapsed && <span className="ml-1 whitespace-nowrap">New Cafe/Resto</span>}
+          </Link>
 
           <nav className="space-y-1">
+            {isAdmin && (
+              <Link
+                to="/"
+                search={{ type: 'all' } as any}
+                className={`group flex items-center py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 ${isCollapsed ? 'justify-center px-0' : 'px-2'}`}
+                activeProps={{ className: '!bg-gray-100 !text-gray-900' }}
+                title="Semua Kategori"
+              >
+                <span className={`h-6 w-6 flex items-center justify-center ${!isCollapsed && 'mr-3'}`}>🗂️</span>
+                {!isCollapsed && <span className="whitespace-nowrap">Semua Kategori</span>}
+              </Link>
+            )}
             {/* Menu Events */}
-            {hasEvents && (
+            {(isAdmin || hasEvents) && (
               <Link
                 to="/"
                 search={{ type: 'event' }} 
@@ -80,7 +110,7 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
             )}
 
             {/* Menu Hotels */}
-            {hasHotels && (
+            {(isAdmin || hasHotels) && (
               <Link
                 to="/"
                 search={{ type: 'hotel' }}
@@ -94,6 +124,40 @@ export function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
                 {!isCollapsed && <span className="whitespace-nowrap">Hotels</span>}
               </Link>
             )}
+
+            {(isAdmin || hasCafeRestaurants) && (
+              <>
+                <Link
+                  to="/"
+                  search={{ type: 'cafe' } as any}
+                  className={`group flex items-center py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 ${isCollapsed ? 'justify-center px-0' : 'px-2'}`}
+                  activeProps={{ className: '!bg-emerald-50 !text-emerald-600' }}
+                  title="Cafe"
+                >
+                  <span className={`h-6 w-6 flex items-center justify-center ${!isCollapsed && 'mr-3'}`}>☕</span>
+                  {!isCollapsed && <span className="whitespace-nowrap">Cafe</span>}
+                </Link>
+                <Link
+                  to="/"
+                  search={{ type: 'restaurant' } as any}
+                  className={`group flex items-center py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 ${isCollapsed ? 'justify-center px-0' : 'px-2'}`}
+                  activeProps={{ className: '!bg-emerald-50 !text-emerald-600' }}
+                  title="Restoran"
+                >
+                  <span className={`h-6 w-6 flex items-center justify-center ${!isCollapsed && 'mr-3'}`}>🍽️</span>
+                  {!isCollapsed && <span className="whitespace-nowrap">Restoran</span>}
+                </Link>
+              </>
+            )}
+            <Link
+              to="/orders"
+              className={`group flex items-center py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-50 ${isCollapsed ? 'justify-center px-0' : 'px-2'}`}
+              activeProps={{ className: '!bg-violet-50 !text-violet-600' }}
+              title="Pesanan Vendor"
+            >
+              <span className={`h-6 w-6 flex items-center justify-center ${!isCollapsed && 'mr-3'}`}>🧾</span>
+              {!isCollapsed && <span className="whitespace-nowrap">Pesanan</span>}
+            </Link>
           </nav>
         </div>
 

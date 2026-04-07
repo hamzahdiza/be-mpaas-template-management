@@ -1,0 +1,29 @@
+<view class="hotel-detail-page">
+  <block>
+    <culinary-template-one
+      a:if="{{ templateId == 1 }}"
+      data="{{ culinaryData }}"
+      onScreenChange="goToMenuDetail"
+    />
+    <culinary-template-two
+      a:elif="{{ templateId == 2 }}"
+      data="{{ culinaryData }}"
+      onScreenChange="goToMenuDetail"
+    />
+    <culinary-template-three
+      a:elif="{{ templateId == 3 }}"
+      data="{{ culinaryData }}"
+      onScreenChange="goToMenuDetail"
+    />
+    <culinary-template-four
+      a:elif="{{ templateId == 4 }}"
+      data="{{ culinaryData }}"
+      onScreenChange="goToMenuDetail"
+    />
+    <culinary-template-five
+      a:elif="{{ templateId == 5 }}"
+      data="{{ culinaryData }}"
+      onScreenChange="goToMenuDetail"
+    />
+  </block>
+</view>

@@ -1,0 +1,30 @@
+<view class="hotel-index-container">
+  <view class="top-bar-fixed">
+    <top-bar type="navigation" navigate="{{true}}" onIconLTap="onGoBack" title="Wondr Culinary" backgroundColor="#FFFFFF" pixel safeArea />
+  </view>
+
+  <view class="tab-row">
+    <view class="tab-item {{activeTab === 'cafe' ? 'tab-item-active' : ''}}" data-tab="cafe" onTap="switchTab">Cafe</view>
+    <view class="tab-item {{activeTab === 'restaurant' ? 'tab-item-active' : ''}}" data-tab="restaurant" onTap="switchTab">Restoran</view>
+  </view>
+
+  <scroll-view scroll-y="{{true}}" class="scroll-content">
+    <view a:if="{{ successFetch }}" class="list-wrapper">
+      <block a:for="{{ activeTab === 'cafe' ? cafeList : restaurantList }}" a:for-item="item">
+        <view class="hotel-card-t2" onTap="goToDetail" data-id="{{item.id}}" data-category="{{item.category}}">
+          <view class="badge-luxury">{{item.typeLabel || (item.category === 'cafe' ? 'Cafe' : 'Restoran')}}</view>
+          <image class="banner-t2" src="{{item.bannerUrl}}" mode="aspectFill" />
+          <view class="overlay-t2">
+            <text class="name-t2">{{item.name}}</text>
+            <text class="price-t2">Mulai {{item.formattedPrice}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+    <view a:if="{{ !isLoading && !successFetch }}" class="error-state">
+      <error-reload onReload="fetchCulinary" />
+    </view>
+  </scroll-view>
+
+  <loading loading="{{ isLoading }}" />
+</view>
