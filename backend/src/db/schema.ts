@@ -162,6 +162,122 @@ export const hotelCategories = sqliteTable("hotel_categories", {
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
+export const cafesRestaurants = sqliteTable("cafes_restaurants", {
+  id: text("id").primaryKey(),
+  category: text("category").notNull().default("cafe"), // cafe | restaurant
+  name: text("name").notNull(),
+  description: text("description"),
+  templates: text("templates", { mode: "json" }).$type<{
+    index: { id: number; title?: string; bannerUrl?: string };
+    detail: { id: number; title?: string; bannerUrl?: string };
+  }>(),
+  location: text("location"),
+  locationAddress: text("location_address"),
+  locationUrl: text("location_url"),
+  halalStatus: text("halal_status").default("halal-certified"),
+  openTime: text("open_time").default("09:00"),
+  closeTime: text("close_time").default("22:00"),
+  priceRangeMin: integer("price_range_min").default(0),
+  priceRangeMax: integer("price_range_max").default(0),
+  bannerUrl: text("banner_url"),
+  images: text("images", { mode: "json" }).$type<string[]>(),
+  amenities: text("amenities", { mode: "json" }).$type<string[]>(),
+  menuItems: text("menu_items", { mode: "json" }).$type<
+    {
+      id: string;
+      name: string;
+      description?: string;
+      price: number;
+      imageUrl?: string;
+      isAvailable?: boolean;
+    }[]
+  >(),
+  userId: text("user_id").references(() => users.id),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const rentals = sqliteTable("rentals", {
+  id: text("id").primaryKey(),
+  category: text("category").notNull().default("car"), // car | motor
+  name: text("name").notNull(),
+  description: text("description"),
+  templates: text("templates", { mode: "json" }).$type<{
+    index: { id: number; title?: string; bannerUrl?: string };
+    detail: { id: number; title?: string; bannerUrl?: string };
+  }>(),
+  location: text("location"),
+  locationAddress: text("location_address"),
+  locationUrl: text("location_url"),
+  bannerUrl: text("banner_url"),
+  images: text("images", { mode: "json" }).$type<string[]>(),
+  vehicles: text("vehicles", { mode: "json" }).$type<
+    {
+      id: string;
+      name: string;
+      type: string; // Sedan, SUV, etc
+      transmission: "manual" | "automatic";
+      capacity: number;
+      pricePerDay: number;
+      imageUrl?: string;
+      isAvailable?: boolean;
+    }[]
+  >(),
+  userId: text("user_id").references(() => users.id),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const umkms = sqliteTable("umkms", {
+  id: text("id").primaryKey(),
+  category: text("category").notNull().default("product"), // product | food | service
+  name: text("name").notNull(),
+  description: text("description"),
+  templates: text("templates", { mode: "json" }).$type<{
+    index: { id: number; title?: string; bannerUrl?: string };
+    detail: { id: number; title?: string; bannerUrl?: string };
+  }>(),
+  location: text("location"),
+  locationAddress: text("location_address"),
+  locationUrl: text("location_url"),
+  bannerUrl: text("banner_url"),
+  images: text("images", { mode: "json" }).$type<string[]>(),
+  products: text("products", { mode: "json" }).$type<
+    {
+      id: string;
+      name: string;
+      description?: string;
+      price: number;
+      imageUrl?: string;
+      isAvailable?: boolean;
+      stock?: number;
+    }[]
+  >(),
+  userId: text("user_id").references(() => users.id),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+export const serviceOrders = sqliteTable("service_orders", {
+  id: text("id").primaryKey(),
+  orderType: text("order_type").notNull(), // event | hotel | cafe | restaurant | rental | umkm
+  serviceId: text("service_id").notNull(),
+  serviceName: text("service_name").notNull(),
+  vendorUserId: text("vendor_user_id").references(() => users.id),
+  customerName: text("customer_name").notNull(),
+  customerPhone: text("customer_phone"),
+  notes: text("notes"),
+  quantity: integer("quantity").default(1),
+  totalAmount: integer("total_amount").default(0),
+  status: text("status").default("pending"), // pending | accepted | rejected | completed
+  paymentMethod: text("payment_type").default("va"), // cash | transfer | va
+  orderPayload: text("order_payload", { mode: "json" }).$type<Record<string, any>>(),
+  invoiceNumber: text("invoice_number"),
+  completedAt: text("completed_at"),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
 export const hotelsRelations = relations(hotels, ({ many, one }) => ({
   categories: many(hotelCategories),
   user: one(users, { fields: [hotels.userId], references: [users.id] }),
@@ -169,6 +285,22 @@ export const hotelsRelations = relations(hotels, ({ many, one }) => ({
 
 export const hotelCategoriesRelations = relations(hotelCategories, ({ one }) => ({
   hotel: one(hotels, { fields: [hotelCategories.hotelId], references: [hotels.id] }),
+}));
+
+export const cafesRestaurantsRelations = relations(cafesRestaurants, ({ one }) => ({
+  user: one(users, { fields: [cafesRestaurants.userId], references: [users.id] }),
+}));
+
+export const rentalsRelations = relations(rentals, ({ one }) => ({
+  user: one(users, { fields: [rentals.userId], references: [users.id] }),
+}));
+
+export const umkmsRelations = relations(umkms, ({ one }) => ({
+  user: one(users, { fields: [umkms.userId], references: [users.id] }),
+}));
+
+export const serviceOrdersRelations = relations(serviceOrders, ({ one }) => ({
+  vendor: one(users, { fields: [serviceOrders.vendorUserId], references: [users.id] }),
 }));
 
 export type Event = typeof events.$inferSelect;
@@ -184,3 +316,7 @@ export type Hotel = typeof hotels.$inferSelect;
 export type NewHotel = typeof hotels.$inferInsert;
 export type HotelCategory = typeof hotelCategories.$inferSelect;
 export type NewHotelCategory = typeof hotelCategories.$inferInsert;
+export type CafeRestaurant = typeof cafesRestaurants.$inferSelect;
+export type NewCafeRestaurant = typeof cafesRestaurants.$inferInsert;
+export type ServiceOrder = typeof serviceOrders.$inferSelect;
+export type NewServiceOrder = typeof serviceOrders.$inferInsert;

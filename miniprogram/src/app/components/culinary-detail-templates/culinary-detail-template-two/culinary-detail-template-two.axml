@@ -1,0 +1,36 @@
+<view class="container-detail premium-dark">
+  <view class="hero-section-premium">
+    <image class="hero-img-premium" src="{{room.imageUrl}}" mode="aspectFill" />
+    <view class="hero-overlay-premium" />
+    <view class="back-btn-premium" onTap="onBack">
+      <icon type="left" size="20" color="#ffffff" />
+    </view>
+  </view>
+
+  <view class="detail-content-premium">
+    <text class="section-tag-premium">Dish Overview</text>
+    <text class="item-name-huge">{{room.name}}</text>
+    
+    <view class="desc-container">
+      <view class="accent-line" />
+      <text class="item-desc-premium">{{room.description}}</text>
+    </view>
+
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-label">Price Value</text>
+        <text class="stat-val">Rp {{room.price.toLocaleString('id-ID')}}</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-label">Chef Note</text>
+        <text class="stat-val uppercase">Signature</text>
+      </view>
+    </view>
+
+    <view class="footer-action-premium">
+      <view class="signature-box-btn" onTap="onBook">
+        ADD TO SIGNATURE BOX
+      </view>
+    </view>
+  </view>
+</view>

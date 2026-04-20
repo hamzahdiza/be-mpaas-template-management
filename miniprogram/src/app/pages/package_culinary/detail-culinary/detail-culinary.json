@@ -1,0 +1,11 @@
+{
+  "usingComponents": {
+    "loading": "@bni-maverick-mpaas/lib/es/loading/loading",
+    "culinary-detail-template-one": "/src/app/components/culinary-detail-templates/culinary-detail-template-one/culinary-detail-template-one",
+    "culinary-detail-template-two": "/src/app/components/culinary-detail-templates/culinary-detail-template-two/culinary-detail-template-two",
+    "culinary-detail-template-three": "/src/app/components/culinary-detail-templates/culinary-detail-template-three/culinary-detail-template-three",
+    "culinary-detail-template-four": "/src/app/components/culinary-detail-templates/culinary-detail-template-four/culinary-detail-template-four",
+    "culinary-detail-template-five": "/src/app/components/culinary-detail-templates/culinary-detail-template-five/culinary-detail-template-five"
+  },
+  "defaultTitle": "Detail Kuliner"
+}

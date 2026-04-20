@@ -1,0 +1,83 @@
+<view class="sticky-top">
+  <top-bar
+    type="navigation"
+    navigate={{true}}
+    backgroundColor="#9B7EDC"
+    color="#FFFFFF"
+    title="Konfirmasi Pesanan"
+    iconL="../../../assets/icons/ic_common_arrow_back_white.svg"
+    onIconLTap="onBack"
+    safeArea
+    pixel
+  />
+</view>
+
+<scroll-view scroll-y="{{true}}" class="scroll-container">
+  <view class="cart-section">
+    <view class="shadow-sm merchant-card">
+      <view class="merchant-header">
+        <text class="uppercase merchant-type">{{orderType}}</text>
+        <text class="merchant-name">{{serviceName}}</text>
+      </view>
+    </view>
+
+    <view class="shadow-sm info-section">
+      <text class="section-title">Detail Pemesan</text>
+      <view class="info-row">
+        <text class="info-label">Nama</text>
+        <text class="info-val">{{customerName}}</text>
+      </view>
+      <view class="info-row">
+        <text class="info-label">Telepon</text>
+        <text class="info-val">{{customerPhone}}</text>
+      </view>
+    </view>
+
+    <view class="shadow-sm info-section">
+      <text class="section-title">Ringkasan Pesanan</text>
+      
+      <!-- Multi Item Cart -->
+      <block a:if="{{cart.length > 0}}">
+        <view class="cart-item-list">
+          <view a:for="{{cart}}" class="cart-item-row">
+            <view class="cart-item-info">
+              <text class="cart-item-name">{{item.name}}</text>
+              <text class="cart-item-price">Rp {{item.price.toLocaleString('id-ID')}}</text>
+            </view>
+            <view class="qty-controls">
+              <view class="btn-qty minus" onTap="onDecrease" data-index="{{index}}">-</view>
+              <text class="cart-item-qty">{{item.quantity}}</text>
+              <view class="btn-qty plus" onTap="onIncrease" data-index="{{index}}">+</view>
+              <view class="btn-remove" onTap="onRemove" data-index="{{index}}">
+                <image src="/src/assets/icons/ic_common_close.svg" mode="aspectFit" class="icon-remove" />
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- Single Item (Legacy) -->
+      <block a:else>
+        <view class="info-row">
+          <text class="info-label">{{notes}}</text>
+          <text class="info-val">x{{quantity}}</text>
+        </view>
+      </block>
+
+      <view class="divider" />
+      <view class="info-row total-row">
+        <text class="total-label">Total Pembayaran</text>
+        <text class="total-val">Rp {{totalAmount.toLocaleString('id-ID')}}</text>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="bottom-bar">
+  <button class="pay-btn" onTap="handlePayment" loading="{{isLoading}}" disabled="{{isLoading}}">
+    KONFIRMASI & PESAN
+  </button>
+</view>
+
+<error-internet></error-internet>
+<general-error></general-error>

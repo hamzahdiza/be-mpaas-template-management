@@ -1,0 +1,61 @@
+<view class="container-index dark-mode">
+  <!-- Dynamic Header -->
+  <view class="header-premium">
+    <view class="header-left">
+      <text class="signature-label">Signature Series</text>
+      <text class="merchant-name-premium">{{data.name}}</text>
+      <view class="status-indicator">
+        <view class="pulse-dot" />
+        <text class="status-text">Open Now</text>
+      </view>
+    </view>
+    <view class="header-right">
+      <image class="mini-logo" src="{{data.bannerUrl}}" mode="aspectFill" />
+    </view>
+  </view>
+
+  <view class="premium-content">
+    <!-- Horizontal Menu Scroll -->
+    <view class="collection-section">
+      <view class="section-header">
+        <text class="section-label-premium">The Collection</text>
+        <text class="discover-btn">DISCOVER ALL</text>
+      </view>
+      
+      <scroll-view scroll-x="{{true}}" class="horizontal-scroll" show-scrollbar="{{false}}">
+        <block a:for="{{data.menuItems}}">
+          <view class="premium-card" onTap="handleRoomTap" data-item="{{item}}">
+            <view class="card-inner">
+              <image class="card-img" src="{{item.imageUrl}}" mode="aspectFill" />
+              <view class="card-overlay" />
+              <view class="card-content">
+                <text class="item-tag-premium">PREMIUM</text>
+                <text class="item-name-premium">{{item.name}}</text>
+                <view class="premium-action-row">
+                  <text class="item-price-premium">Rp {{item.price.toLocaleString('id-ID')}}</text>
+                  <view class="premium-add-btn" catchTap="onAddClick" data-item="{{item}}">+</view>
+                </view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </scroll-view>
+    </view>
+
+    <!-- Exclusive Badge -->
+    <view class="exclusive-badge">
+      <text class="badge-label">Limited Availability</text>
+      <text class="badge-title">Enjoy 30% Off Signature Items</text>
+      <view class="claim-btn">Claim Offer</view>
+    </view>
+  </view>
+
+  <!-- Cart Bar for T2 -->
+  <view class="cart-bar-premium" onTap="onCheckoutClick" a:if="{{cartCount > 0}}">
+    <view class="cart-info-premium">
+      <text class="cart-count-premium">{{cartCount}} Items</text>
+      <text class="cart-total-premium">Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+    </view>
+    <view class="checkout-btn-premium">Checkout →</view>
+  </view>
+</view>

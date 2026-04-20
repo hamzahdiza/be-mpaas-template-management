@@ -7,6 +7,7 @@ import {
 } from "/src/utils/date-util"
 
 import getNetwork from "/src/utils/getNetWork"
+import { createServiceOrder } from "/src/public/api"
 
 const app = getApp()
 
@@ -59,17 +60,17 @@ Page({
 
         if (res && res.data) {
           let parsed = JSON.parse(res.data)
-          this.getTransactionDetail(parsed)
+          this.getTransactionDetail(parsed, queryParams.posContext)
         }
 
       });
 
     } else {
-      this.getTransactionDetail(queryParams.transactionData)
+      this.getTransactionDetail(queryParams.transactionData, queryParams.posContext)
     }
   },
 
-  getTransactionDetail(dataParams) {
+  getTransactionDetail(dataParams, posContext = null) {
     try {
 
       let {
@@ -138,7 +139,12 @@ Page({
         }),
         timeStamp: dateFormatTimeStamp(new Date(), "DD MMM YYYY [•] HH:mm:ss [WIB] [•]"),
         refId: decryptedData.referenceNumber || decryptedData.referenceId,
+        posContext: posContext || null
       })
+
+      if (data.transactionStatus.toUpperCase() == "SUCCESS") {
+        this.processPOSOrder()
+      }
 
       if (data.transactionStatus.toUpperCase() == "SUCCESS" || data.transactionStatus.toUpperCase() == "FAILED") {
         this.storeTransaction({
@@ -294,6 +300,24 @@ Page({
 
   homeHandler() {
     my.call("goToHomeScreen", {}, () => {})
+  },
+
+  async processPOSOrder() {
+    const { posContext, transactionData } = this.data;
+    if (posContext && transactionData.data.transactionStatus.toUpperCase() === "SUCCESS") {
+      try {
+        console.log("Processing POS Order after SUCCESS payment...");
+        // Status diset ke 'accepted' karena sudah PAID
+        const payload = {
+          ...posContext,
+          status: "accepted" 
+        };
+        const res = await createServiceOrder(payload);
+        console.log("POS Order Created Successfully:", res);
+      } catch (err) {
+        console.error("Failed to create POS Order after payment:", err);
+      }
+    }
   }
 });
 /* JShield-obfus:disable */

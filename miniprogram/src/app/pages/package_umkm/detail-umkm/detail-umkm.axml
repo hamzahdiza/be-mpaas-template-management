@@ -1,0 +1,58 @@
+<view class="p-detail-container">
+  <view class="sticky-top">
+    <top-bar
+      type="navigation"
+      navigate
+      exit
+      safeArea
+      pixel
+      backgroundColor="white"
+      title="Product Detail"
+      iconL="/src/assets/icons/ic_common_arrow_back.svg"
+      onTapL="onBack"
+    />
+  </view>
+
+  <scroll-view scroll-y="{{true}}" class="content-scroll">
+    <image class="main-image" src="{{productData.imageUrl}}" mode="aspectFill" />
+    
+    <view class="p-info-section">
+      <text class="p-price">Rp {{productData.price.toLocaleString('id-ID')}}</text>
+      <text class="p-name">{{productData.name}}</text>
+      
+      <view class="shop-card">
+        <image src="{{umkmData.bannerUrl}}" mode="aspectFill" class="shop-icon" />
+        <view class="shop-text">
+          <text class="s-name">{{umkmData.name}}</text>
+          <text class="s-loc">{{umkmData.location}}</text>
+        </view>
+        <view class="visit-btn">Visit Shop</view>
+      </view>
+
+      <view class="divider" />
+
+      <view class="desc-box">
+        <text class="box-title">Description</text>
+        <text class="box-text">Discover the quality of our {{productData.name}}. Made with care by local artisans at {{umkmData.name}}. Each piece is unique and reflects our commitment to excellence.</text>
+      </view>
+
+      <view class="divider" />
+
+      <view class="qty-section">
+        <text class="box-title">Quantity</text>
+        <view class="qty-control">
+          <view class="q-btn" onTap="onDecrease">-</view>
+          <text class="q-val">{{quantity}}</text>
+          <view class="q-btn" onTap="onIncrease">+</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view class="p-bottom-bar">
+    <view class="chat-icon">
+      <image src="https://img.icons8.com/ios/50/666666/chat-message-sent.png" />
+    </view>
+    <button class="btn-add-cart" onTap="onAddToCart">Add to Cart</button>
+  </view>
+</view>

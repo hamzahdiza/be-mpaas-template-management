@@ -21,18 +21,17 @@ function EditHotel() {
     const mutation = useMutation({
         mutationFn: (data: HotelFormState) => updateHotel(id, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['dashboard'] })
-            queryClient.invalidateQueries({ queryKey: ['hotels', id] })
+            queryClient.invalidateQueries({ queryKey: ['hotels'] })
             toast.success('Hotel updated successfully')
-            navigate({ to: '/', search: { type: 'hotel' } })
+            navigate({ to: '/' })
         },
         onError: (error: any) => {
             toast.error('Failed to update hotel: ' + error.message)
         }
     })
 
-    if (isLoading) return <div className="p-10 text-center">Loading hotel data...</div>
-    if (!hotel) return <div className="p-10 text-center">Hotel not found</div>
+    if (isLoading) return <div className="text-center py-10">Loading...</div>
+    if (!hotel) return <div className="text-center py-10">Hotel not found</div>
 
     // NORMALISASI DATA: Mengonversi data API (GET) ke State Form (PUT)
     const initialData: HotelFormState = {
@@ -75,7 +74,8 @@ function EditHotel() {
 
     return (
         <HotelForm
-            title="Edit Hotel Listing"
+            key={id}
+            title="Edit Hotel"
             initialData={initialData} 
             onSubmit={(data: HotelFormState) => mutation.mutate(data)}
             isSubmitting={mutation.isPending}

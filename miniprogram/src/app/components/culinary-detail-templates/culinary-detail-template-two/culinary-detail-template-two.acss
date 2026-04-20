@@ -1,0 +1,134 @@
+.container-detail.premium-dark {
+  background-color: #020617;
+  min-height: 100vh;
+  color: #e2e8f0;
+  padding-bottom: 120px;
+}
+
+.hero-section-premium {
+  position: relative;
+  height: 60vh;
+}
+
+.hero-img-premium {
+  width: 100%;
+  height: 100%;
+  filter: grayscale(0.1);
+}
+
+.hero-overlay-premium {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, #020617, rgba(2, 6, 23, 0.2), rgba(0,0,0,0.4));
+}
+
+.back-btn-premium {
+  position: absolute;
+  top: 48px;
+  left: 24px;
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  padding: 12px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-content-premium {
+  padding: 0 40px;
+  margin-top: -120px;
+  position: relative;
+  z-index: 10;
+}
+
+.section-tag-premium {
+  font-size: 10px;
+  font-weight: 900;
+  color: #10b981;
+  text-transform: uppercase;
+  letter-spacing: 0.5em;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.item-name-huge {
+  font-size: 60px;
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  color: white;
+  line-height: 0.8;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  display: block;
+}
+
+.desc-container {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 48px;
+}
+
+.accent-line {
+  width: 2px;
+  background-color: rgba(16, 185, 129, 0.3);
+  flex-shrink: 0;
+}
+
+.item-desc-premium {
+  font-size: 18px;
+  font-style: italic;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 64px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 10px;
+  font-weight: 900;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.3em;
+  margin-bottom: 8px;
+}
+
+.stat-val {
+  font-size: 24px;
+  font-weight: 900;
+  font-style: italic;
+  color: #10b981;
+  letter-spacing: -0.05em;
+}
+
+.stat-val.uppercase {
+  text-transform: uppercase;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  color: white;
+}
+
+.footer-action-premium {
+  margin-top: 64px;
+}
+
+.signature-box-btn {
+  width: 100%;
+  padding: 24px;
+  text-align: center;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #10b981;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  transition: all 0.7s;
+}

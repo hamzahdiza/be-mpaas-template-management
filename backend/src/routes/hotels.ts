@@ -50,8 +50,9 @@ const hotelSchema = z.object({
 // 1. GET ALL (User Specific)
 hotelRoutes.get('/', async (c) => {
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
   const data = await db.query.hotels.findMany({
-    where: eq(hotels.userId, user.sub),
+    where: isAdmin ? undefined : eq(hotels.userId, user.sub),
     orderBy: [desc(hotels.createdAt)],
     with: { categories: true }
   });
@@ -62,9 +63,10 @@ hotelRoutes.get('/', async (c) => {
 hotelRoutes.get('/:id', async (c) => {
   const hotelId = c.req.param('id');
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
 
   const data = await db.query.hotels.findFirst({
-    where: and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)),
+    where: isAdmin ? eq(hotels.id, hotelId) : and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)),
     with: { categories: true }
   });
 
@@ -115,6 +117,7 @@ hotelRoutes.put('/:id', zValidator('json', hotelSchema.partial()), async (c) => 
   const hotelId = c.req.param('id');
   const data = c.req.valid('json');
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
 
   try {
     const { categories, bannerUrl, ...hotelData } = data;
@@ -126,7 +129,7 @@ hotelRoutes.put('/:id', zValidator('json', hotelSchema.partial()), async (c) => 
         ...(bannerUrl && bannerUrl.length > 0 && { images: bannerUrl, bannerUrl: bannerUrl[0] }),
         updatedAt: sql`CURRENT_TIMESTAMP`
       })
-      .where(and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)))
+      .where(isAdmin ? eq(hotels.id, hotelId) : and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)))
       .returning();
 
     if (updated.length === 0) return c.json({ error: 'Unauthorized/Not Found' }, 403);
@@ -154,9 +157,10 @@ hotelRoutes.put('/:id', zValidator('json', hotelSchema.partial()), async (c) => 
 hotelRoutes.delete('/:id', async (c) => {
   const hotelId = c.req.param('id');
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
 
   const deleted = await db.delete(hotels)
-    .where(and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)))
+    .where(isAdmin ? eq(hotels.id, hotelId) : and(eq(hotels.id, hotelId), eq(hotels.userId, user.sub)))
     .returning();
 
   if (deleted.length === 0) return c.json({ error: 'Gagal menghapus' }, 404);

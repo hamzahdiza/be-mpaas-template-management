@@ -1,0 +1,37 @@
+<view class="container-detail-playful">
+  <view class="detail-header-playful">
+    <view class="back-btn-playful" onTap="onBack">
+      <icon type="left" size="24" color="#f43f5e" />
+    </view>
+    <view class="heart-btn-playful">
+      <image class="heart-icon" src="https://img.icons8.com/ios-filled/50/ffffff/like.png" />
+    </view>
+  </view>
+
+  <view class="playful-detail-body">
+    <view class="item-img-container-playful">
+      <view class="img-bg-accent-1" />
+      <view class="img-bg-accent-2" />
+      <image class="item-img-playful" src="{{room.imageUrl}}" mode="aspectFill" />
+    </view>
+
+    <view class="playful-info-section">
+      <text class="item-name-playful-detail">{{room.name}}</text>
+      
+      <view class="price-rating-row">
+        <view class="price-badge-playful">
+          <text class="price-val-playful">Rp {{room.price.toLocaleString('id-ID')}}</text>
+        </view>
+        <view class="rating-badge-playful">
+          <text class="rating-val-playful">★ 4.9</text>
+        </view>
+      </view>
+
+      <text class="item-desc-playful">{{room.description}}</text>
+
+      <view class="footer-btn-playful" onTap="onBook">
+        BELI SEKARANG! 🍕
+      </view>
+    </view>
+  </view>
+</view>

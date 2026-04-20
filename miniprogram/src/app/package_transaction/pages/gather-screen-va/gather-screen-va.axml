@@ -34,7 +34,7 @@
         <view>
           <view class="container-detail-user">
             <view class="txt-h4-px">
-              <text id="java-jazz-festival-gather-screen-full-name">
+              <text id="java-jazz-festival-gather-screen-full-name" style="display:inline-block;">
                 {{personalData.fullName}}
               </text>
             </view>
@@ -43,7 +43,7 @@
                 {{eventTitle}}
               </text>
               <view class="rounded" />
-              <text>{{orderData.orderId}}</text>
+              <text style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{orderData.orderId}}</text>
             </view>
           </view>
         </view>

@@ -1,3 +1,5 @@
+const { customNavigateTo } = require("/src/utils/route-util");
+
 Page({
   data: {
     roomData: {},
@@ -18,8 +20,29 @@ Page({
   onBackToIndex() {
     my.navigateBack();
   },
-  handleBooking() {
-    // Logika lanjut ke flow pembayaran BNI
-    my.showToast({ content: 'Melanjutkan ke Pembayaran...' });
+  async handleBooking() {
+    const room = this.data.roomData || {};
+    const hotel = this.data.hotelData || {};
+    const totalAmount = Number(room.pricePerNight || room.price || 0);
+
+    customNavigateTo({
+      url: "/src/app/pages/cart-checkout/cart-checkout",
+      data: {
+        orderType: "hotel",
+        serviceId: hotel.id,
+        serviceName: hotel.name || "Hotel",
+        customerName: "User Miniprogram",
+        customerPhone: "-",
+        notes: `Booking kamar ${room.roomType || room.name || "Hotel Room"}`,
+        quantity: 1,
+        totalAmount,
+        orderPayload: {
+          roomId: room.id,
+          roomType: room.roomType || room.name,
+          checkInDate: room.checkInDate || null,
+          checkOutDate: room.checkOutDate || null
+        }
+      }
+    });
   }
 });

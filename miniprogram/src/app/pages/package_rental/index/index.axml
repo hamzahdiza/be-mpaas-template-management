@@ -1,0 +1,29 @@
+<view class="rental-index-page">
+  <block>
+    <rental-template-one
+      a:if="{{ templateId == 1 || !templateId }}"
+      data="{{ rentalData }}"
+      onVehicleTap="handleVehicleTap"
+    />
+    <rental-template-two
+      a:elif="{{ templateId == 2 }}"
+      data="{{ rentalData }}"
+      onVehicleTap="handleVehicleTap"
+    />
+    <rental-template-three
+      a:elif="{{ templateId == 3 }}"
+      data="{{ rentalData }}"
+      onVehicleTap="handleVehicleTap"
+    />
+    <rental-template-four
+      a:elif="{{ templateId == 4 }}"
+      data="{{ rentalData }}"
+      onVehicleTap="handleVehicleTap"
+    />
+    <rental-template-five
+      a:elif="{{ templateId == 5 }}"
+      data="{{ rentalData }}"
+      onVehicleTap="handleVehicleTap"
+    />
+  </block>
+</view>
