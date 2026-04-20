@@ -2,7 +2,8 @@ import {
   getPostalCode,
   getOtpCountries,
   getlov,
-  orderTickets
+  orderTickets,
+  createServiceOrder
 } from "/src/public/api"
 import generalError from '/src/utils/generalError'
 import {
@@ -147,8 +148,30 @@ Page({
       const req = { tickets: [ticketPayload] };
       const signature = { dataProtected: req };
       const { data } = await orderTickets({ dataProtected: req }, { "Signature": signature });
+      
       const ticketList = (orderRequest.ticketList || []);
       const priceCount = ticketList.reduce((sum, t) => sum + (t.amount || 0), 0);
+      
+      // Simpan personal data ke storage agar bisa dibaca di halaman Riwayat
+      my.setStorageSync({ key: 'personalData', data: personalData });
+
+      // TUNDA pembuatan order di POS/CMS. 
+      // Kirim data yang dibutuhkan ke gather-screen-va agar nanti bisa diproses di result-screen
+      const posContext = {
+        orderType: "event",
+        serviceId: this.data.eventDetail.id || "EVENT-JJF",
+        serviceName: this.data.eventDetail.name || "Java Jazz",
+        customerName: personalData.fullName || "User Miniprogram",
+        customerPhone: personalData.phone || "-",
+        notes: `Booking Tiket Event: ${this.data.eventDetail.name || "Java Jazz"}`,
+        quantity: orderRequest.ticketCount || 1,
+        totalAmount: priceCount,
+        orderPayload: {
+          tickets: req.tickets,
+          orderId: data.dataProtected.orderId || "INTERNAL-ID"
+        }
+      };
+
       customNavigateTo({
         url: '/src/app/package_transaction/pages/gather-screen-va/gather-screen-va',
         data: {
@@ -158,7 +181,8 @@ Page({
           priceCount,
           ticketList,
           partnerMenu: getApp().globalData.partnerMenu,
-          orderData: data.dataProtected
+          orderData: data.dataProtected,
+          posContext // Sertakan context POS untuk diproses di akhir
         }
       })
     } catch (err) {

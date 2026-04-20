@@ -30,6 +30,7 @@ javajazzRoutes.get('/v1/category-ticket', async (c) => {
         return c.json({
             dataProtected: {
                 detailEvent: {
+                    id: event.id,
                     eventName: event.name,
                     eventDate: event.startDate,
                     location: event.location,

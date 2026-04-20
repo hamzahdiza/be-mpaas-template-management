@@ -1,0 +1,89 @@
+<view class="container-index">
+  <!-- Header with Search Bar Dummy -->
+  <view class="header-search">
+    <view class="search-bar">
+      <icon type="search" size="14" color="#94a3b8" />
+      <text class="search-placeholder">Cari menu di {{data.name || 'Resto'}}...</text>
+    </view>
+  </view>
+
+  <view class="content-scroll">
+    <!-- Banner Card -->
+    <view class="banner-card">
+      <image class="banner-img" src="{{data.bannerUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4'}}" mode="aspectFill" />
+      <view class="banner-overlay">
+        <view class="banner-tags">
+          <text class="tag-promo">PROMO</text>
+          <text class="tag-category">{{data.category}}</text>
+        </view>
+        <text class="merchant-name-banner">{{data.name || 'Restaurant Name'}}</text>
+      </view>
+    </view>
+
+    <!-- Info Strip -->
+    <view class="info-strip">
+      <view class="rating-info">
+        <view class="stars">
+          <text class="star-active">★</text>
+          <text class="star-active">★</text>
+          <text class="star-active">★</text>
+          <text class="star-active">★</text>
+          <text class="star-inactive">★</text>
+        </view>
+        <text class="rating-val">4.8</text>
+        <text class="rating-count">(1rb+ Rating)</text>
+      </view>
+      <view class="halal-badge-container" a:if="{{data.halalStatus}}">
+        <text class="halal-badge">{{data.halalStatus === 'halal-certified' ? 'Halal' : 'Muslim Friendly'}}</text>
+      </view>
+    </view>
+
+    <!-- Category Filter Dummy -->
+    <scroll-view scroll-x="{{true}}" class="category-filter" show-scrollbar="{{false}}">
+      <view class="filter-item active">Terlaris</view>
+      <view class="filter-item">Promo</view>
+      <view class="filter-item">Minuman</view>
+      <view class="filter-item">Paket Hemat</view>
+    </scroll-view>
+
+    <!-- Menu Section -->
+    <view class="menu-section">
+      <text class="section-title">Menu Terlaris</text>
+      <view class="menu-list">
+        <block a:for="{{data.menuItems}}">
+          <view class="menu-card" onTap="handleRoomTap" data-item="{{item}}">
+            <view class="menu-img-container">
+              <image class="menu-img" src="{{item.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}}" mode="aspectFill" />
+              <view class="add-icon-small">+</view>
+            </view>
+            <view class="menu-info">
+              <view class="menu-top">
+                <text class="menu-name">{{item.name}}</text>
+                <text class="menu-desc">{{item.description}}</text>
+              </view>
+              <view class="menu-bottom">
+                <text class="menu-price">Rp {{item.price.toLocaleString('id-ID')}}</text>
+                <view class="add-btn-small" catchTap="onAddClick" data-item="{{item}}">Tambah</view>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+
+  <!-- Fixed Bottom Cart Bar -->
+  <view class="cart-bar {{cartCount > 0 ? 'active' : ''}}" onTap="onCheckoutClick" a:if="{{cartCount > 0}}">
+    <view class="cart-left">
+      <view class="cart-icon-container">
+        <image class="cart-icon" src="https://img.icons8.com/ios/50/ffffff/shopping-basket-2.png" />
+        <text class="cart-count">{{cartCount}}</text>
+      </view>
+      <view class="cart-text">
+        <text class="cart-label">{{cartCount}} Item</text>
+        <text class="cart-merchant">{{data.name}}</text>
+      </view>
+    </view>
+    <text class="cart-total">Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+  </view>
+</view>

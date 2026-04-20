@@ -1,0 +1,34 @@
+<view class="container-index hotel-vintage">
+  <view class="vintage-header">
+    <view class="vintage-accent-line-top" />
+    <text class="vintage-tagline">Legendary Hospitality</text>
+    <text class="vintage-hotel-name">{{data.name}}</text>
+    <view class="vintage-stars">
+       <block a:for="{{[1,2,3,4,5]}}">
+         <text class="vintage-star">★</text>
+       </block>
+    </view>
+    <text class="vintage-hotel-desc">{{data.description}}</text>
+  </view>
+  
+  <view class="vintage-list">
+    <block a:for="{{data.categories}}">
+      <view class="vintage-room-card" onTap="handleRoomTap" data-item="{{item}}">
+        <view class="vintage-img-wrapper">
+          <image class="vintage-room-img" src="{{item.images[0]}}" mode="aspectFill" />
+          <view class="vintage-img-overlay" />
+        </view>
+        <view class="vintage-info">
+          <text class="vintage-room-name">{{item.name}}</text>
+          <view class="vintage-accent-divider" />
+          <text class="vintage-price-tag">Inquire From Rp {{item.pricePerNight.toLocaleString('id-ID')}}</text>
+        </view>
+      </view>
+    </block>
+  </view>
+  
+  <view class="vintage-footer">
+    <text class="vintage-footer-tag">Concierge Available 24/7</text>
+    <view class="vintage-inquire-btn">Inquire Availability</view>
+  </view>
+</view>

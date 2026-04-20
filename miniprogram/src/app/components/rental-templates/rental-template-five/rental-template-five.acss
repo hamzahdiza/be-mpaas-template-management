@@ -1,0 +1,129 @@
+.rental-v5-container {
+  background: #F3F4F6;
+  min-height: 100vh;
+}
+
+.v5-hero {
+  height: 200px;
+  position: relative;
+  border-bottom-left-radius: 40px;
+  border-bottom-right-radius: 40px;
+  overflow: hidden;
+}
+
+.v5-bg {
+  width: 100%;
+  height: 100%;
+}
+
+.v5-hero-content {
+  position: absolute;
+  bottom: 30px;
+  left: 24px;
+}
+
+.v5-badge {
+  background: #EF4444;
+  color: white;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+
+.v5-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  display: block;
+  margin-top: 8px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.v5-body {
+  padding: 0 24px 40px;
+  margin-top: -30px;
+}
+
+.v5-stats {
+  background: white;
+  padding: 20px;
+  border-radius: 24px;
+  display: flex;
+  justify-content: space-around;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  margin-bottom: 32px;
+}
+
+.v5-stat {
+  text-align: center;
+}
+
+.v5-val {
+  font-size: 16px;
+  font-weight: 800;
+  color: #111;
+  display: block;
+}
+
+.v5-lab {
+  font-size: 11px;
+  color: #999;
+}
+
+.v5-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.v5-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  height: 120px;
+}
+
+.v5-vimg {
+  width: 140px;
+  height: 100%;
+}
+
+.v5-vinfo {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.v5-vname {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111;
+}
+
+.v5-vbottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.v5-vprice {
+  font-size: 14px;
+  font-weight: 800;
+  color: #EF4444;
+}
+
+.v5-go {
+  width: 32px;
+  height: 32px;
+  background: #111;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}

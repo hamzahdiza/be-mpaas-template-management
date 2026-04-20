@@ -1,0 +1,59 @@
+<view class="container-index modern-grid">
+  <!-- Search Header -->
+  <view class="modern-header">
+    <view class="header-top-modern">
+       <text class="merchant-name-modern">{{data.name}}</text>
+       <view class="menu-icon-modern">
+         <view class="bar" />
+         <view class="bar short" />
+       </view>
+    </view>
+    <view class="search-box-modern">
+       <icon type="search" size="18" color="#94a3b8" />
+       <text class="search-placeholder-modern">Find your cravings...</text>
+    </view>
+  </view>
+
+  <view class="modern-content">
+    <!-- Horizontal Chips -->
+    <scroll-view scroll-x="{{true}}" class="chips-scroll" show-scrollbar="{{false}}">
+       <view class="chip active">All</view>
+       <view class="chip">Popular</view>
+       <view class="chip">Deals</view>
+       <view class="chip">New Arrival</view>
+    </scroll-view>
+
+    <!-- Grid List -->
+    <view class="masonry-grid">
+      <block a:for="{{data.menuItems}}" a:for-index="idx">
+        <view class="grid-item {{idx % 3 === 0 ? 'full-width' : ''}}" onTap="handleRoomTap" data-item="{{item}}">
+          <view class="grid-img-container">
+            <image class="grid-img" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="price-tag-modern">
+               <text class="price-text-modern">Rp {{item.price.toLocaleString('id-ID')}}</text>
+            </view>
+          </view>
+          <view class="item-info-modern">
+            <text class="item-name-modern">{{item.name}}</text>
+            <view class="item-footer-modern">
+              <text class="item-price-modern">Rp {{item.price.toLocaleString('id-ID')}}</text>
+              <view class="add-btn-modern" catchTap="onAddClick" data-item="{{item}}">+</view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- Cart Bar for T5 (Modern Grid) -->
+  <view class="cart-bar-modern" onTap="onCheckoutClick" a:if="{{cartCount > 0}}">
+    <view class="cart-left-modern">
+      <view class="cart-dot-modern" />
+      <text class="cart-summary-modern">{{cartCount}} Menu • Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+    </view>
+    <view class="cart-right-modern">
+      <text class="cart-action-modern">Checkout</text>
+      <icon type="right" size="14" color="white" />
+    </view>
+  </view>
+</view>

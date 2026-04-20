@@ -1,0 +1,52 @@
+<view class="container-detail-hotel-modern">
+  <view class="hero-room-modern">
+    <image class="hero-img-room" src="{{room.images[0]}}" mode="aspectFill" />
+    <view class="hero-overlay-room" />
+    <view class="back-btn-room" onTap="onBack">
+      <icon type="left" size="24" color="#0f172a" />
+    </view>
+  </view>
+
+  <view class="detail-body-room">
+    <view class="header-room-modern">
+      <view class="header-left-room">
+        <text class="tag-room-modern">Exclusive Sanctuary</text>
+        <text class="room-name-detail">{{room.name}}</text>
+      </view>
+      <view class="header-right-room">
+        <text class="price-val-detail">Rp {{room.pricePerNight.toLocaleString('id-ID')}}</text>
+        <text class="price-unit-detail">per night</text>
+      </view>
+    </view>
+
+    <scroll-view scroll-x="{{true}}" class="amenities-scroll" show-scrollbar="{{false}}">
+      <view class="amenity-card">
+        <text class="amenity-icon">👤</text>
+        <text class="amenity-text">{{room.capacity}} Guests</text>
+      </view>
+      <view class="amenity-card">
+        <text class="amenity-icon">📏</text>
+        <text class="amenity-text">Size</text>
+      </view>
+      <view class="amenity-card">
+        <text class="amenity-icon">📶</text>
+        <text class="amenity-text">WiFi</text>
+      </view>
+      <view class="amenity-card">
+        <text class="amenity-icon">❄️</text>
+        <text class="amenity-text">AC</text>
+      </view>
+    </scroll-view>
+
+    <view class="desc-room-section">
+      <text class="label-room-modern">Room Philosophy</text>
+      <text class="desc-room-text">{{room.description}}</text>
+    </view>
+
+    <view class="footer-action-room">
+      <view class="reserve-btn-modern" onTap="onBook">
+        Reserve Sanctuary
+      </view>
+    </view>
+  </view>
+</view>

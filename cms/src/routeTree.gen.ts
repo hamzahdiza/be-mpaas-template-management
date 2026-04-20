@@ -10,15 +10,33 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as OrdersRouteImport } from './routes/orders'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UmkmsCreateRouteImport } from './routes/umkms/create'
+import { Route as RentalsCreateRouteImport } from './routes/rentals/create'
+import { Route as HotelsCreateRouteImport } from './routes/hotels/create'
 import { Route as EventsCreateRouteImport } from './routes/events/create'
+import { Route as CafesRestaurantsCreateRouteImport } from './routes/cafes-restaurants/create'
+import { Route as UmkmsIdIndexRouteImport } from './routes/umkms/$id.index'
+import { Route as RentalsIdIndexRouteImport } from './routes/rentals/$id.index'
+import { Route as HotelsIdIndexRouteImport } from './routes/hotels/$id.index'
 import { Route as EventsEventIdIndexRouteImport } from './routes/events/$eventId.index'
+import { Route as CafesRestaurantsIdIndexRouteImport } from './routes/cafes-restaurants/$id.index'
+import { Route as UmkmsIdEditRouteImport } from './routes/umkms/$id.edit'
+import { Route as RentalsIdEditRouteImport } from './routes/rentals/$id.edit'
+import { Route as HotelsIdEditRouteImport } from './routes/hotels/$id.edit'
 import { Route as EventsEventIdEditRouteImport } from './routes/events/$eventId.edit'
+import { Route as CafesRestaurantsIdEditRouteImport } from './routes/cafes-restaurants/$id.edit'
 
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -31,9 +49,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UmkmsCreateRoute = UmkmsCreateRouteImport.update({
+  id: '/umkms/create',
+  path: '/umkms/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsCreateRoute = RentalsCreateRouteImport.update({
+  id: '/rentals/create',
+  path: '/rentals/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsCreateRoute = HotelsCreateRouteImport.update({
+  id: '/hotels/create',
+  path: '/hotels/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsCreateRoute = EventsCreateRouteImport.update({
   id: '/events/create',
   path: '/events/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CafesRestaurantsCreateRoute = CafesRestaurantsCreateRouteImport.update({
+  id: '/cafes-restaurants/create',
+  path: '/cafes-restaurants/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UmkmsIdIndexRoute = UmkmsIdIndexRouteImport.update({
+  id: '/umkms/$id/',
+  path: '/umkms/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsIdIndexRoute = RentalsIdIndexRouteImport.update({
+  id: '/rentals/$id/',
+  path: '/rentals/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsIdIndexRoute = HotelsIdIndexRouteImport.update({
+  id: '/hotels/$id/',
+  path: '/hotels/$id/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsEventIdIndexRoute = EventsEventIdIndexRouteImport.update({
@@ -41,71 +94,187 @@ const EventsEventIdIndexRoute = EventsEventIdIndexRouteImport.update({
   path: '/events/$eventId/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CafesRestaurantsIdIndexRoute = CafesRestaurantsIdIndexRouteImport.update({
+  id: '/cafes-restaurants/$id/',
+  path: '/cafes-restaurants/$id/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UmkmsIdEditRoute = UmkmsIdEditRouteImport.update({
+  id: '/umkms/$id/edit',
+  path: '/umkms/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RentalsIdEditRoute = RentalsIdEditRouteImport.update({
+  id: '/rentals/$id/edit',
+  path: '/rentals/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotelsIdEditRoute = HotelsIdEditRouteImport.update({
+  id: '/hotels/$id/edit',
+  path: '/hotels/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsEventIdEditRoute = EventsEventIdEditRouteImport.update({
   id: '/events/$eventId/edit',
   path: '/events/$eventId/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CafesRestaurantsIdEditRoute = CafesRestaurantsIdEditRouteImport.update({
+  id: '/cafes-restaurants/$id/edit',
+  path: '/cafes-restaurants/$id/edit',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/register': typeof RegisterRoute
+  '/cafes-restaurants/create': typeof CafesRestaurantsCreateRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
+  '/rentals/create': typeof RentalsCreateRoute
+  '/umkms/create': typeof UmkmsCreateRoute
+  '/cafes-restaurants/$id/edit': typeof CafesRestaurantsIdEditRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
+  '/rentals/$id/edit': typeof RentalsIdEditRoute
+  '/umkms/$id/edit': typeof UmkmsIdEditRoute
+  '/cafes-restaurants/$id/': typeof CafesRestaurantsIdIndexRoute
   '/events/$eventId/': typeof EventsEventIdIndexRoute
+  '/hotels/$id/': typeof HotelsIdIndexRoute
+  '/rentals/$id/': typeof RentalsIdIndexRoute
+  '/umkms/$id/': typeof UmkmsIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/register': typeof RegisterRoute
+  '/cafes-restaurants/create': typeof CafesRestaurantsCreateRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
+  '/rentals/create': typeof RentalsCreateRoute
+  '/umkms/create': typeof UmkmsCreateRoute
+  '/cafes-restaurants/$id/edit': typeof CafesRestaurantsIdEditRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
+  '/rentals/$id/edit': typeof RentalsIdEditRoute
+  '/umkms/$id/edit': typeof UmkmsIdEditRoute
+  '/cafes-restaurants/$id': typeof CafesRestaurantsIdIndexRoute
   '/events/$eventId': typeof EventsEventIdIndexRoute
+  '/hotels/$id': typeof HotelsIdIndexRoute
+  '/rentals/$id': typeof RentalsIdIndexRoute
+  '/umkms/$id': typeof UmkmsIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/register': typeof RegisterRoute
+  '/cafes-restaurants/create': typeof CafesRestaurantsCreateRoute
   '/events/create': typeof EventsCreateRoute
+  '/hotels/create': typeof HotelsCreateRoute
+  '/rentals/create': typeof RentalsCreateRoute
+  '/umkms/create': typeof UmkmsCreateRoute
+  '/cafes-restaurants/$id/edit': typeof CafesRestaurantsIdEditRoute
   '/events/$eventId/edit': typeof EventsEventIdEditRoute
+  '/hotels/$id/edit': typeof HotelsIdEditRoute
+  '/rentals/$id/edit': typeof RentalsIdEditRoute
+  '/umkms/$id/edit': typeof UmkmsIdEditRoute
+  '/cafes-restaurants/$id/': typeof CafesRestaurantsIdIndexRoute
   '/events/$eventId/': typeof EventsEventIdIndexRoute
+  '/hotels/$id/': typeof HotelsIdIndexRoute
+  '/rentals/$id/': typeof RentalsIdIndexRoute
+  '/umkms/$id/': typeof UmkmsIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
+    | '/orders'
     | '/register'
+    | '/cafes-restaurants/create'
     | '/events/create'
+    | '/hotels/create'
+    | '/rentals/create'
+    | '/umkms/create'
+    | '/cafes-restaurants/$id/edit'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
+    | '/rentals/$id/edit'
+    | '/umkms/$id/edit'
+    | '/cafes-restaurants/$id/'
     | '/events/$eventId/'
+    | '/hotels/$id/'
+    | '/rentals/$id/'
+    | '/umkms/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
+    | '/orders'
     | '/register'
+    | '/cafes-restaurants/create'
     | '/events/create'
+    | '/hotels/create'
+    | '/rentals/create'
+    | '/umkms/create'
+    | '/cafes-restaurants/$id/edit'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
+    | '/rentals/$id/edit'
+    | '/umkms/$id/edit'
+    | '/cafes-restaurants/$id'
     | '/events/$eventId'
+    | '/hotels/$id'
+    | '/rentals/$id'
+    | '/umkms/$id'
   id:
     | '__root__'
     | '/'
     | '/login'
+    | '/orders'
     | '/register'
+    | '/cafes-restaurants/create'
     | '/events/create'
+    | '/hotels/create'
+    | '/rentals/create'
+    | '/umkms/create'
+    | '/cafes-restaurants/$id/edit'
     | '/events/$eventId/edit'
+    | '/hotels/$id/edit'
+    | '/rentals/$id/edit'
+    | '/umkms/$id/edit'
+    | '/cafes-restaurants/$id/'
     | '/events/$eventId/'
+    | '/hotels/$id/'
+    | '/rentals/$id/'
+    | '/umkms/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
+  OrdersRoute: typeof OrdersRoute
   RegisterRoute: typeof RegisterRoute
+  CafesRestaurantsCreateRoute: typeof CafesRestaurantsCreateRoute
   EventsCreateRoute: typeof EventsCreateRoute
+  HotelsCreateRoute: typeof HotelsCreateRoute
+  RentalsCreateRoute: typeof RentalsCreateRoute
+  UmkmsCreateRoute: typeof UmkmsCreateRoute
+  CafesRestaurantsIdEditRoute: typeof CafesRestaurantsIdEditRoute
   EventsEventIdEditRoute: typeof EventsEventIdEditRoute
+  HotelsIdEditRoute: typeof HotelsIdEditRoute
+  RentalsIdEditRoute: typeof RentalsIdEditRoute
+  UmkmsIdEditRoute: typeof UmkmsIdEditRoute
+  CafesRestaurantsIdIndexRoute: typeof CafesRestaurantsIdIndexRoute
   EventsEventIdIndexRoute: typeof EventsEventIdIndexRoute
+  HotelsIdIndexRoute: typeof HotelsIdIndexRoute
+  RentalsIdIndexRoute: typeof RentalsIdIndexRoute
+  UmkmsIdIndexRoute: typeof UmkmsIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -115,6 +284,13 @@ declare module '@tanstack/react-router' {
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -131,11 +307,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/umkms/create': {
+      id: '/umkms/create'
+      path: '/umkms/create'
+      fullPath: '/umkms/create'
+      preLoaderRoute: typeof UmkmsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rentals/create': {
+      id: '/rentals/create'
+      path: '/rentals/create'
+      fullPath: '/rentals/create'
+      preLoaderRoute: typeof RentalsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels/create': {
+      id: '/hotels/create'
+      path: '/hotels/create'
+      fullPath: '/hotels/create'
+      preLoaderRoute: typeof HotelsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/create': {
       id: '/events/create'
       path: '/events/create'
       fullPath: '/events/create'
       preLoaderRoute: typeof EventsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cafes-restaurants/create': {
+      id: '/cafes-restaurants/create'
+      path: '/cafes-restaurants/create'
+      fullPath: '/cafes-restaurants/create'
+      preLoaderRoute: typeof CafesRestaurantsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/umkms/$id/': {
+      id: '/umkms/$id/'
+      path: '/umkms/$id'
+      fullPath: '/umkms/$id/'
+      preLoaderRoute: typeof UmkmsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rentals/$id/': {
+      id: '/rentals/$id/'
+      path: '/rentals/$id'
+      fullPath: '/rentals/$id/'
+      preLoaderRoute: typeof RentalsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels/$id/': {
+      id: '/hotels/$id/'
+      path: '/hotels/$id'
+      fullPath: '/hotels/$id/'
+      preLoaderRoute: typeof HotelsIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events/$eventId/': {
@@ -145,11 +370,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventsEventIdIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cafes-restaurants/$id/': {
+      id: '/cafes-restaurants/$id/'
+      path: '/cafes-restaurants/$id'
+      fullPath: '/cafes-restaurants/$id/'
+      preLoaderRoute: typeof CafesRestaurantsIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/umkms/$id/edit': {
+      id: '/umkms/$id/edit'
+      path: '/umkms/$id/edit'
+      fullPath: '/umkms/$id/edit'
+      preLoaderRoute: typeof UmkmsIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rentals/$id/edit': {
+      id: '/rentals/$id/edit'
+      path: '/rentals/$id/edit'
+      fullPath: '/rentals/$id/edit'
+      preLoaderRoute: typeof RentalsIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hotels/$id/edit': {
+      id: '/hotels/$id/edit'
+      path: '/hotels/$id/edit'
+      fullPath: '/hotels/$id/edit'
+      preLoaderRoute: typeof HotelsIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$eventId/edit': {
       id: '/events/$eventId/edit'
       path: '/events/$eventId/edit'
       fullPath: '/events/$eventId/edit'
       preLoaderRoute: typeof EventsEventIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cafes-restaurants/$id/edit': {
+      id: '/cafes-restaurants/$id/edit'
+      path: '/cafes-restaurants/$id/edit'
+      fullPath: '/cafes-restaurants/$id/edit'
+      preLoaderRoute: typeof CafesRestaurantsIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -158,10 +418,23 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
+  OrdersRoute: OrdersRoute,
   RegisterRoute: RegisterRoute,
+  CafesRestaurantsCreateRoute: CafesRestaurantsCreateRoute,
   EventsCreateRoute: EventsCreateRoute,
+  HotelsCreateRoute: HotelsCreateRoute,
+  RentalsCreateRoute: RentalsCreateRoute,
+  UmkmsCreateRoute: UmkmsCreateRoute,
+  CafesRestaurantsIdEditRoute: CafesRestaurantsIdEditRoute,
   EventsEventIdEditRoute: EventsEventIdEditRoute,
+  HotelsIdEditRoute: HotelsIdEditRoute,
+  RentalsIdEditRoute: RentalsIdEditRoute,
+  UmkmsIdEditRoute: UmkmsIdEditRoute,
+  CafesRestaurantsIdIndexRoute: CafesRestaurantsIdIndexRoute,
   EventsEventIdIndexRoute: EventsEventIdIndexRoute,
+  HotelsIdIndexRoute: HotelsIdIndexRoute,
+  RentalsIdIndexRoute: RentalsIdIndexRoute,
+  UmkmsIdIndexRoute: UmkmsIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

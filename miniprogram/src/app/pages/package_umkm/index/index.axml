@@ -1,0 +1,49 @@
+<view class="umkm-index-page">
+  <block>
+    <umkm-template-one
+      a:if="{{ templateId == 1 || !templateId }}"
+      data="{{ umkmData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
+      onProductTap="handleProductTap"
+      onAddToCart="handleAddToCart"
+      onCheckoutClick="handleCheckout"
+    />
+    <umkm-template-two
+      a:elif="{{ templateId == 2 }}"
+      data="{{ umkmData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
+      onProductTap="handleProductTap"
+      onAddToCart="handleAddToCart"
+      onCheckoutClick="handleCheckout"
+    />
+    <umkm-template-three
+      a:elif="{{ templateId == 3 }}"
+      data="{{ umkmData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
+      onProductTap="handleProductTap"
+      onAddToCart="handleAddToCart"
+      onCheckoutClick="handleCheckout"
+    />
+    <umkm-template-four
+      a:elif="{{ templateId == 4 }}"
+      data="{{ umkmData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
+      onProductTap="handleProductTap"
+      onAddToCart="handleAddToCart"
+      onCheckoutClick="handleCheckout"
+    />
+    <umkm-template-five
+      a:elif="{{ templateId == 5 }}"
+      data="{{ umkmData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
+      onProductTap="handleProductTap"
+      onAddToCart="handleAddToCart"
+      onCheckoutClick="handleCheckout"
+    />
+  </block>
+</view>

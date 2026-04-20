@@ -36,7 +36,7 @@ Page({
       id,
     } = my.customUrlQueryData[query.customUrlQueryData];
     this.setData({
-      eventId : id
+      eventId: id
     })
     this.getPendingOrder()
     // firebaseScreenView("javaJazzFestivalLandingPageScreen", "javaJazzFestivalLandingPageScreen")
@@ -45,18 +45,18 @@ Page({
     // Mock language pack if missing
     const app = getApp();
     const lang = (app.globalData && app.globalData.languagePack) || {
-        lifestyleJavaJazzFestivalLandingScreenHeaderTitleLabel: "Wondr Event",
-        lifestyleJavaJazzFestivalLandingScreenCloseEventDescLabel: "Close",
-        lifestyleJavaJazzFestivalLandingScreenOpenEventDescLabel: "Read More",
-        lifestyleJavaJazzFestivalLandingScreenChooseTicketLabel: "Choose Ticket",
-        lifestyleJavaJazzFestivalLandingScreenPromoLabel: "Promo",
-        lifestyleJavaJazzFestivalLandingScreenAmountStartFromLabel: "Starts from",
-        lifestyleJavaJazzFestivalLandingScreenInfoSectionTitleLabel: "Info",
-        lifestyleJavaJazzFestivalLandingScreenTermsCondition1Label: "By buying this ticket, you agree to",
-        lifestyleJavaJazzFestivalLandingScreenTermsCondition2Label: "Terms & Conditions",
-        lifestyleJavaJazzFestivalLandingScreenTermsCondition3Label: "applied.",
-        lifestyleJavaJazzFestivalLandingScreenMuatUlangTitleLabel: "Failed to load",
-        lifestyleJavaJazzFestivalLandingScreenMuatUlangDescLabel: "Please try again"
+      lifestyleJavaJazzFestivalLandingScreenHeaderTitleLabel: "Wondr Event",
+      lifestyleJavaJazzFestivalLandingScreenCloseEventDescLabel: "Close",
+      lifestyleJavaJazzFestivalLandingScreenOpenEventDescLabel: "Read More",
+      lifestyleJavaJazzFestivalLandingScreenChooseTicketLabel: "Choose Ticket",
+      lifestyleJavaJazzFestivalLandingScreenPromoLabel: "Promo",
+      lifestyleJavaJazzFestivalLandingScreenAmountStartFromLabel: "Starts from",
+      lifestyleJavaJazzFestivalLandingScreenInfoSectionTitleLabel: "Info",
+      lifestyleJavaJazzFestivalLandingScreenTermsCondition1Label: "By buying this ticket, you agree to",
+      lifestyleJavaJazzFestivalLandingScreenTermsCondition2Label: "Terms & Conditions",
+      lifestyleJavaJazzFestivalLandingScreenTermsCondition3Label: "applied.",
+      lifestyleJavaJazzFestivalLandingScreenMuatUlangTitleLabel: "Failed to load",
+      lifestyleJavaJazzFestivalLandingScreenMuatUlangDescLabel: "Please try again"
     }
 
     this.setData({
@@ -140,12 +140,12 @@ Page({
 
     await getJavaJazzLandingData(idPartner)
       .then(res => {
-console.log(res,"res");
-        const dataResponse =  res.data.dataProtected
+        console.log(res, "res");
+        const dataResponse = res.data.dataProtected
 
         const detailEvent = dataResponse.detailEvent
         const ticketCategories = dataResponse.ticketCategories
-app.globalData.eventTitle = detailEvent.eventName
+        app.globalData.eventTitle = detailEvent.eventName
         // Normalize banner to array
         if (detailEvent.bannerUrls && Array.isArray(detailEvent.bannerUrls)) {
           detailEvent.banner = detailEvent.bannerUrls;
@@ -169,16 +169,16 @@ app.globalData.eventTitle = detailEvent.eventName
           const priceStr = currencyFormat({
             value: ticket.price || ticket.startFrom
           });
-          
+
           ticket.priceFormatted = priceStr;
           ticket.formatPriceTaxService = priceStr;
 
           if (ticket.normalPrice && ticket.normalPrice > (ticket.price || ticket.startFrom)) {
             ticket.normalPriceFormatted = currencyFormat({
-               value: ticket.normalPrice
+              value: ticket.normalPrice
             });
           }
-          
+
           // Legacy support
           ticket.price = priceStr;
         })
@@ -186,7 +186,7 @@ app.globalData.eventTitle = detailEvent.eventName
         this.setData({
           detailEvent,
           ticketDataList: ticketCategories,
-          templateId: (detailEvent.templates && detailEvent.templates.index && detailEvent.templates.index.id) || detailEvent.templateId || 1, 
+          templateId: (detailEvent.templates && detailEvent.templates.index && detailEvent.templates.index.id) || detailEvent.templateId || 1,
           isLoading: false,
           successFetch: true
         })
@@ -216,9 +216,9 @@ app.globalData.eventTitle = detailEvent.eventName
 
         console.log(response);
         if (response.statusCode === 200 || response.status === 200) {
-          
-          const dataResponse =  response.data.dataProtected
-          
+
+          const dataResponse = response.data.dataProtected
+
           customNavigateTo({
             url: "/src/app/package_transaction/pages/gather-screen-va/gather-screen-va",
             data: {

@@ -36,25 +36,27 @@ Page({
 
   onLoad(query) {
     const {
-      transactionId,
-      scenario,
-      transactionData,
-      partnerMenu,
-      transactionTypePartner,
-      authType
-    } = my.customUrlQueryData[query.customUrlQueryData];
+        transactionId,
+        scenario,
+        transactionData,
+        partnerMenu,
+        transactionTypePartner,
+        authType,
+        posContext
+      } = my.customUrlQueryData[query.customUrlQueryData];
 
     let globalLang = getApp().globalData.languagePack;
 
     this.setData({
-      lang: globalLang,
-      transactionId,
-      scenario,
-      transactionData,
-      partnerMenu,
-      transactionTypePartner,
-      authType
-    })
+        lang: globalLang,
+        transactionId,
+        scenario,
+        transactionData,
+        partnerMenu,
+        transactionTypePartner,
+        authType,
+        posContext
+      })
 
     if (authType === "POSTLOGIN_NO_PIN") {
       this.verifyPassword()
@@ -248,7 +250,9 @@ Page({
         data: {
           transactionId: this.data.transactionId,
           scenario: this.data.scenario,
-          transactionData: res.data.transactionStatus === "SENT" ? this.data.transactionData : res
+          transactionData: res.data.transactionStatus === "SENT" ? this.data.transactionData : res,
+          transactionTypePartner: this.data.transactionTypePartner,
+          posContext: this.data.posContext
         }
       })
     } catch (err) {

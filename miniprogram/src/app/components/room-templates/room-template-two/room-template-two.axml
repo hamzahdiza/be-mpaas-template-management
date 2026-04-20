@@ -1,0 +1,29 @@
+<view class="container-detail-boutique">
+  <view class="boutique-detail-inner">
+    <view class="boutique-back-btn" onTap="onBack">
+      <text class="boutique-arrow">←</text>
+      <text class="boutique-btn-label">Return to Gallery</text>
+    </view>
+    
+    <view class="boutique-hero-room">
+      <image class="boutique-room-img" src="{{room.images[0]}}" mode="aspectFill" />
+      <view class="boutique-room-border" />
+    </view>
+    
+    <view class="boutique-detail-content">
+      <h2 class="boutique-room-name-detail">{{room.name}}</h2>
+      <view class="boutique-accent-divider" />
+      <text class="boutique-room-desc">{{room.description}}</text>
+      
+      <view class="boutique-detail-footer">
+        <view class="boutique-price-section">
+          <text class="boutique-rate-label">Curated Rate</text>
+          <text class="boutique-price-val">Rp {{room.pricePerNight.toLocaleString('id-ID')}}</text>
+        </view>
+        <view class="boutique-reserve-btn" onTap="onBook">
+          Reserve
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

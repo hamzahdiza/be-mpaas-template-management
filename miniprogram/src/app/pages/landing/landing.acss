@@ -1,5 +1,4 @@
-/* LIFESTYLE */
-
+/* ─── BASE ─── */
 .base-background-0 {
   background-color: #9B7EDC;
   width: 100%;
@@ -8,7 +7,6 @@
   z-index: 0;
   top: 0;
 }
-
 .base-background {
   background-color: #9B7EDC;
   width: 100%;
@@ -17,34 +15,19 @@
   z-index: 0;
   top: 0;
 }
-
-.modal-scroll {
-  /* height: 100vh; */
-  overflow: scroll;
-  position: sticky;
-  /* margin-top: 200px; */
-}
-
 .sticky-top {
   position: sticky;
   top: 0;
   z-index: 100;
-  left: 0;
-  /* background-color: #9B7EDC; */
 }
-
 .scroll-container {
   display: flex;
-  width: calc(100%);
-  /* height: 100%; */
+  width: 100%;
   flex-direction: column;
   align-items: center;
-  flex-shrink: 0;
   position: relative;
-  background-color: #ffffff;
-  /* overflow-y: auto; */
+  background-color: #F7F6FB;
 }
-
 .background-content-base {
   background-color: #9B7EDC;
   position: absolute;
@@ -53,23 +36,23 @@
   z-index: 0;
 }
 
+/* ─── HERO HEADER ─── */
 .main-hero-header {
   width: 100%;
   height: 123px;
   background-color: #9B7EDC;
   position: relative;
   z-index: 1;
-  /* margin-top: 150px; */
 }
-
-.landing-image {
+.hero-header {
+  display: flex;
   width: 100%;
-  height: 100%;
-  position: absolute;
-  bottom: 0;
-  left: 0;
+  min-height: 119px;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  padding-top: 4px;
 }
-
 .landing-image-left {
   width: 68px;
   height: 98px;
@@ -77,7 +60,6 @@
   bottom: 0;
   left: 0;
 }
-
 .landing-image-right {
   width: 116px;
   height: 108px;
@@ -85,46 +67,14 @@
   bottom: 0;
   right: 0;
 }
-
-.header-head-image-circle-light-container {
-  width: 396px;
-  height: 396px;
-  flex-shrink: 0;
-  position: absolute;
-}
-
-.header-head-image-circle-light {
-  width: 150px;
-  height: 150px;
-  fill: var(--Brand-BNI-Purple-Purple-200, #BBA7E7);
-}
-
-.hero-header {
-  display: flex;
-  width: calc(100%);
-  min-height: 119px;
-  height: fit-content;
-  flex-direction: column;
-  align-items: flex-start;
-  position: relative;
-  padding-top: 4px;
-}
-
-.color-base-hero-header {
-  width: 100%;
-  height: 392%;
-  background-color: white;
-}
-
 .header-content {
   display: grid;
   grid-template-columns: 1fr;
   width: calc(100% - 48px);
   height: 119px;
   z-index: 6;
-  padding: 0px 24px;
+  padding: 0 24px;
 }
-
 .header-content-left {
   display: flex;
   width: 223px;
@@ -132,1103 +82,255 @@
   flex-direction: column;
   justify-content: center;
   align-items: flex-start;
-  flex-shrink: 0;
 }
-
 .header-content-title-loading {
   width: 100%;
   min-height: 20px;
 }
-
 .header-content-description-loading {
   margin-top: 8px;
   width: 100%;
   min-height: 20px;
 }
-
 .header-content-title {
   align-self: stretch;
-  color: var(--functional-bw-tones-white, #FFF);
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Headline/Headline 3 - Bold */
+  color: #FFF;
   font-family: "TT Interphases Pro";
   font-size: 18px;
-  font-style: normal;
   font-weight: 700;
   line-height: 120%;
-  /* 21.6px */
 }
-
 .header-content-description {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
   align-self: stretch;
   overflow: hidden;
-  color: var(--functional-bw-tones-white, #FFF);
-  font-feature-settings: 'liga'off, 'clig'off;
+  color: #FFF;
   text-overflow: ellipsis;
-
-  /* Mobile/Body/Body 3 - Regular */
   font-family: "TT Interphases Pro";
   font-size: 12px;
-  font-style: normal;
   font-weight: 400;
   line-height: 140%;
-  /* 16.8px */
-
   margin-top: 8px;
 }
-
-.header-head-image-container {
-  height: 100%;
-  align-content: flex-end;
-  justify-content: flex-end;
-}
-
-/* =========== */
-
-.main-container-content {
-  display: flex;
+.color-base-hero-header {
   width: 100%;
-  min-height: fit-content;
-  height: fit-content;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  bottom: 19px;
-  z-index: 4;
-  /* margin-top: -19px; */
+  height: 392%;
+  background-color: white;
 }
 
-.content-categories {
-  width: 100%;
+/* ─── SECTION HEADER ─── */
+.section-header {
   display: flex;
-  height: 100%;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  /* max-width: 327px; */
+  justify-content: space-between;
+  padding: 20px 20px 10px;
 }
-
-.section-header-title {
-  color: var(--functional-bw-tones-white, #FFF);
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Headline/Headline 4 - Bold */
+.section-header-label {
+  color: #1a1a1a;
   font-family: "TT Interphases Pro";
-  font-size: 16px;
-  font-style: normal;
+  font-size: 15px;
   font-weight: 700;
   line-height: 120%;
-  /* 19.2px */
 }
 
-/* .content-partners {
-  display: grid;
-  justify-content: space-between;
-  align-items: center;
-  grid-template-columns: repeat(2, 156px);
-  gap: 20px;
-  flex-wrap: wrap;
-} */
-
-/* .content-partners {
+/* ─── QUICK ACCESS PILLS ─── */
+.quick-access-section {
+  width: 100%;
+  background-color: #ffffff;
+  margin-bottom: 12px;
+  padding-bottom: 16px;
+  z-index: 4;
+  position: relative;
+}
+.quick-pills-scroll {
+  width: 100%;
+}
+.quick-pills-row {
   display: flex;
-  justify-content: space-between;
+  flex-direction: row;
+  gap: 8px;
+  padding: 0 20px;
+  width: max-content;
+}
+.quick-pill {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  align-content: center;
-  gap: 12px;
-  align-self: stretch;
-  flex-wrap: wrap;
-  padding: 0px 24px;
-  width: calc(100% - 48px);
-} */
+  gap: 8px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.quick-pill:active {
+  transform: scale(0.95);
+}
+.quick-pill-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+.quick-pill-icon--purple { background: linear-gradient(135deg, #EDE8FB 0%, #DED4F8 100%); }
+.quick-pill-icon--blue   { background: linear-gradient(135deg, #E8EDFF 0%, #D4DDFF 100%); }
+.quick-pill-icon--green  { background: linear-gradient(135deg, #E6F9EF 0%, #D1F2DF 100%); }
+.quick-pill-icon--amber  { background: linear-gradient(135deg, #FFF1E6 0%, #FFE4CF 100%); }
+.quick-pill-icon--pink   { background: linear-gradient(135deg, #FDE8F0 0%, #FAD4E1 100%); }
+.quick-pill-icon--red    { background: linear-gradient(135deg, #FDECEC 0%, #FAD9D9 100%); }
+.quick-pill-img {
+  width: 32px;
+  height: 32px;
+}
+.quick-pill-label {
+  font-family: "TT Interphases Pro";
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
+  text-align: center;
+  white-space: nowrap;
+}
 
-.content-partners {
-  width: calc(100% - 48px);
+/* ─── SERVICES GRID ─── */
+.services-section {
+  width: 100%;
+  background-color: #ffffff;
+  margin-bottom: 12px;
+  padding-bottom: 16px;
+  z-index: 4;
+  position: relative;
+}
+.services-grid {
   display: grid;
-  justify-content: space-between;
-  align-items: center;
-  align-self: center;
   grid-template-columns: repeat(2, 1fr);
-  gap: 12px;
-  padding: 0px 24px;
-  flex-wrap: wrap;
+  gap: 10px;
+  padding: 0 16px;
 }
 
-.content-partners-1 {
+/* BASE SERVICE CARD */
+.service-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #ffffff;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  align-content: center;
-  /* gap: 12px; */
-  align-self: stretch;
-  flex-wrap: wrap;
-  padding: 0px 24px;
-  width: calc(100% - 48px);
-}
-
-.transactional-card-banner {
-  display: flex;
-  position: relative;
-  max-width: 100%;
-  min-height: 203px;
   flex-direction: column;
-  align-items: center;
-  border-radius: 8px;
-  border: 1px solid #DADADA;
-  overflow: hidden;
-  background-color: white;
 }
-
-.transactional-card-banner-1 {
+.service-card-img {
+  height: 90px;
   display: flex;
-  position: relative;
-  width: 100%;
-  flex-direction: column;
   align-items: center;
-  border-radius: 8px;
-  border: 1px solid #DADADA;
-  overflow: hidden;
-  background-color: white;
-}
-
-.partner-image-container {
-  display: flex;
-  width: 100%;
-  height: 130px;
-  align-items: center;
-  border-radius: 8px 8px 0px 0px;
+  justify-content: center;
   position: relative;
   overflow: hidden;
 }
-
-.partner-image-container-1 {
-  display: flex;
-  width: 100%;
-  height: 130px;
-  justify-content: flex-end;
-  align-items: center;
-  align-self: stretch;
-  border-radius: 8px 8px 0px 0px;
+.service-card-icon {
+  width: 40px;
+  height: 40px;
   position: relative;
+  z-index: 1;
 }
-
-.partner-image {
+.service-card-cover {
   width: 100%;
   height: 100%;
-  border-radius: 8px 8px 0px 0px;
   background-size: cover;
   background-position: center;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
-
-.partner-image-1 {
+.service-card-img-skeleton {
   width: 100%;
   height: 100%;
-  border-radius: 8px 8px 0px 0px;
-  background-size: cover;
-  background-position: center;
-}
-
-.partner-image-skeleton {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px 8px 0px 0px;
-  background-color: #f0f0f0;
   position: absolute;
   top: 0;
   left: 0;
   z-index: 10;
 }
-
-.partner-image-1-skeleton {
-  width: 100%;
-  height: 100%;
-  border-radius: 8px 8px 0px 0px;
-  background-color: #f0f0f0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 10;
-}
-
-.partner-content-container {
-  display: flex;
-  width: calc(100% - 24px);
-  padding: var(--Spacing-Spacing-3---12px, 12px);
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-  border-radius: 0px 0px 8px 8px;
-}
-
-.partner-tag-title {
+.service-card-body {
+  padding: 10px 12px 14px;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
 }
-
-.partner-title-subtitle {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
+.service-card-tag {
+  display: inline-flex;
+  align-items: center;
+  font-family: "TT Interphases Pro";
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  align-self: flex-start;
 }
-
-.partner-title-teks {
+.service-card-title {
+  font-family: "TT Interphases Pro";
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 3px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 1;
-  align-self: stretch;
   overflow: hidden;
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-  text-overflow: ellipsis;
-
-
-  /* Mobile/Headline/Headline 5 - Bold */
-  font-family: "TT Interphases Pro";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 16.8px */
-  margin-bottom: 8px;
-
 }
-
-.partner-subtitle-teks {
-  width: 100%;
-
-  color: var(--functional-bw-tones-granite-gray, #7A7A7A);
-  font-feature-settings: 'liga'off, 'clig'off;
-  text-overflow: ellipsis;
-  white-space: normal;
-
-  /* Mobile/Label/Label 3 - Regular */
+.service-card-sub {
   font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
+  font-size: 11px;
   font-weight: 400;
-  line-height: 120%;
-  /* 12px */
-
+  color: #888888;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
-  max-height: 25px;
 }
 
-.partner-price-ratings {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
+/* COLOR THEMES */
+.theme-blue .service-card-img   { background-color: #E8EDFF; }
+.theme-blue .service-card-img::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, #E8EDFF 0%, #C5D3FF 100%);
 }
+.service-tag-blue   { background-color: #E8EDFF; color: #4361EE; }
 
-.partner-price-container {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: stretch;
-}
+.theme-green .service-card-img  { background: linear-gradient(135deg, #E6F9EF 0%, #BBECCE 100%); }
+.service-tag-green  { background-color: #E6F9EF; color: #1B8352; }
 
-.partner-price {
-  display: flex;
-  align-items: center;
-}
+.theme-amber .service-card-img  { background: linear-gradient(135deg, #FFF1E6 0%, #FFCFA0 100%); }
+.service-tag-amber  { background-color: #FFF1E6; color: #D4621A; }
 
-.partner-price-text-1-discount {
-  color: var(--Brand-BNI-Orange-Orange-400, #FA6805);
-  font-feature-settings: 'liga'off, 'clig'off;
+.theme-purple .service-card-img { background: linear-gradient(135deg, #EDE8FB 0%, #CFC4F0 100%); }
+.service-tag-purple { background-color: #EDE8FB; color: #7C5CBF; }
 
-  /* Mobile/Headline/Headline 5 - Bold */
-  font-family: "TT Interphases Pro";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 16.8px */
-}
-
-.partner-price-text-1 {
-  color: var(--Brand-BNI-Orange-Orange-400, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Headline/Headline 5 - Bold */
-  font-family: "TT Interphases Pro";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 16.8px */
-}
-
-.partner-price-text-2 {
-  color: var(--functional-bw-tones-granite-gray, #7A7A7A);
-  font-feature-settings: 'liga'off, 'clig'off;
-  font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
-  /* 12px */
-  text-decoration-line: line-through;
-  margin-left: 4px;
-}
-
-.content-secondary-tabs {
-  width: 16px;
-  height: 16px;
-  display: flex;
-  padding: 4px var(--Rounded-Corner-Small---8px, 8px);
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  border-radius: var(--Rounded-Corner-Medium---16px, 16px);
-  background: var(--functional-bw-tones-white, #FFF);
-}
-
-.content-secondary-tabs-1 {
-  width: fit-content;
-  height: 16px;
-  display: flex;
-  padding: 4px var(--Rounded-Corner-Small---8px, 8px);
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  right: 12px;
-  top: 12px;
-  border-radius: var(--Rounded-Corner-Medium---16px, 16px);
-  background: var(--functional-bw-tones-white, #FFF);
-}
-
-.content-secondary-tabs-image {
-  width: 16px;
-  height: 16px;
-}
-
-.content-secondary-tabs-text {
-  color: var(--Illustration-Purple-Purple-3---Shadow-1, #7863C6);
-  text-align: center;
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Label/Label 3 - DemiBold */
-  font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 120%;
-  /* 12px */
-  margin-right: 4px;
-  margin-left: 4px;
-  text-transform: capitalize;
-}
-
-.tnc-container {
-  height: fit-content;
-  display: flex;
-  padding-top: 40px;
-  padding-bottom: 16px;
-  justify-content: center;
-  align-items: center;
-  align-self: stretch;
-  position: relative;
-  margin-top: auto;
-  z-index: 4;
-  background-color: white;
-}
-
-.tnc-container-margin {
-  height: fit-content;
-  display: flex;
-  padding-top: 40px;
-  padding-bottom: 35px;
-  justify-content: center;
-  align-items: center;
-  align-self: stretch;
-  position: relative;
-  margin-top: auto;
-  z-index: 4;
-  background-color: white;
-}
-
-.tnc-main-text {
-  width: 310px;
-  color: var(--functional-bw-tones-gray, #A0A0A0);
-  text-align: center;
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Label/Label 3 - Regular */
-  font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 170%;
-  /* 12px */
-}
-
-.tnc-hightlight-text {
-  color: var(--Brand-BNI-Orange-Orange-300---Primary, #FF8736);
-  text-decoration: underline;
-}
-
-/* END LIFESTYLE */
-
-.skeleton {
-  position: relative;
-  background-color: #eee;
-  overflow: hidden;
-  width: 100% !important;
-  /* border-radius: var(--rounded-corner-small-8-px, 8px); */
-}
-
-/* UNDIAN REJEKI BNI */
-
-.lottery-container {
-  display: grid;
-  align-items: flex-start;
-  grid-template-columns: repeat(1, 100%);
-  gap: 16px;
-
-  padding: 0px 24px;
-  width: calc(100% - 48px);
-  margin-bottom: 20px;
-  z-index: 4;
-  background-color: white;
-}
-
-.lottery-header {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 8px;
-}
-
-.ur-header-title {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1 0 0;
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Headline/Headline 4 - Bold */
-  font-family: "TT Interphases Pro";
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 19.2px */
-}
-
-.lottery-content {
-  display: flex;
-  width: calc(100% - 16px);
-  height: calc(140px - 32px);
-  padding: 16px 0px 16px 16px;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  border-radius: var(--Rounded-Corner-Small---8px, 8px);
-  background: var(--Brand-BNI-Magenta-Magenta-100, #FEDBFF);
-  /* background: var(--Brand-BNI-Magenta-Magenta-100, #FEDBFF); */
-  overflow: hidden;
-  position: relative;
-}
-
-.ur-promo-content {
-  display: flex;
-  width: 148px;
-  min-width: 122px;
-  max-width: 148px;
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  flex-shrink: 0;
-  z-index: 50;
-}
-
-.ur-promo-content-date {
-  display: flex;
-  height: 22px;
-  padding: 0px 8px;
-  justify-content: center;
-  align-items: center;
-  gap: 8px;
+/* WIDE CARD — colspan 2 */
+.service-card-wide {
+  grid-column: span 2;
+  flex-direction: row;
   border-radius: 16px;
-  background: var(--Brand-BNI-Magenta-Magenta-200---Primary, #FDA9FF);
-  margin-bottom: 8px;
-}
-
-.ur-promo-content-date-text {
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  text-align: center;
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Label/Label 3 - DemiBold */
-  font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 600;
-  line-height: 120%;
-  /* 12px */
-}
-
-.ur-promo-content-title {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  align-self: stretch;
   overflow: hidden;
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-  text-overflow: ellipsis;
-
-  /* Mobile/Headline/Headline 5 - Bold */
-  font-family: "TT Interphases Pro";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 16.8px */
-  margin-bottom: 8px;
-  ;
+  background-color: #ffffff;
+  border: 0.5px solid rgba(0, 0, 0, 0.06);
+  display: flex;
 }
-
-.ur-promo-content-description {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  align-self: stretch;
-  overflow: hidden;
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-  text-overflow: ellipsis;
-
-  /* Mobile/Label/Label 3 - Regular */
-  font-family: "TT Interphases Pro";
-  font-size: 10px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
-  /* 12px */
-}
-
-.image-circle {
-  width: 180px;
-  height: 210px;
-  border-radius: 50%;
+.service-card-wide .service-card-img {
+  width: 110px;
+  height: auto;
+  min-height: 90px;
   flex-shrink: 0;
-  position: relative;
-  right: -2px;
+  border-radius: 0;
+  background: linear-gradient(135deg, #E8FBF5 0%, #B2EDD9 100%);
 }
-
-.image-gif {
-  width: 180px;
-  height: 140px;
-  position: relative;
-  right: 0;
-  top: 35px;
-}
-
-.image-lottery-content {
-  width: 129px;
-  height: 97px;
-  position: absolute;
-  z-index: 100;
-  right: 6px;
-  top: 65px;
-  /* background-color: red; */
-  perspective: 1000px;
-}
-
-.image-anim {
-  /* position: absolute; */
-  width: 120px;
-  height: fit-content;
+.service-card-wide .service-card-body {
+  flex: 1;
   justify-content: center;
-  align-items: center;
+  padding: 14px 16px;
 }
 
-.image-anim.depth {
-  animation: depth-animation 0.8s ease-in forwards, depth-animation-loop 1.2s ease-in-out infinite alternate 1.5s;
-}
-
-@keyframes depth-animation {
-  0% {
-    transform: translate3d(0, 0, -500px);
-  }
-
-  25% {
-    transform: translate3d(0, 0, 60px);
-  }
-
-  50% {
-    transform: translate3d(0, 0, -30px);
-  }
-
-  75% {
-    transform: translate3d(0, 0, 40px);
-  }
-
-  100% {
-    transform: translate3d(0, 0, -10px);
-  }
-}
-
-@keyframes depth-animation-loop {
-  0% {
-    transform: translate3d(0, 0, -10px);
-  }
-
-  100% {
-    transform: translate3d(0, 0, 40px);
-  }
-}
-
-.ant-popup-content {
-  display: grid;
-  flex-direction: column;
-}
-
-.ant-popup-transform-bottom {
-  display: flex;
-  bottom: 48px;
-  right: 24px;
-  left: 24px;
-  padding: 24px 16px;
-  border-radius: 16px;
-  background: var(--functional-bw-tones-white, #FFF);
-  box-shadow: 0 5px 16px 0 rgba(78, 78, 78, 0.27);
-}
-
-.container-content-comp-modal {
-  display: grid;
-  grid-template-columns: repeat(1, 1fr);
-  flex-direction: column;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 8px;
-  align-self: stretch;
-  margin-bottom: 24px;
-}
-
-.comp-title {
-  display: flex;
-  align-items: flex-start;
-  align-self: stretch;
-}
-
-.comp-image-error {
-  width: 32px;
-  height: 32px;
-  margin-right: 8px;
-}
-
-.comp-title-text {
-  flex: 1 0 0;
-  color: #0E0E0E;
-  font-feature-settings: 'liga'off, 'clig'off;
-  font-family: "TT Interphases Pro";
-  font-size: 18px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 120%;
-  /* 21.6px */
-}
-
-.comp-description {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  align-self: stretch;
-}
-
-.comp-description-text {
-  flex: 1 0 0;
-  color: var(--functional-bw-tones-black, #0E0E0E);
-  font-feature-settings: 'liga'off, 'clig'off;
-
-  /* Mobile/Body/Body 2 - Regular */
-  font-family: "TT Interphases Pro";
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 140%;
-  /* 19.6px */
-}
-
-.transaction-history-body-prompt {
-  display: flex;
-  position: relative;
-  padding: 160px 24px 0 24px;
-  flex-direction: column;
-  align-items: center;
-  flex: 1 0 0;
-  z-index: 100;
-}
-
-.image-illustration {
-  height: 150px;
-  width: 267px;
-}
-
-
-@media (min-width: 500px) {
-
-  .content-partners {
-    width: calc(100% - 48px);
-    display: grid;
-    justify-content: space-between;
-    align-items: center;
-    align-self: center;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    padding: 0px 24px;
-    flex-wrap: wrap;
-  }
-
-  .content-partners-1 {
-    min-height: 203px;
-    display: grid;
-    justify-content: center;
-    align-items: center;
-    grid-template-columns: repeat(1, 1fr);
-    gap: 12px;
-    /* flex-wrap: wrap; */
-    padding: 0px 24px;
-    width: calc(100% - 48px);
-  }
-
-  .transactional-card-banner {
-    display: flex;
-    position: relative;
-    max-width: 100%;
-    width: 100%;
-    min-height: 203px;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 8px;
-    border: 1px solid #DADADA;
-    overflow: hidden;
-    background-color: white;
-  }
-
-  .transactional-card-banner-1 {
-    display: flex;
-    position: relative;
-    width: 100%;
-    min-height: 203px;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 8px;
-    border: 1px solid #DADADA;
-    overflow: hidden;
-    background-color: white;
-  }
-
-  .partner-image-container {
-    display: flex;
-    width: 100%;
-    height: 130px;
-    align-items: center;
-    border-radius: 8px 8px 0px 0px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .partner-image-container-1 {
-    display: flex;
-    width: 100%;
-    height: 130px;
-    justify-content: flex-end;
-    align-items: center;
-    align-self: stretch;
-    border-radius: 8px 8px 0px 0px;
-    position: relative;
-  }
-
-  .partner-image {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px 8px 0px 0px;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .partner-image-1 {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px 8px 0px 0px;
-    background-size: cover;
-    background-position: center;
-  }
-
-  .partner-image-skeleton {
-    width: 340px;
-    height: 100%;
-    border-radius: 8px 8px 0px 0px;
-    background-color: #f0f0f0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }
-
-  .partner-image-1-skeleton {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px 8px 0px 0px;
-    background-color: #f0f0f0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }
-
-  .partner-content-container {
-    display: flex;
-    width: calc(340px - 24px);
-    padding: var(--Spacing-Spacing-3---12px, 12px);
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-    border-radius: 0px 0px 8px 8px;
-  }
-
-  .partner-tag-title {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-  }
-
-  .partner-title-subtitle {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-  }
-
-  .partner-title-teks {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    align-self: stretch;
-    overflow: hidden;
-    color: var(--functional-bw-tones-black, #0E0E0E);
-    font-feature-settings: 'liga'off, 'clig'off;
-    text-overflow: ellipsis;
-
-    /* Mobile/Headline/Headline 5 - Bold */
-    font-family: "TT Interphases Pro";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 120%;
-    /* 16.8px */
-    margin-bottom: 8px;
-
-  }
-
-  .partner-subtitle-teks {
-    width: 100%;
-
-    color: var(--functional-bw-tones-granite-gray, #7A7A7A);
-    font-feature-settings: 'liga'off, 'clig'off;
-    text-overflow: ellipsis;
-    white-space: normal;
-
-    /* Mobile/Label/Label 3 - Regular */
-    font-family: "TT Interphases Pro";
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 120%;
-    /* 12px */
-
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    overflow: hidden;
-    max-height: 25px;
-  }
-
-  .partner-price-ratings {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-  }
-
-  .partner-price-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    align-self: stretch;
-  }
-
-  .partner-price {
-    display: flex;
-    align-items: center;
-  }
-
-  .partner-price-text-1-discount {
-    color: var(--Brand-BNI-Orange-Orange-400, #FA6805);
-    font-feature-settings: 'liga'off, 'clig'off;
-
-    /* Mobile/Headline/Headline 5 - Bold */
-    font-family: "TT Interphases Pro";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 120%;
-    /* 16.8px */
-  }
-
-  .partner-price-text-1 {
-    color: var(--Brand-BNI-Orange-Orange-400, #0E0E0E);
-    font-feature-settings: 'liga'off, 'clig'off;
-
-    /* Mobile/Headline/Headline 5 - Bold */
-    font-family: "TT Interphases Pro";
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 700;
-    line-height: 120%;
-    /* 16.8px */
-  }
-
-  .partner-price-text-2 {
-    color: var(--functional-bw-tones-granite-gray, #7A7A7A);
-    font-feature-settings: 'liga'off, 'clig'off;
-    font-family: "TT Interphases Pro";
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 120%;
-    /* 12px */
-    text-decoration-line: line-through;
-    margin-left: 4px;
-  }
-
-  .content-secondary-tabs {
-    width: 16px;
-    height: 16px;
-    display: flex;
-    padding: 4px var(--Rounded-Corner-Small---8px, 8px);
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    right: 12px;
-    top: 12px;
-    border-radius: var(--Rounded-Corner-Medium---16px, 16px);
-    background: var(--functional-bw-tones-white, #FFF);
-  }
-
-  .content-secondary-tabs-1 {
-    width: fit-content;
-    height: 16px;
-    display: flex;
-    padding: 4px var(--Rounded-Corner-Small---8px, 8px);
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    right: 12px;
-    top: 12px;
-    border-radius: var(--Rounded-Corner-Medium---16px, 16px);
-    background: var(--functional-bw-tones-white, #FFF);
-  }
-
-  .content-secondary-tabs-image {
-    width: 16px;
-    height: 16px;
-  }
-
-  .content-secondary-tabs-text {
-    color: var(--Illustration-Purple-Purple-3---Shadow-1, #7863C6);
-    text-align: center;
-    font-feature-settings: 'liga'off, 'clig'off;
-
-    /* Mobile/Label/Label 3 - DemiBold */
-    font-family: "TT Interphases Pro";
-    font-size: 10px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 120%;
-    /* 12px */
-    margin-right: 4px;
-    margin-left: 4px;
-    text-transform: capitalize;
-  }
-
-
-  .image-circle {
-    width: 180px;
-    height: 210px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    position: relative;
-    right: 0px;
-  }
-}
-
-@media (max-width: 375px) {
-  .image-circle {
-    width: 180px;
-    height: 210px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    position: relative;
-    right: 26px;
-  }
-
-  .image-gif {
-    width: 180px;
-    height: 140px;
-    position: relative;
-    right: 0;
-    top: 35px;
-  }
-
-  .image-lottery-content {
-    width: 129px;
-    height: 97px;
-    position: absolute;
-    z-index: 100;
-    right: 5px;
-    top: 70px;
-    /* background-color: red; */
-    perspective: 1000px;
-  }
-
-  .image-gif {
-    width: 180px;
-    height: 140px;
-    position: relative;
-    right: 0;
-    top: 35px;
-  }
-
-  .image-anim {
-    /* position: absolute; */
-    width: 110px;
-    height: fit-content;
-    justify-content: center;
-    align-items: center;
-  }
-}
-
-/* =========== ALL EVENTS SECTION =========== */
-
+/* ─── EVENTS SECTION ─── */
 .events-section {
   width: 100%;
   background-color: #ffffff;
@@ -1236,29 +338,12 @@
   z-index: 4;
   position: relative;
 }
-
-.events-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px 12px 24px;
-}
-
-.events-section-title {
-  color: #0E0E0E;
-  font-family: "TT Interphases Pro";
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 120%;
-}
-
 .events-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 0 24px 8px 24px;
+  padding: 0 16px 8px;
 }
-
 .event-card {
   display: flex;
   flex-direction: column;
@@ -1268,7 +353,6 @@
   background-color: #ffffff;
   box-shadow: 0px 2px 8px 0px rgba(0, 0, 0, 0.06);
 }
-
 .event-banner-wrapper {
   width: 100%;
   height: 180px;
@@ -1276,25 +360,20 @@
   overflow: hidden;
   background-color: #f0f0f0;
 }
-
 .event-banner-img {
   width: 100%;
   height: 180px;
 }
-
 .event-banner-skeleton {
   width: 100%;
   height: 180px;
   position: absolute;
-  top: 0;
-  left: 0;
+  top: 0; left: 0;
   z-index: 10;
 }
-
 .event-price-badge {
   position: absolute;
-  bottom: 10px;
-  left: 12px;
+  bottom: 10px; left: 12px;
   display: flex;
   flex-direction: column;
   background: rgba(0, 0, 0, 0.55);
@@ -1302,15 +381,13 @@
   padding: 4px 10px;
   z-index: 5;
 }
-
 .event-price-badge-label {
-  color: rgba(255, 255, 255, 0.80);
+  color: rgba(255,255,255,0.80);
   font-family: "TT Interphases Pro";
   font-size: 10px;
   font-weight: 400;
   line-height: 140%;
 }
-
 .event-price-badge-amount {
   color: #ffffff;
   font-family: "TT Interphases Pro";
@@ -1318,14 +395,12 @@
   font-weight: 700;
   line-height: 120%;
 }
-
 .event-info {
   display: flex;
   flex-direction: column;
   padding: 12px;
   gap: 8px;
 }
-
 .event-name {
   color: #0E0E0E;
   font-family: "TT Interphases Pro";
@@ -1337,26 +412,18 @@
   -webkit-line-clamp: 2;
   overflow: hidden;
 }
-
 .event-meta {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
-
 .event-meta-row {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 6px;
 }
-
-.event-meta-icon {
-  width: 14px;
-  height: 14px;
-  flex-shrink: 0;
-}
-
+.event-meta-icon { width: 14px; height: 14px; flex-shrink: 0; }
 .event-meta-text {
   color: #7A7A7A;
   font-family: "TT Interphases Pro";
@@ -1368,7 +435,6 @@
   -webkit-line-clamp: 1;
   overflow: hidden;
 }
-
 .events-empty {
   display: flex;
   flex-direction: column;
@@ -1377,12 +443,7 @@
   padding: 32px 0;
   gap: 12px;
 }
-
-.events-empty-icon {
-  width: 120px;
-  height: 80px;
-}
-
+.events-empty-icon { width: 120px; height: 80px; }
 .events-empty-text {
   color: #A0A0A0;
   font-family: "TT Interphases Pro";
@@ -1392,4 +453,111 @@
   text-align: center;
 }
 
-/* =========== END ALL EVENTS SECTION =========== */
+/* ─── TNC ─── */
+.tnc-container {
+  height: fit-content;
+  display: flex;
+  padding-top: 40px;
+  padding-bottom: 16px;
+  justify-content: center;
+  align-items: center;
+  align-self: stretch;
+  position: relative;
+  z-index: 4;
+  background-color: white;
+}
+.tnc-main-text {
+  width: 310px;
+  color: #A0A0A0;
+  text-align: center;
+  font-family: "TT Interphases Pro";
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 170%;
+}
+.tnc-hightlight-text {
+  color: #FF8736;
+  text-decoration: underline;
+}
+
+/* ─── SKELETON ─── */
+.skeleton {
+  position: relative;
+  background-color: #eee;
+  overflow: hidden;
+  width: 100% !important;
+}
+
+/* ─── MODAL ─── */
+.ant-popup-transform-bottom {
+  display: flex;
+  bottom: 48px;
+  right: 24px; left: 24px;
+  padding: 24px 16px;
+  border-radius: 16px;
+  background: #FFF;
+  box-shadow: 0 5px 16px 0 rgba(78,78,78,0.27);
+}
+.container-content-comp-modal {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 8px;
+  align-self: stretch;
+  margin-bottom: 24px;
+}
+.comp-title {
+  display: flex;
+  align-items: flex-start;
+  align-self: stretch;
+}
+.comp-image-error { width: 32px; height: 32px; margin-right: 8px; }
+.comp-title-text {
+  flex: 1 0 0;
+  color: #0E0E0E;
+  font-family: "TT Interphases Pro";
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 120%;
+}
+.comp-description {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  align-self: stretch;
+}
+.comp-description-text {
+  flex: 1 0 0;
+  color: #0E0E0E;
+  font-family: "TT Interphases Pro";
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 140%;
+}
+
+/* ─── ERROR STATE ─── */
+.transaction-history-body-prompt {
+  display: flex;
+  position: relative;
+  padding: 160px 24px 0;
+  flex-direction: column;
+  align-items: center;
+  flex: 1 0 0;
+  z-index: 100;
+}
+.image-illustration { height: 150px; width: 267px; }
+
+/* ─── LOTTERY MODAL ─── */
+.lottery-container {
+  display: grid;
+  align-items: flex-start;
+  grid-template-columns: repeat(1, 100%);
+  gap: 16px;
+  padding: 0 24px;
+  width: calc(100% - 48px);
+  margin-bottom: 20px;
+  z-index: 4;
+  background-color: white;
+}

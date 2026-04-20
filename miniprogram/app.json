@@ -2,13 +2,26 @@
   "subPackageBuildType": "shared",
   "pages": [
     "src/app/pages/landing/landing",
+    "src/app/pages/category-list/category-list",
+    "src/app/pages/cart-checkout/cart-checkout",
     "src/app/pages/index/index",
     "src/app/pages/tnc-details/tnc-details",
     "src/app/pages/result-screen/result-screen",
     "src/app/pages/page-not-found/page-not-found",
     "src/app/pages/visitor-input-screen/visitor-input-screen",
     "src/app/pages/visitor-list-screen/visitor-list-screen",
-    "src/app/pages/book-ticket/book-ticket"
+    "src/app/pages/book-ticket/book-ticket",
+    "src/app/pages/package_hotel/detail-hotel/detail-hotel",
+    "src/app/pages/package_hotel/landing-hotel/landing-hotel",
+    "src/app/pages/package_hotel/index/index",
+    "src/app/pages/package_culinary/landing-culinary/landing-culinary",
+    "src/app/pages/package_culinary/index/index",
+    "src/app/pages/package_culinary/detail-culinary/detail-culinary",
+    "src/app/pages/package_rental/index/index",
+    "src/app/pages/package_rental/detail-rental/detail-rental",
+    "src/app/pages/package_umkm/index/index",
+    "src/app/pages/package_umkm/detail-umkm/detail-umkm",
+    "src/app/pages/transaction-history/transaction-history"
   ],
   "subPackages": [
     {

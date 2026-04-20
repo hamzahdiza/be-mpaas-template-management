@@ -1,0 +1,15 @@
+{
+  "usingComponents": {
+    "top-bar": "@bni-maverick-mpaas/lib/es/top-bar/top-bar",
+    "see-near-branches":"/src/app/components/see-near-branches/see-near-branches",
+    "error-reload":"/src/app/components/error-reload/error-reload",
+    "popup": "antd-mini/es/Popup/index",
+    "bni-button": "@bni-maverick-mpaas/lib/es/bni-button/bni-button",
+    "loading": "@bni-maverick-mpaas/lib/es/loading/loading"
+  },
+  "transparentTitle": "always",
+  "titlePenetrate": "YES",
+  "defaultTitle": "",
+  "allowsBounceVertical": "NO",
+  "pullRefresh": false
+}

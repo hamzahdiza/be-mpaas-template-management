@@ -1,0 +1,16 @@
+.umkm-v5-container { background: #FFF; min-height: 100vh; padding-bottom: 100px; }
+.v5-header { position: relative; height: 200px; }
+.v5-banner { width: 100%; height: 100%; }
+.v5-shop-info { position: absolute; bottom: 20px; left: 20px; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.v5-name { font-size: 28px; font-weight: 800; display: block; }
+.v5-loc { font-size: 14px; }
+.v5-list { padding: 20px; }
+.v5-item { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; position: relative; }
+.v5-item image { width: 80px; height: 80px; border-radius: 12px; }
+.v5-details { flex: 1; }
+.v5-pname { font-size: 16px; font-weight: 600; display: block; }
+.v5-pprice { font-size: 14px; color: #E91E63; font-weight: bold; }
+.v5-add { width: 32px; height: 32px; background: #E91E63; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: bold; }
+.v5-cart { position: fixed; bottom: 30px; left: 20px; right: 20px; background: #E91E63; color: white; padding: 16px 24px; border-radius: 100px; display: flex; justify-content: space-between; align-items: center; transform: translateY(150px); transition: 0.4s; }
+.v5-cart.active { transform: translateY(0); }
+.v5-cart-badge { background: white; color: #E91E63; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; }
