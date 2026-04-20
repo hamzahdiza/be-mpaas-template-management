@@ -1,57 +1,71 @@
-<view class="container-index">
-  <view class="banner-section">
-    <image class="banner-img" src="{{data.bannerUrl}}" mode="aspectFill" />
-    <view class="banner-overlay" />
+<view class="container-index hotel-modern">
+  <view class="hero-hotel">
+    <swiper 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      circular="{{true}}"
+      indicator-active-color="#ffffff"
+      class="hotel-swiper"
+    >
+      <swiper-item>
+        <image class="swiper-img" src="{{data.bannerUrl}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
     
-    <view class="floating-top">
-      <view class="star-container">
-        <text a:for="{{data.starRating}}" class="star-icon">⭐</text>
+    <view class="hero-overlay-hotel" />
+    
+    <view class="hero-header-hotel">
+      <view class="menu-btn-hotel">
+        <view class="menu-dot" />
+        <view class="menu-dot" />
+        <view class="menu-dot" />
       </view>
-      <text class="location-text">{{data.location}}</text>
+      <view class="book-now-pill">
+        <text class="book-now-text">Book Now</text>
+      </view>
     </view>
 
-    <view class="floating-bottom">
-      <text class="hotel-title">{{data.name}}</text>
-      <view class="address-row">
-        <text class="address-text">📍 {{data.locationAddress}}</text>
+    <view class="hero-bottom-hotel">
+      <view class="stars-hotel">
+        <block a:for="{{[1,2,3,4,5]}}" a:for-item="star">
+          <text class="star-icon {{star <= data.starRating ? 'active' : ''}}">★</text>
+        </block>
+      </view>
+      <text class="hotel-name-modern">{{data.name}}</text>
+      <view class="location-row-hotel">
+        <image class="pin-icon" src="https://img.icons8.com/ios-filled/50/3b82f6/marker.png" />
+        <text class="location-text-hotel">{{data.location}}</text>
       </view>
     </view>
   </view>
 
-  <view class="content-body">
-    <view class="section-container">
-      <text class="section-label">OVERVIEW</text>
-      <text class="overview-desc">{{data.description}}</text>
+  <view class="content-hotel">
+    <view class="desc-section-hotel">
+      <text class="section-tag-hotel">Refined Living</text>
+      <text class="hotel-desc-text">{{data.description}}</text>
     </view>
 
-    <view class="section-container">
-      <text class="section-label">OUR ROOMS</text>
-      
-      <view class="room-grid">
+    <view class="rooms-section-hotel">
+      <view class="section-header-hotel">
+        <text class="section-title-hotel">Premium Suites</text>
+        <text class="view-all-hotel">VIEW ALL</text>
+      </view>
+
+      <view class="rooms-list-hotel">
         <block a:for="{{data.categories}}">
-          <view 
-            class="room-card" 
-            onTap="handleRoomTap" 
-            data-item="{{item}}"
-          >
-            <view class="room-img-wrapper">
-              <image class="room-img" src="{{item.images[0]}}" mode="aspectFill" />
-            </view>
-            
-            <view class="room-details">
-              <view>
-                <text class="room-name">{{item.name}}</text>
-                <text class="room-type">{{item.roomType}} • Max {{item.capacity}} Guests</text>
+          <view class="room-card-modern" onTap="handleRoomTap" data-item="{{item}}">
+            <view class="room-img-container-modern">
+              <image class="room-img-modern" src="{{item.images[0]}}" mode="aspectFill" />
+              <view class="room-price-badge-modern">
+                <text class="room-price-text">Rp {{item.pricePerNight.toLocaleString('id-ID')}}</text>
               </view>
-              
-              <view class="room-price-row">
-                <view>
-                  <text class="price-val">Rp {{item.pricePerNight}}</text>
-                  <text class="price-unit"> /night</text>
-                </view>
-                <view class="arrow-circle">
-                  <text class="arrow-icon">→</text>
-                </view>
+            </view>
+            <view class="room-info-modern">
+              <text class="room-name-modern">{{item.name}}</text>
+              <view class="room-meta-modern">
+                <text class="meta-item">{{item.capacity}} Guests</text>
+                <view class="meta-dot" />
+                <text class="meta-item">{{item.roomType}}</text>
               </view>
             </view>
           </view>

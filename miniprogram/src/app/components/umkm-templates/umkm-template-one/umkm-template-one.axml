@@ -1,0 +1,58 @@
+<view class="umkm-container">
+  <view class="hero-section">
+    <swiper 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      circular="{{true}}"
+      class="banner-swiper"
+    >
+      <swiper-item>
+        <image class="banner-img" src="{{data.bannerUrl}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+    <view class="hero-overlay">
+      <view class="category-badge">{{data.category.toUpperCase()}} MARKET</view>
+      <text class="umkm-name">{{data.name}}</text>
+      <view class="location-row">
+        <image class="loc-icon" src="https://img.icons8.com/ios-filled/50/ffffff/marker.png" />
+        <text class="loc-text">{{data.location}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="catalog-section">
+    <view class="section-header">
+      <text class="section-title">OUR CATALOG</text>
+      <text class="section-subtitle">Discover our selection</text>
+    </view>
+
+    <view class="product-grid">
+      <block a:for="{{data.products}}">
+        <view class="product-card" onTap="onProductTap" data-item="{{item}}">
+          <view class="product-img-container">
+            <image class="product-img" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="add-btn-float" catchTap="onAddToCart" data-item="{{item}}">
+              <image class="plus-icon" src="https://img.icons8.com/ios-glyphs/30/ffffff/plus-math.png" />
+            </view>
+          </view>
+          <view class="product-info">
+            <text class="p-name">{{item.name}}</text>
+            <text class="p-price">Rp {{item.price.toLocaleString('id-ID')}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <!-- Cart Bar -->
+  <view class="cart-bar {{cartCount > 0 ? 'active' : ''}}" onTap="onCheckoutClick" a:if="{{cartCount > 0}}">
+    <view class="cart-left">
+      <view class="cart-badge">{{cartCount}}</view>
+      <view class="cart-text">
+        <text class="cart-total">Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+        <text class="cart-label">Selected Items</text>
+      </view>
+    </view>
+    <view class="checkout-btn">Checkout ΓåÆ</view>
+  </view>
+</view>

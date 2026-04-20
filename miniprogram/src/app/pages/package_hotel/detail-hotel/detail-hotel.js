@@ -1,4 +1,4 @@
-import { createServiceOrder } from "/src/public/api";
+const { customNavigateTo } = require("/src/utils/route-util");
 
 Page({
   data: {
@@ -21,14 +21,16 @@ Page({
     my.navigateBack();
   },
   async handleBooking() {
-    try {
-      const room = this.data.roomData || {};
-      const hotel = this.data.hotelData || {};
-      const totalAmount = Number(room.pricePerNight || room.price || 0);
+    const room = this.data.roomData || {};
+    const hotel = this.data.hotelData || {};
+    const totalAmount = Number(room.pricePerNight || room.price || 0);
 
-      await createServiceOrder({
+    customNavigateTo({
+      url: "/src/app/pages/cart-checkout/cart-checkout",
+      data: {
         orderType: "hotel",
         serviceId: hotel.id,
+        serviceName: hotel.name || "Hotel",
         customerName: "User Miniprogram",
         customerPhone: "-",
         notes: `Booking kamar ${room.roomType || room.name || "Hotel Room"}`,
@@ -40,11 +42,7 @@ Page({
           checkInDate: room.checkInDate || null,
           checkOutDate: room.checkOutDate || null
         }
-      });
-
-      my.showToast({ content: "Pesanan hotel berhasil dikirim" });
-    } catch (e) {
-      my.showToast({ content: "Gagal kirim pesanan hotel" });
-    }
+      }
+    });
   }
 });

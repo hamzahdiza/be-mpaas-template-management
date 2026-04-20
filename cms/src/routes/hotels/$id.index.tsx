@@ -15,8 +15,8 @@ function HotelViewPage() {
     queryFn: () => getHotel(id),
   });
 
-  if (isLoading) return <div className="p-8">Memuat data hotel...</div>;
-  if (!hotel) return <div className="p-8">Hotel tidak ditemukan.</div>;
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
+  if (!hotel) return <div className="text-center py-10">Hotel not found</div>;
 
   const initialData: HotelFormState = {
     name: hotel.name || '',
@@ -33,7 +33,7 @@ function HotelViewPage() {
       },
       hotelDetail: {
         id: hotel.templates?.hotelDetail?.id || 1,
-        title: hotel.templates?.hotelDetail?.title || ''
+        title: hotel.templates?.hotelDetail?.title || '',
       }
     },
     categories: (hotel.categories || []).map((cat: any) => ({
@@ -56,15 +56,16 @@ function HotelViewPage() {
     <div>
       <div className="mb-4">
         <button
-          onClick={() => navigate({ to: '/', search: { type: 'hotel' } as any })}
+          onClick={() => navigate({ to: '/' })}
           className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1"
         >
           ← Back to Hotels
         </button>
       </div>
       <HotelForm
+        key={id}
         title="View Hotel Details"
-        submitLabel="View"
+        submitLabel=""
         initialData={initialData}
         isViewMode={true}
       />

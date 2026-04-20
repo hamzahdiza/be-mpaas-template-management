@@ -1,0 +1,28 @@
+<view class="umkm-v3-container">
+  <view class="v3-hero">
+    <image src="{{data.bannerUrl}}" mode="aspectFill" class="v3-hero-img" />
+    <view class="v3-overlay" />
+    <view class="v3-hero-content">
+      <text class="v3-name">{{data.name}}</text>
+      <text class="v3-loc">{{data.location}}</text>
+    </view>
+  </view>
+
+  <view class="v3-content">
+    <view class="v3-grid">
+      <block a:for="{{data.products}}">
+        <view class="v3-card" onTap="onProductTap" data-item="{{item}}">
+          <image class="v3-pimg" src="{{item.imageUrl}}" mode="aspectFill" />
+          <view class="v3-pinfo">
+            <text class="v3-pname">{{item.name}}</text>
+            <text class="v3-pprice">Rp {{item.price.toLocaleString('id-ID')}}</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+
+  <view class="v3-cart {{cartCount > 0 ? 'show' : ''}}" onTap="onCheckoutClick">
+    <text>{{cartCount}} Items | Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+  </view>
+</view>

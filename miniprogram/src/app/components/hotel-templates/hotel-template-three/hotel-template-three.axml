@@ -1,43 +1,45 @@
-<view class="container-luxury animate-in">
-  <view class="header-immersive">
-    <swiper 
-      indicator-dots="{{true}}" 
-      autoplay="{{true}}" 
-      class="header-swiper"
-    >
-      <block a:for="{{[data.bannerUrl]}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    <view class="overlay-gradient" />
+<view class="container-index hotel-eco">
+  <view class="eco-hero">
+    <image class="eco-hero-img" src="{{data.bannerUrl}}" mode="aspectFill" />
+    <view class="eco-hero-overlay" />
     
-    <view class="header-content-center">
-      <text class="luxury-tag">LUXURY EXPERIENCE</text>
-      <text class="hotel-name-serif">{{data.name}}</text>
+    <view class="eco-hero-header">
+      <view class="eco-badge-float">
+        <view class="eco-pulse" />
+        <text class="eco-badge-text">Eco-Conscious</text>
+      </view>
+    </view>
+
+    <view class="eco-hero-bottom">
+      <text class="eco-hotel-name">{{data.name}}</text>
+      <text class="eco-location-tag">{{data.location}}</text>
     </view>
   </view>
 
-  <view class="content-overlap">
-    <view class="card-luxury-main">
-      <text class="suite-selection-title">Select Your Suite</text>
-      
-      <view class="suite-grid">
-        <block a:for="{{data.categories}}">
-          <view 
-            class="suite-item" 
-            onTap="handleRoomTap" 
-            data-item="{{item}}"
-          >
-            <view class="suite-img-wrapper">
-              <image class="suite-img" src="{{item.images[0]}}" mode="aspectFill" />
-            </view>
-            <text class="suite-name">{{item.name}}</text>
-            <text class="suite-price-italic">Explore this room — Rp {{item.pricePerNight}}</text>
-          </view>
-        </block>
+  <view class="eco-content">
+    <view class="eco-section-header">
+      <text class="eco-section-title">Wild Retreats</text>
+      <view class="eco-pagination">
+        <view class="eco-page-dot active" />
+        <view class="eco-page-dot" />
       </view>
     </view>
+
+    <scroll-view scroll-x="{{true}}" class="eco-rooms-scroll" show-scrollbar="{{false}}">
+      <block a:for="{{data.categories}}">
+        <view class="eco-room-card" onTap="handleRoomTap" data-item="{{item}}">
+          <view class="eco-card-img-container">
+            <image class="eco-card-img" src="{{item.images[0]}}" mode="aspectFill" />
+            <view class="eco-price-tag">
+              <text class="eco-price-text">Rp {{item.pricePerNight.toLocaleString('id-ID')}}</text>
+            </view>
+          </view>
+          <view class="eco-card-info">
+            <text class="eco-room-name">{{item.name}}</text>
+            <text class="eco-room-meta">{{item.roomType}} 👤 {{item.capacity}} Guests</text>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
   </view>
 </view>

@@ -3,27 +3,47 @@
     <culinary-template-one
       a:if="{{ templateId == 1 }}"
       data="{{ culinaryData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
       onScreenChange="goToMenuDetail"
+      onAddToCart="handleAddToCart"
+      onCheckout="goToCheckout"
     />
     <culinary-template-two
       a:elif="{{ templateId == 2 }}"
       data="{{ culinaryData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
       onScreenChange="goToMenuDetail"
+      onAddToCart="handleAddToCart"
+      onCheckout="goToCheckout"
     />
     <culinary-template-three
       a:elif="{{ templateId == 3 }}"
       data="{{ culinaryData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
       onScreenChange="goToMenuDetail"
+      onAddToCart="handleAddToCart"
+      onCheckout="goToCheckout"
     />
     <culinary-template-four
       a:elif="{{ templateId == 4 }}"
       data="{{ culinaryData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
       onScreenChange="goToMenuDetail"
+      onAddToCart="handleAddToCart"
+      onCheckout="goToCheckout"
     />
     <culinary-template-five
       a:elif="{{ templateId == 5 }}"
       data="{{ culinaryData }}"
+      cartCount="{{ cartCount }}"
+      totalCartPrice="{{ totalCartPrice }}"
       onScreenChange="goToMenuDetail"
+      onAddToCart="handleAddToCart"
+      onCheckout="goToCheckout"
     />
   </block>
 </view>

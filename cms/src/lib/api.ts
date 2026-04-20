@@ -120,15 +120,17 @@ export interface DashboardData {
   summary: {
     id: string;
     name: string;
-    type: 'HOTEL' | 'EVENT' | 'CAFE' | 'RESTAURANT';
+    type: 'HOTEL' | 'EVENT' | 'CAFE' | 'RESTAURANT' | 'RENTAL' | 'UMKM';
     createdAt: string;
     status: string;
     location: string;
   }[];
   raw: {
-    events: Event[]; // Menggunakan interface Event yang sudah ada
+    events: Event[];
     hotels: Hotel[];
     cafesRestaurants: CafeRestaurant[];
+    rentals: Rental[];
+    umkms: UMKM[];
     orders: ServiceOrder[];
   }
 }
@@ -246,7 +248,7 @@ export interface CafeRestaurantFormState {
 
 export interface ServiceOrder {
   id: string;
-  orderType: 'event' | 'hotel' | 'cafe' | 'restaurant';
+  orderType: 'event' | 'hotel' | 'cafe' | 'restaurant' | 'rental' | 'umkm';
   serviceId: string;
   serviceName: string;
   vendorUserId?: string;
@@ -255,11 +257,162 @@ export interface ServiceOrder {
   notes?: string;
   quantity: number;
   totalAmount: number;
-  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'preparing' | 'ready' | 'ready_to_pick' | 'searching_driver' | 'driver_found' | 'delivering';
+  paymentMethod?: string;
+  invoiceNumber?: string;
+  completedAt?: string;
   orderPayload?: Record<string, any>;
   createdAt?: string;
   updatedAt?: string;
 }
+
+// Rental Types
+export interface Vehicle {
+  id?: string;
+  name: string;
+  type: string;
+  transmission: 'manual' | 'automatic';
+  capacity: number;
+  pricePerDay: number;
+  imageUrl?: string;
+  isAvailable?: boolean;
+}
+
+export interface Rental {
+  id: string;
+  category: 'car' | 'motor';
+  name: string;
+  description?: string;
+  templates: {
+    index: { id: number; title?: string; bannerUrl?: string };
+    detail: { id: number; title?: string; bannerUrl?: string };
+  };
+  location?: string;
+  locationAddress?: string;
+  locationUrl?: string;
+  bannerUrl?: string;
+  images?: string[] | null;
+  vehicles?: Vehicle[] | null;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface RentalFormState {
+  category: 'car' | 'motor';
+  name: string;
+  description: string;
+  templates: {
+    index: { id: number; title: string; bannerUrl: string };
+    detail: { id: number; title: string; bannerUrl: string };
+  };
+  location: string;
+  locationAddress: string;
+  locationUrl: string;
+  bannerUrl: string[];
+  vehicles: Vehicle[];
+}
+
+// UMKM Types
+export interface Product {
+  id?: string;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  isAvailable?: boolean;
+  stock?: number;
+}
+
+export interface UMKM {
+  id: string;
+  category: 'product' | 'food' | 'service';
+  name: string;
+  description?: string;
+  templates: {
+    index: { id: number; title?: string; bannerUrl?: string };
+    detail: { id: number; title?: string; bannerUrl?: string };
+  };
+  location?: string;
+  locationAddress?: string;
+  locationUrl?: string;
+  bannerUrl?: string;
+  images?: string[] | null;
+  products?: Product[] | null;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface UMKMFormState {
+  category: 'product' | 'food' | 'service';
+  name: string;
+  description: string;
+  templates: {
+    index: { id: number; title: string; bannerUrl: string };
+    detail: { id: number; title: string; bannerUrl: string };
+  };
+  location: string;
+  locationAddress: string;
+  locationUrl: string;
+  bannerUrl: string[];
+  products: Product[];
+}
+
+// Rental API
+export const getRentals = async (category?: string) => {
+  const { data } = await api.get<{ data: Rental[] }>('/rentals', { params: { category } });
+  return data.data;
+};
+
+export const getRental = async (id: string) => {
+  const { data } = await api.get<{ data: Rental }>(`/rentals/${id}`);
+  return data.data;
+};
+
+export const createRental = async (rentalData: RentalFormState) => {
+  const { data } = await api.post('/rentals', rentalData);
+  return data;
+};
+
+export const updateRental = async (id: string, rentalData: Partial<RentalFormState>) => {
+  const { data } = await api.put(`/rentals/${id}`, rentalData);
+  return data.data;
+};
+
+export const deleteRental = async (id: string) => {
+  await api.delete(`/rentals/${id}`);
+};
+
+// UMKM API
+export const getUMKMs = async (category?: string) => {
+  const { data } = await api.get<{ data: UMKM[] }>('/umkms', { params: { category } });
+  return data.data;
+};
+
+export const getUMKM = async (id: string) => {
+  const { data } = await api.get<{ data: UMKM }>(`/umkms/${id}`);
+  return data.data;
+};
+
+export const createUMKM = async (umkmData: UMKMFormState) => {
+  const { data } = await api.post('/umkms', umkmData);
+  return data;
+};
+
+export const updateUMKM = async (id: string, umkmData: Partial<UMKMFormState>) => {
+  const { data } = await api.put(`/umkms/${id}`, umkmData);
+  return data.data;
+};
+
+export const deleteUMKM = async (id: string) => {
+  await api.delete(`/umkms/${id}`);
+};
+
+export const checkoutOrder = async (id: string, paymentMethod: string) => {
+  const { data } = await api.post(`/orders/${id}/checkout`, { paymentMethod });
+  return data.data;
+};
 
 export const getCafesRestaurants = async (category?: 'cafe' | 'restaurant') => {
   const endpoint = category ? `/cafes-restaurants?category=${category}` : '/cafes-restaurants';

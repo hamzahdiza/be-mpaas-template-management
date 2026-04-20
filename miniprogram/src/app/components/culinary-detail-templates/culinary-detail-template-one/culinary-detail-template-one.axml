@@ -1,79 +1,41 @@
-<view class="room-detail-wrapper animate-slide-right">
-  <view class="header-gallery">
-    <view class="back-button-floating" onTap="onBackTap">
-      <image src="/src/assets/icons/ic_common_arrow_back_white.svg" class="icon-back" />
+<view class="container-detail">
+  <view class="hero-section">
+    <image class="hero-img" src="{{room.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}}" mode="aspectFill" />
+    <view class="hero-overlay" />
+    <view class="back-btn-float" onTap="onBack">
+      <icon type="left" size="18" color="#0f172a" />
     </view>
-    
-    <swiper indicator-dots="{{true}}" autoplay="{{true}}" class="room-swiper">
-      <block a:for="{{room.images}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    <view class="top-gradient" />
   </view>
 
-  <scroll-view scroll-y="{{true}}" class="content-scroll">
-    <view class="body-container">
-      <view class="handle-bar" />
-
-      <view class="header-info">
-        <view class="badge-type">
-          <text class="badge-text">{{room.roomType}}</text>
-        </view>
-        <text class="room-title">{{room.name}}</text>
-      </view>
-
-      <view class="specs-grid">
-        <view class="spec-card">
-          <text class="spec-label">BED</text>
-          <text class="spec-value">{{room.bedConfig.count}} {{room.bedConfig.type}}</text>
-        </view>
-        <view class="spec-card">
-          <text class="spec-label">MAX GUESTS</text>
-          <text class="spec-value">{{room.capacity}} Persons</text>
+  <view class="detail-card-container">
+    <view class="detail-card">
+      <view class="detail-header">
+        <text class="item-name">{{room.name || 'Menu Name'}}</text>
+        <view class="rating-badge">
+          <text class="star-icon">★</text>
+          <text class="rating-text">4.9</text>
         </view>
       </view>
 
-      <view class="section-group">
-        <text class="section-label">DESCRIPTION</text>
-        <text class="section-content">{{room.description}}</text>
-      </view>
+      <text class="item-desc">{{room.description || 'No description available for this item.'}}</text>
 
-      <view class="section-group" a:if="{{room.roomAmenities.length > 0}}">
-        <text class="section-label">ROOM FEATURES</text>
-        <view class="tag-grid">
-          <block a:for="{{room.roomAmenities}}">
-            <view class="tag-blue">
-              <text class="tag-text">✓ {{item}}</text>
-            </view>
-          </block>
+      <view class="price-stepper-row">
+        <view class="price-col">
+          <text class="price-label">Price</text>
+          <text class="price-val">Rp {{room.price.toLocaleString('id-ID')}}</text>
+        </view>
+        <view class="stepper-container">
+          <view class="stepper-btn minus">-</view>
+          <text class="stepper-val">1</text>
+          <view class="stepper-btn plus">+</view>
         </view>
       </view>
-
-      <view class="section-group" a:if="{{room.bathAmenities.length > 0}}">
-        <text class="section-label">BATHROOM</text>
-        <view class="tag-grid">
-          <block a:for="{{room.bathAmenities}}">
-            <view class="tag-gray">
-              <text class="tag-text">• {{item}}</text>
-            </view>
-          </block>
-        </view>
-      </view>
-      
-      <view class="spacer-bottom" />
     </view>
-  </scroll-view>
-
+  </view>
+  
   <view class="footer-action">
-    <view class="price-group">
-      <text class="price-label">TOTAL PRICE</text>
-      <text class="price-value">Rp {{room.pricePerNight}}</text>
-    </view>
-    <view class="btn-book" onTap="onBookTap">
-      <text class="btn-text">Book This Room</text>
+    <view class="add-to-cart-btn" onTap="onBook">
+      Tambah ke Keranjang
     </view>
   </view>
 </view>

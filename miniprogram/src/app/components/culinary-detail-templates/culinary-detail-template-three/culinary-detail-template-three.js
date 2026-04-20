@@ -6,10 +6,10 @@ Component({
     onBook: () => {}
   },
   methods: {
-    onBackTap() {
+    onBack() {
       this.props.onBack();
     },
-    onBookTap() {
+    onBook() {
       this.props.onBook();
     }
   }

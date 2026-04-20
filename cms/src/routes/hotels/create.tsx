@@ -15,19 +15,19 @@ function CreateHotel() {
   const mutation = useMutation({
     mutationFn: createHotel,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success('Hotel listing created!');
-      navigate({ to: '/', search: { type: 'hotel' } });
+      queryClient.invalidateQueries({ queryKey: ['hotels'] });
+      toast.success('Hotel created successfully');
+      navigate({ to: '/' });
     },
-    onError: (err: any) => toast.error(err.message)
+    onError: (err: any) => toast.error('Failed to create hotel: ' + err.message)
   });
 
   return (
     <HotelForm 
-      title="Create New Hotel Listing"
-  onSubmit={(data: HotelFormState) => mutation.mutate(data)}
+      title="Create New Hotel"
+      onSubmit={(data: HotelFormState) => mutation.mutate(data)}
       isSubmitting={mutation.isPending}
-      submitLabel="Publish Hotel"
+      submitLabel="Create Hotel"
     />
   );
 }

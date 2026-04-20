@@ -21,15 +21,15 @@ function EditCafeRestaurant() {
   const mutation = useMutation({
     mutationFn: (payload: CafeRestaurantFormState) => updateCafeRestaurant(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success('Cafe/Restoran berhasil diupdate');
-      navigate({ to: '/', search: { type: data?.category || 'cafe' } as any });
+      queryClient.invalidateQueries({ queryKey: ['cafes-restaurants'] });
+      toast.success('Cafe/Restaurant updated successfully');
+      navigate({ to: '/' });
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: any) => toast.error('Failed to update: ' + err.message),
   });
 
-  if (isLoading) return <div className="p-8">Loading...</div>;
-  if (!data) return <div className="p-8">Data tidak ditemukan</div>;
+  if (isLoading) return <div className="text-center py-10">Loading...</div>;
+  if (!data) return <div className="text-center py-10">Cafe/Restaurant not found</div>;
 
   const initialData: CafeRestaurantFormState = {
     category: data.category,
@@ -54,8 +54,9 @@ function EditCafeRestaurant() {
 
   return (
     <CafeRestaurantForm
-      title="Edit Cafe / Restoran"
-      submitLabel="Update"
+      key={id}
+      title="Edit Cafe/Restaurant"
+      submitLabel="Update Cafe/Restaurant"
       isSubmitting={mutation.isPending}
       initialData={initialData}
       onSubmit={(payload) => mutation.mutate(payload)}

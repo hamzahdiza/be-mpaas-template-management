@@ -2,6 +2,9 @@ const languagePacks = require("/src/public/language-pack.json");
 
 App({
   globalData: {
+    personalData: {
+      phone: ""
+    },
     languagePack: {},
     dayjsLocale: "id",
     statusBarHeight: 0,
@@ -87,6 +90,39 @@ App({
       "boBillerUbpCompanyCode": "0050000009",
       "title": "lifestylePartnerJavaJazzTitle"
     },
+    cart: [],
+    merchantInfo: null
+  },
+  addToCart(item, merchant) {
+    if (this.globalData.merchantInfo && this.globalData.merchantInfo.id !== merchant.id) {
+      // Clear cart if different merchant
+      this.globalData.cart = [];
+    }
+    this.globalData.merchantInfo = merchant;
+    
+    const existingItem = this.globalData.cart.find(i => i.id === item.id);
+    if (existingItem) {
+      existingItem.quantity += 1;
+    } else {
+      this.globalData.cart.push({ ...item, quantity: 1 });
+    }
+  },
+  removeFromCart(itemId) {
+    const index = this.globalData.cart.findIndex(i => i.id === itemId);
+    if (index > -1) {
+      if (this.globalData.cart[index].quantity > 1) {
+        this.globalData.cart[index].quantity -= 1;
+      } else {
+        this.globalData.cart.splice(index, 1);
+      }
+    }
+    if (this.globalData.cart.length === 0) {
+      this.globalData.merchantInfo = null;
+    }
+  },
+  clearCart() {
+    this.globalData.cart = [];
+    this.globalData.merchantInfo = null;
   },
   onLaunch(options) {
     this.globalData.nativeData.sessionKey = "db39fc728d9f6c3da4420e901c2a1fec"

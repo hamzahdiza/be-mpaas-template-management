@@ -127,7 +127,18 @@ export function EventForm({ initialData, onSubmit, isViewMode = false, title, su
 
     const handleConfirmSubmit = () => {
         if (onSubmit) {
-            onSubmit(formData);
+            // Clean up URLs and ensure we have valid data
+            const cleanedBannerUrls = (formData.bannerUrls || []).filter(url => url && typeof url === 'string' && url.trim() !== "");
+            
+            const finalData = {
+                ...formData,
+                bannerUrls: cleanedBannerUrls,
+                ticketCategories: (formData.ticketCategories || []).map(cat => ({
+                    ...cat,
+                    name: (cat.name && typeof cat.name === 'string' ? cat.name.trim() : cat.name) || "Unnamed Category"
+                }))
+            };
+            onSubmit(finalData);
         }
         setShowConfirmModal(false);
     };

@@ -4,7 +4,9 @@ export const authMiddleware = async (c: any, next: any) => {
   const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
   const authHeader = c.req.header('Authorization');
   
-  if (!authHeader) return c.json({ error: 'Unauthorized' }, 401);
+  if (!authHeader || authHeader === 'Bearer undefined' || authHeader === 'Bearer null' || authHeader === 'Bearer ') {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
 
   try {
     const token = authHeader.replace('Bearer ', '');

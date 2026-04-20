@@ -53,40 +53,57 @@ Page({
     const lang = getApp().globalData.languagePack;
     const partnerMenu = getApp().globalData.partnerMenu
 
+    const queryData = my.customUrlQueryData[query.customUrlQueryData] || {};
+    
     const {
-      priceCount,
-      personalData,
-      ticketList,
-      ticketCount,
-      selectedTicket,
-      orderData,
-    } = my.customUrlQueryData[query.customUrlQueryData];
+      priceCount = {},
+      personalData = {},
+      ticketList = [],
+      ticketCount = 0,
+      selectedTicket = null,
+      orderData = {},
+      posContext = null
+    } = queryData;
     
     const formatPriceCount = currencyFormat({
-      value: getApp().globalData.totalPriceGlobal,
+      value: getApp().globalData.totalPriceGlobal || (priceCount.value || 0),
       currency: "IDR",
       isPrefix: false
     })
 
-    const formatTicket = (ticketList || selectedTicket.ticketList).map(ticket => {
+    const ticketsToFormat = (ticketList && ticketList.length > 0) ? ticketList : ((selectedTicket && (selectedTicket.ticketList || selectedTicket.tickets)) || []);
+    
+    const formatTicket = (ticketsToFormat || []).map(ticket => {
+      const amount = ticket.amount || ticket.price || 0;
       ticket.formatTotalPrice = currencyFormat({
-          value: parseInt(ticket.amount)
+          value: parseInt(amount)
         }),
-        ticket.ticketName = ticket.title,
-        ticket.total = ticket.totalDetailTicket
+        ticket.ticketName = ticket.title || ticket.name || "Service",
+        ticket.total = ticket.totalDetailTicket || ticket.ticketQty || 1,
+        ticket.amount = amount
       return {
         ...ticket,
       }
     })
     const truncateString = (str, num) => {
+      if (!str) return "";
       if (str.length <= num) {
         return str;
       }
       return str.slice(0, num) + '...';
     };
 
+    let valPriceCount = 0;
+    if (priceCount && typeof priceCount.value === 'number') {
+      valPriceCount = priceCount.value;
+    } else if (typeof priceCount === 'number') {
+      valPriceCount = priceCount;
+    } else if (typeof priceCount === 'string') {
+      valPriceCount = parseInt(priceCount) || 0;
+    }
+
     this.setData({
-      eventTitle:truncateString(app.globalData.eventTitle, 21), 
+      eventTitle:truncateString(app.globalData.eventTitle || (orderData && orderData.serviceName) || "Payment", 21), 
       lang,
       partnerMenu,
       isLoading: false,
@@ -94,12 +111,13 @@ Page({
       ticketList: formatTicket,
       personalData: {
         ...personalData,
-        fullName: capitalizeTxt(personalData.fullName)
+        fullName: capitalizeTxt(personalData.fullName || "User")
       },
-      priceCount,
+      priceCount: valPriceCount,
       orderData,
       ticketCount,
-      selectedTicket: selectedTicket.ticketList || ticketList,
+      selectedTicket: formatTicket,
+      posContext
     })
     await this.callApiBillPayment()
   },
@@ -291,7 +309,8 @@ Page({
       ticketCount,
       adminFee,
       billerAmount,
-      billerTotal
+      billerTotal,
+      posContext: this.data.posContext
     }
     customNavigateTo({
       url: '/src/app/package_transaction/pages/confirmation-screen-va/confirmation-screen-va',

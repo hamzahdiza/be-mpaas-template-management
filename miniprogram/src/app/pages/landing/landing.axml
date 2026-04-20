@@ -58,41 +58,20 @@
     <scroll-view scroll-x="{{true}}" class="quick-pills-scroll">
       <view class="quick-pills-row">
 
-        <view class="quick-pill" onTap="goToHotelIndex">
-          <view class="quick-pill-icon quick-pill-icon--blue">
-            <image class="quick-pill-img" src="../../../assets/icons/ic_hotel_primary.svg" mode="aspectFit" />
-          </view>
-          <text class="quick-pill-label">Hotel</text>
-        </view>
-
-        <view class="quick-pill" onTap="goToCafeIndex">
-          <view class="quick-pill-icon quick-pill-icon--green">
-            <image class="quick-pill-img" src="../../../assets/icons/ic_common_entertainment.svg" mode="aspectFit" />
-          </view>
-          <text class="quick-pill-label">Cafe</text>
-        </view>
-
-        <view class="quick-pill" onTap="goToRestaurantIndex">
-          <view class="quick-pill-icon quick-pill-icon--amber">
-            <image class="quick-pill-img" src="../../../assets/icons/ic_common_location.svg" mode="aspectFit" />
-          </view>
-          <text class="quick-pill-label">Restoran</text>
-        </view>
-
-        <block a:for="{{ dataPartner }}" a:for-index="index" a:for-item="item" a:if="{{ !isLoading }}">
-          <view class="quick-pill" onTap="goToPartnerWebview" data-selectedPartner="{{item}}">
-            <view class="quick-pill-icon quick-pill-icon--purple">
-              <image class="quick-pill-img" src="{{item.partnerChipIcon}}" mode="aspectFit" />
+        <block a:for="{{ uniqueCategories }}" a:for-index="index" a:for-item="item" a:if="{{ !isLoading }}">
+          <view class="quick-pill" onTap="{{item.onTap}}" data-category="{{item.name}}">
+            <view class="quick-pill-icon quick-pill-icon--{{item.theme}}">
+              <image class="quick-pill-img" src="{{item.icon}}" mode="aspectFit" />
             </view>
-            <text class="quick-pill-label">{{item.partnerCategory}}</text>
+            <text class="quick-pill-label">{{item.name}}</text>
           </view>
         </block>
 
         <!-- loading pills -->
         <block a:for="{{ loadingArr }}" a:if="{{ isLoading }}">
           <view class="quick-pill">
-            <view class="quick-pill-icon skeleton" style="width:52px;height:52px;border-radius:16px;"></view>
-            <text class="quick-pill-label skeleton" style="width:36px;height:12px;border-radius:4px;margin-top:4px;"></text>
+            <view class="quick-pill-icon skeleton" style="width:60px;height:60px;border-radius:20px;"></view>
+            <text class="quick-pill-label skeleton" style="width:40px;height:12px;border-radius:4px;margin-top:4px;"></text>
           </view>
         </block>
 

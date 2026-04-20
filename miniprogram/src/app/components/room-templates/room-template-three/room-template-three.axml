@@ -1,80 +1,45 @@
-<view class="room-detail-luxury animate-slide-right">
-  <view class="header-immersive">
-    <swiper indicator-dots="{{true}}" autoplay="{{true}}" class="room-swiper">
-      <block a:for="{{room.images}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    
-    <view class="luxury-overlay" />
-    
-    <view class="back-button-luxury" onTap="onBackTap">
-      <text class="back-icon-light">✕</text>
+<view class="container-detail-eco">
+  <view class="eco-detail-header">
+    <view class="eco-back-btn" onTap="onBack">
+      <icon type="left" size="24" color="#059669" />
     </view>
-
-    <view class="header-title-container">
-      <text class="luxury-sub-label">Premium {{room.roomType}} Selection</text>
-      <text class="luxury-title-serif">{{room.name}}</text>
+    <text class="eco-essence-label">Sanctuary Detail</text>
+    <view class="eco-icon-btn">
+      <text class="eco-icon-leaf">🌿</text>
     </view>
   </view>
 
-  <scroll-view scroll-y="{{true}}" class="content-scroll-dark">
-    <view class="px-32">
-      <view class="gold-divider" />
-
-      <text class="description-luxury">{{room.description}}</text>
-
-      <view class="grid-2-col mb-48 border-b-luxury">
-        <view class="grid-item">
-          <text class="grid-label">THE SPACE</text>
-          <text class="grid-value-serif">{{room.capacity}} Distinguished Guests</text>
-        </view>
-        <view class="grid-item">
-          <text class="grid-label">RESTING</text>
-          <text class="grid-value-serif">{{room.bedConfig.count}} {{room.bedConfig.type}}</text>
-        </view>
-        <view class="grid-item">
-          <text class="grid-label">AVAILABILITY</text>
-          <text class="grid-value-serif">{{room.stock}} Suites Remaining</text>
-        </view>
-        <view class="grid-item">
-          <text class="grid-label">ATMOSPHERE</text>
-          <text class="grid-value-serif">Signature View</text>
-        </view>
-      </view>
-
-      <view class="mb-40">
-        <text class="section-label-amber">IN-SUITE EXPERIENCE</text>
-        <view class="amenities-grid-2">
-          <block a:for="{{room.roomAmenities}}">
-            <view class="amenity-item-luxury">
-              <view class="gold-dot" />
-              <text class="amenity-text-luxury">{{item}}</text>
-            </view>
-          </block>
-        </view>
-      </view>
-
-      <view class="mb-100">
-        <text class="section-label-amber">BATH & WELLNESS</text>
-        <view class="flex-wrap-wellness">
-          <block a:for="{{room.bathAmenities}}">
-            <text class="wellness-tag-luxury">{{item}}</text>
-          </block>
-        </view>
-      </view>
+  <view class="eco-detail-body">
+    <view class="eco-item-img-container">
+      <view class="eco-img-accent" />
+      <image class="eco-item-img" src="{{room.images[0]}}" mode="aspectFill" />
     </view>
-  </scroll-view>
 
-  <view class="footer-luxury">
-    <view class="price-info-luxury">
-      <text class="rate-label">NIGHTLY RATE</text>
-      <text class="rate-val-serif">Rp {{room.pricePerNight}}</text>
-    </view>
-    <view class="btn-reserve-gold" onTap="onBookTap">
-      <text class="btn-reserve-text-dark">RESERVE SUITE</text>
+    <view class="eco-info-section">
+      <text class="eco-item-name-detail">{{room.name}}</text>
+      
+      <view class="eco-price-rating-row">
+        <view class="eco-price-badge">
+          <text class="eco-price-val">Rp {{room.pricePerNight.toLocaleString('id-ID')}}</text>
+        </view>
+        <view class="eco-avatars">
+          <view class="eco-avatar" style="background-color: #ecfdf5" />
+          <view class="eco-avatar" style="background-color: #d1fae5" />
+          <view class="eco-avatar" style="background-color: #a7f3d0" />
+          <view class="eco-avatar-more">+12</view>
+        </view>
+      </view>
+
+      <view class="eco-desc-container">
+        <view class="eco-desc-line" />
+        <text class="eco-item-desc">{{room.description}}</text>
+      </view>
+
+      <view class="eco-footer-action">
+        <view class="eco-request-btn" onTap="onBook">
+          Request Sanctuary →
+        </view>
+      </view>
     </view>
   </view>
 </view>

@@ -1,79 +1,34 @@
-<view class="room-detail-wrapper animate-slide-right">
-  <view class="header-gallery">
-    <view class="back-button-floating" onTap="onBackTap">
-      <image src="/src/assets/icons/ic_common_arrow_back_white.svg" class="icon-back" />
+<view class="container-detail-urban">
+  <view class="urban-detail-body">
+    <view class="urban-detail-header">
+      <view class="urban-back-btn-large" onTap="onBack">
+        <icon type="left" size="32" color="#0f172a" />
+      </view>
+      <text class="urban-tech-label">Technical Overview</text>
+      <view class="urban-accent-dot" />
     </view>
     
-    <swiper indicator-dots="{{true}}" autoplay="{{true}}" class="room-swiper">
-      <block a:for="{{room.images}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    <view class="top-gradient" />
-  </view>
-
-  <scroll-view scroll-y="{{true}}" class="content-scroll">
-    <view class="body-container">
-      <view class="handle-bar" />
-
-      <view class="header-info">
-        <view class="badge-type">
-          <text class="badge-text">{{room.roomType}}</text>
-        </view>
-        <text class="room-title">{{room.name}}</text>
+    <view class="urban-hero-room-large">
+      <image class="urban-room-img-large" src="{{room.images[0]}}" mode="aspectFill" />
+      <view class="urban-hero-badge">
+         <text class="urban-hero-type">{{room.roomType}}</text>
       </view>
-
-      <view class="specs-grid">
-        <view class="spec-card">
-          <text class="spec-label">BED</text>
-          <text class="spec-value">{{room.bedConfig.count}} {{room.bedConfig.type}}</text>
-        </view>
-        <view class="spec-card">
-          <text class="spec-label">MAX GUESTS</text>
-          <text class="spec-value">{{room.capacity}} Persons</text>
-        </view>
-      </view>
-
-      <view class="section-group">
-        <text class="section-label">DESCRIPTION</text>
-        <text class="section-content">{{room.description}}</text>
-      </view>
-
-      <view class="section-group" a:if="{{room.roomAmenities.length > 0}}">
-        <text class="section-label">ROOM FEATURES</text>
-        <view class="tag-grid">
-          <block a:for="{{room.roomAmenities}}">
-            <view class="tag-blue">
-              <text class="tag-text">✓ {{item}}</text>
-            </view>
-          </block>
-        </view>
-      </view>
-
-      <view class="section-group" a:if="{{room.bathAmenities.length > 0}}">
-        <text class="section-label">BATHROOM</text>
-        <view class="tag-grid">
-          <block a:for="{{room.bathAmenities}}">
-            <view class="tag-gray">
-              <text class="tag-text">• {{item}}</text>
-            </view>
-          </block>
+    </view>
+    
+    <view class="urban-info-section-large">
+      <view class="urban-info-header-large">
+        <text class="urban-room-name-large">{{room.name}}</text>
+        <view class="urban-price-col-large">
+           <text class="urban-price-val-large">Rp {{room.pricePerNight.toLocaleString('id-ID')}}</text>
+           <text class="urban-price-label-large">Selected Rate</text>
         </view>
       </view>
       
-      <view class="spacer-bottom" />
-    </view>
-  </scroll-view>
-
-  <view class="footer-action">
-    <view class="price-group">
-      <text class="price-label">TOTAL PRICE</text>
-      <text class="price-value">Rp {{room.pricePerNight}}</text>
-    </view>
-    <view class="btn-book" onTap="onBookTap">
-      <text class="btn-text">Book This Room</text>
+      <text class="urban-room-desc-large">{{room.description}}</text>
+      
+      <view class="urban-footer-large" onTap="onBook">
+        Confirm Stay →
+      </view>
     </view>
   </view>
 </view>

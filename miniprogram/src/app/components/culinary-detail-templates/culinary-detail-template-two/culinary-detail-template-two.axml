@@ -1,80 +1,36 @@
-<view class="room-detail-urban animate-slide-bottom">
-  <view class="header-gallery">
-    <swiper indicator-dots="{{true}}" autoplay="{{true}}" class="room-swiper">
-      <block a:for="{{room.images}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    
-    <view class="back-button-minimal" onTap="onBackTap">
-      <image src="/src/assets/icons/ic_common_arrow_back.svg" class="icon-back-small" />
+<view class="container-detail premium-dark">
+  <view class="hero-section-premium">
+    <image class="hero-img-premium" src="{{room.imageUrl}}" mode="aspectFill" />
+    <view class="hero-overlay-premium" />
+    <view class="back-btn-premium" onTap="onBack">
+      <icon type="left" size="20" color="#ffffff" />
     </view>
   </view>
 
-  <scroll-view scroll-y="{{true}}" class="content-scroll">
-    <view class="p-32">
-      <view class="flex-between mb-24">
-        <view class="max-w-70">
-          <text class="room-title-urban">{{room.name}}</text>
-          <text class="room-type-tag">{{room.roomType}} Suite</text>
-        </view>
-        <view class="stock-badge">
-          <text class="stock-text">{{room.stock}} Left</text>
-        </view>
+  <view class="detail-content-premium">
+    <text class="section-tag-premium">Dish Overview</text>
+    <text class="item-name-huge">{{room.name}}</text>
+    
+    <view class="desc-container">
+      <view class="accent-line" />
+      <text class="item-desc-premium">{{room.description}}</text>
+    </view>
+
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-label">Price Value</text>
+        <text class="stat-val">Rp {{room.price.toLocaleString('id-ID')}}</text>
       </view>
-
-      <view class="info-row mb-32">
-        <view class="info-item">
-          <text class="info-label">CAPACITY</text>
-          <text class="info-val">{{room.capacity}} Persons</text>
-        </view>
-        <view class="vertical-divider" />
-        <view class="info-item">
-          <text class="info-label">BED</text>
-          <text class="info-val">{{room.bedConfig.count}} {{room.bedConfig.type}}</text>
-        </view>
-      </view>
-
-      <text class="description-urban mb-40">{{room.description}}</text>
-
-      <text class="section-label-urban mb-24">CORE AMENITIES</text>
-      <view class="amenities-grid-4 mb-40">
-        <block a:for="{{room.roomAmenities}}" a:for-item="item" a:for-index="index" a:if="{{index < 4}}">
-          <view class="amenity-icon-item">
-            <view class="icon-box">
-              <text class="emoji-icon">{{
-                item.toLowerCase().includes('wifi') ? '📶' :
-                item.toLowerCase().includes('ac') ? '❄️' :
-                item.toLowerCase().includes('tv') ? '📺' : '✨'
-              }}</text>
-            </view>
-            <text class="amenity-short-name">{{item}}</text>
-          </view>
-        </block>
-      </view>
-
-      <view class="mb-40">
-        <text class="section-label-light mb-12">ROOM FEATURES</text>
-        <view class="flex-wrap">
-          <block a:for="{{room.roomAmenities}}">
-            <view class="hashtag-tag">
-              <text class="hashtag-text">#{{item}}</text>
-            </view>
-          </block>
-        </view>
+      <view class="stat-item">
+        <text class="stat-label">Chef Note</text>
+        <text class="stat-val uppercase">Signature</text>
       </view>
     </view>
-  </scroll-view>
 
-  <view class="footer-urban">
-    <view>
-      <text class="footer-price-label">PRICE /NIGHT</text>
-      <text class="footer-price-val">Rp {{room.pricePerNight}}</text>
-    </view>
-    <view class="btn-reserve" onTap="onBookTap">
-      <text class="btn-reserve-text">RESERVE</text>
+    <view class="footer-action-premium">
+      <view class="signature-box-btn" onTap="onBook">
+        ADD TO SIGNATURE BOX
+      </view>
     </view>
   </view>
 </view>

@@ -40,22 +40,24 @@ Page({
   onLoad(query) {
     firebaseScreenView("javaJazzFestivalConfirmationScreen", "javaJazzFestivalConfirmationScreen")
     let lang = getApp().globalData.languagePack;
+    const queryData = my.customUrlQueryData[query.customUrlQueryData] || {};
     const {
-      partnerMenu,
-      personalData,
-      sourceOfFund,
-      billerDetail,
-      selectedTicket,
-      priceCount,
-      ticketCount,
-      adminFee,
-      billerAmount,
-      billerTotal
-    } = my.customUrlQueryData[query.customUrlQueryData];
+      partnerMenu = {},
+      personalData = {},
+      sourceOfFund = {},
+      billerDetail = {},
+      selectedTicket = [],
+      priceCount = 0,
+      ticketCount = 0,
+      adminFee = 0,
+      billerAmount = 0,
+      billerTotal = 0,
+      posContext = null
+    } = queryData;
 
-    const foramtSelectedTicket = selectedTicket.map(ticket => {
+    const foramtSelectedTicket = (selectedTicket || []).map(ticket => {
       ticket.formatTotalPrice = currencyFormat({
-        value: parseInt(ticket.amount)
+        value: parseInt(ticket.amount || 0)
       })
       return {
         ...ticket
@@ -81,11 +83,11 @@ Page({
     }, ]
     const detailTransaksiLain = [{
       title: lang.javaJazzFestivalConfirmationScreenBuyerNameLabel,
-      value: personalData.fullName,
+      value: personalData.fullName || "-",
       id: "lifestyle-java-jazz-festival-confirmation-screen-button-show-close-detail"
     }, {
       title: lang.javaJazzFestivalConfirmationScreenBuyerEmailLabel,
-      value: personalData.email,
+      value: personalData.email || "-",
       id: "lifestyle-virtual-account-confirmation-detail-payment-fee-amount"
     }, ]
 
@@ -112,6 +114,7 @@ Page({
       billerTotal,
       totalAmount,
       formatedTotalAmount,
+      posContext
     })
     this.transactionLimit()
   },
@@ -210,7 +213,8 @@ Page({
           transactionData: dataCombined,
           authType,
           partnerMenu,
-          transactionTypePartner: partnerMenu.transactionType
+          transactionTypePartner: partnerMenu.transactionType,
+          posContext: this.data.posContext
         }
       })
     } catch (err) {

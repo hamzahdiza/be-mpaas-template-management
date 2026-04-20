@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { cafesRestaurants, events, hotels, serviceOrders } from '../db/schema';
+import { cafesRestaurants, events, hotels, rentals, serviceOrders, umkms } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth'; 
 
@@ -27,6 +27,16 @@ dashboardRoutes.get('/all-services', async (c) => {
     const userCafeRestaurants = await db.query.cafesRestaurants.findMany({
       where: isAdmin ? undefined : eq(cafesRestaurants.userId, userId),
       orderBy: [desc(cafesRestaurants.createdAt)],
+    });
+
+    const userRentals = await db.query.rentals.findMany({
+      where: isAdmin ? undefined : eq(rentals.userId, userId),
+      orderBy: [desc(rentals.createdAt)],
+    });
+
+    const userUmkms = await db.query.umkms.findMany({
+      where: isAdmin ? undefined : eq(umkms.userId, userId),
+      orderBy: [desc(umkms.createdAt)],
     });
 
     const userOrders = await db.query.serviceOrders.findMany({
@@ -58,9 +68,27 @@ dashboardRoutes.get('/all-services', async (c) => {
         createdAt: v.createdAt,
         status: 'Active',
         location: v.location,
+      })),
+      ...userRentals.map((r) => ({
+        id: r.id,
+        name: r.name,
+        type: 'RENTAL',
+        createdAt: r.createdAt,
+        status: 'Active',
+        location: r.location,
+      })),
+      ...userUmkms.map((u) => ({
+        id: u.id,
+        name: u.name,
+        type: 'UMKM',
+        createdAt: u.createdAt,
+        status: 'Active',
+        location: u.location,
       }))
     ].sort((a, b) => {
-        return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime();
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
     });
 
     return c.json({
@@ -71,11 +99,15 @@ dashboardRoutes.get('/all-services', async (c) => {
         totalEvents: userEvents.length,
         totalHotels: userHotels.length,
         totalCafesRestaurants: userCafeRestaurants.length,
+        totalRentals: userRentals.length,
+        totalUmkms: userUmkms.length,
         totalOrders: userOrders.length,
         raw: {
           events: userEvents,
           hotels: userHotels,
           cafesRestaurants: userCafeRestaurants,
+          rentals: userRentals,
+          umkms: userUmkms,
           orders: userOrders
         }
       }
