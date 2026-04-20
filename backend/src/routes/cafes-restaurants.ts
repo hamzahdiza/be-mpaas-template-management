@@ -103,6 +103,7 @@ cafeRestaurantRoutes.put("/:id", zValidator("json", cafeRestaurantSchema.partial
   const user = c.get("jwtPayload") as any;
   const id = c.req.param("id");
   const payload = c.req.valid("json");
+  const isAdmin = user.role === "admin";
 
   const { bannerUrl, menuItems, ...rest } = payload;
   const updatePayload: Record<string, any> = {
@@ -126,7 +127,7 @@ cafeRestaurantRoutes.put("/:id", zValidator("json", cafeRestaurantSchema.partial
   const updated = await db
     .update(cafesRestaurants)
     .set(updatePayload)
-    .where(and(eq(cafesRestaurants.id, id), eq(cafesRestaurants.userId, user.sub)))
+    .where(isAdmin ? eq(cafesRestaurants.id, id) : and(eq(cafesRestaurants.id, id), eq(cafesRestaurants.userId, user.sub)))
     .returning();
 
   if (!updated.length) return c.json({ error: "Data tidak ditemukan / tidak berizin" }, 404);
@@ -136,12 +137,13 @@ cafeRestaurantRoutes.put("/:id", zValidator("json", cafeRestaurantSchema.partial
 cafeRestaurantRoutes.delete("/:id", async (c) => {
   const user = c.get("jwtPayload") as any;
   const id = c.req.param("id");
+  const isAdmin = user.role === "admin";
 
   const deleted = await db
     .delete(cafesRestaurants)
-    .where(and(eq(cafesRestaurants.id, id), eq(cafesRestaurants.userId, user.sub)))
+    .where(isAdmin ? eq(cafesRestaurants.id, id) : and(eq(cafesRestaurants.id, id), eq(cafesRestaurants.userId, user.sub)))
     .returning();
 
   if (!deleted.length) return c.json({ error: "Data tidak ditemukan / tidak berizin" }, 404);
-  return c.json({ message: "Cafe/Restoran berhasil dihapus" });
+  return c.json({ success: true, data: deleted[0] });
 });

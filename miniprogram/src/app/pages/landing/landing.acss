@@ -158,32 +158,37 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+.quick-pill:active {
+  transform: scale(0.95);
 }
 .quick-pill-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
+  width: 60px;
+  height: 60px;
+  border-radius: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
-.quick-pill-icon--purple { background-color: #EDE8FB; }
-.quick-pill-icon--blue   { background-color: #E8EDFF; }
-.quick-pill-icon--green  { background-color: #E6F9EF; }
-.quick-pill-icon--amber  { background-color: #FFF1E6; }
-.quick-pill-icon--pink   { background-color: #FDE8F0; }
-.quick-pill-icon--red    { background-color: #FDECEC; }
+.quick-pill-icon--purple { background: linear-gradient(135deg, #EDE8FB 0%, #DED4F8 100%); }
+.quick-pill-icon--blue   { background: linear-gradient(135deg, #E8EDFF 0%, #D4DDFF 100%); }
+.quick-pill-icon--green  { background: linear-gradient(135deg, #E6F9EF 0%, #D1F2DF 100%); }
+.quick-pill-icon--amber  { background: linear-gradient(135deg, #FFF1E6 0%, #FFE4CF 100%); }
+.quick-pill-icon--pink   { background: linear-gradient(135deg, #FDE8F0 0%, #FAD4E1 100%); }
+.quick-pill-icon--red    { background: linear-gradient(135deg, #FDECEC 0%, #FAD9D9 100%); }
 .quick-pill-img {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 .quick-pill-label {
   font-family: "TT Interphases Pro";
-  font-size: 11px;
-  font-weight: 500;
-  color: #555555;
+  font-size: 12px;
+  font-weight: 600;
+  color: #333333;
   text-align: center;
   white-space: nowrap;
 }

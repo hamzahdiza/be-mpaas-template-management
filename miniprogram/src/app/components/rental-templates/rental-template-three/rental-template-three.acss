@@ -1,0 +1,161 @@
+.rental-v3-container {
+  background: #0F172A;
+  min-height: 100vh;
+  padding: 20px;
+  color: white;
+}
+
+.dark-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.brand-text {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+}
+
+.status-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(34, 197, 94, 0.1);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  background: #22C55E;
+  border-radius: 50%;
+}
+
+.status-dot text {
+  font-size: 10px;
+  font-weight: 700;
+  color: #22C55E;
+}
+
+.search-bar-v3 {
+  background: #1E293B;
+  padding: 12px 16px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.search-bar-v3 text {
+  color: #64748B;
+  font-size: 14px;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 800;
+  color: #64748B;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.h-scroll {
+  white-space: nowrap;
+  margin-bottom: 32px;
+}
+
+.featured-card {
+  display: inline-block;
+  width: 200px;
+  height: 260px;
+  border-radius: 24px;
+  overflow: hidden;
+  position: relative;
+  margin-right: 16px;
+}
+
+.featured-card image {
+  width: 100%;
+  height: 100%;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.8));
+}
+
+.f-name {
+  font-size: 16px;
+  font-weight: 700;
+  display: block;
+}
+
+.f-price {
+  font-size: 14px;
+  color: #38BDF8;
+  font-weight: 600;
+}
+
+.list-item {
+  background: #1E293B;
+  padding: 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.li-img {
+  width: 80px;
+  height: 60px;
+  border-radius: 12px;
+}
+
+.li-info {
+  flex: 1;
+}
+
+.li-name {
+  font-size: 15px;
+  font-weight: 700;
+  display: block;
+}
+
+.li-specs {
+  font-size: 11px;
+  color: #64748B;
+  display: flex;
+  gap: 6px;
+  margin: 2px 0;
+}
+
+.li-price {
+  font-size: 13px;
+  font-weight: 700;
+  color: #38BDF8;
+}
+
+.li-btn {
+  width: 32px;
+  height: 32px;
+  background: #334155;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.li-btn image {
+  width: 16px;
+  height: 16px;
+}

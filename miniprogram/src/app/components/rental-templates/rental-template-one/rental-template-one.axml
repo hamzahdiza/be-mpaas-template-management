@@ -1,0 +1,63 @@
+<view class="rental-container">
+  <view class="hero-section">
+    <swiper 
+      indicator-dots="{{true}}" 
+      autoplay="{{true}}" 
+      circular="{{true}}"
+      class="banner-swiper"
+    >
+      <swiper-item>
+        <image class="banner-img" src="{{data.bannerUrl}}" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+    <view class="hero-overlay">
+      <view class="category-badge">PREMIUM RENTAL</view>
+      <text class="rental-name">{{data.name}}</text>
+      <view class="location-row">
+        <image class="loc-icon" src="https://img.icons8.com/ios-filled/50/ffffff/marker.png" />
+        <text class="loc-text">{{data.location}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="fleet-section">
+    <view class="section-header">
+      <text class="section-title">OUR FLEET</text>
+      <text class="section-subtitle">Choose your perfect ride</text>
+    </view>
+
+    <view class="vehicle-list">
+      <block a:for="{{data.vehicles}}">
+        <view class="vehicle-card" onTap="onVehicleTap" data-item="{{item}}">
+          <view class="vehicle-img-container">
+            <image class="vehicle-img" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="availability-badge">AVAILABLE</view>
+          </view>
+          <view class="vehicle-info">
+            <view class="info-top">
+              <text class="v-name">{{item.name}}</text>
+              <view class="price-box">
+                <text class="v-price">Rp {{item.pricePerDay.toLocaleString('id-ID')}}</text>
+                <text class="v-unit">/ day</text>
+              </view>
+            </view>
+            <view class="info-bottom">
+              <view class="spec-item">
+                <text class="spec-label">TYPE</text>
+                <text class="spec-val">{{item.type}}</text>
+              </view>
+              <view class="spec-item">
+                <text class="spec-label">GEAR</text>
+                <text class="spec-val">{{item.transmission}}</text>
+              </view>
+              <view class="spec-item">
+                <text class="spec-label">SEATS</text>
+                <text class="spec-val">{{item.capacity}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

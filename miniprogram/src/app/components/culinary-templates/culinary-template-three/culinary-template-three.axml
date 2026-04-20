@@ -1,43 +1,68 @@
-<view class="container-luxury animate-in">
-  <view class="header-immersive">
-    <swiper 
-      indicator-dots="{{true}}" 
-      autoplay="{{true}}" 
-      class="header-swiper"
-    >
-      <block a:for="{{[data.bannerUrl]}}">
-        <swiper-item>
-          <image src="{{item}}" mode="scaleToFill" class="image-slider" />
-        </swiper-item>
-      </block>
-    </swiper>
-    <view class="overlay-gradient" />
+<view class="container-index playful">
+  <view class="hero-playful">
+    <!-- Abstract Circles Dummy -->
+    <view class="circle-1" />
+    <view class="circle-2" />
     
-    <view class="header-content-center">
-      <text class="luxury-tag">LUXURY EXPERIENCE</text>
-      <text class="hotel-name-serif">{{data.name}}</text>
+    <view class="hero-top">
+      <view class="icon-box-playful">
+        <image class="fork-icon" src="https://img.icons8.com/ios-filled/50/f43f5e/restaurant.png" />
+      </view>
+      <view class="promo-pill">PROMO GILA!</view>
+    </view>
+    <text class="merchant-name-playful">{{data.name}}</text>
+  </view>
+
+  <view class="playful-stats-container">
+    <view class="playful-stats">
+       <view class="stat-col">
+         <text class="stat-label-playful">Jarak</text>
+         <text class="stat-val-playful">1.2 KM</text>
+       </view>
+       <view class="stat-col divider">
+         <text class="stat-label-playful">Rating</text>
+         <text class="stat-val-playful highlight">★ 4.9</text>
+       </view>
+       <view class="stat-col divider">
+         <text class="stat-label-playful">Waktu</text>
+         <text class="stat-val-playful">20 Mnt</text>
+       </view>
     </view>
   </view>
 
-  <view class="content-overlap">
-    <view class="card-luxury-main">
-      <text class="suite-selection-title">Select Your Suite</text>
-      
-      <view class="suite-grid">
-        <block a:for="{{data.categories}}">
-          <view 
-            class="suite-item" 
-            onTap="handleRoomTap" 
-            data-item="{{item}}"
-          >
-            <view class="suite-img-wrapper">
-              <image class="suite-img" src="{{item.images[0]}}" mode="aspectFill" />
-            </view>
-            <text class="suite-name">{{item.name}}</text>
-            <text class="suite-price-italic">Explore this room — Rp {{item.pricePerNight}}</text>
-          </view>
-        </block>
-      </view>
+  <view class="playful-content">
+    <view class="section-header-playful">
+      <text class="section-title-playful">Paling Laku! 🔥</text>
+      <view class="arrow-btn-playful">→</view>
     </view>
+
+    <scroll-view scroll-x="{{true}}" class="playful-scroll" show-scrollbar="{{false}}">
+      <block a:for="{{data.menuItems}}">
+        <view class="playful-card" onTap="handleRoomTap" data-item="{{item}}">
+          <view class="card-img-container-playful">
+            <image class="card-img-playful" src="{{item.imageUrl}}" mode="aspectFill" />
+            <view class="discount-tag">-50%</view>
+          </view>
+          <text class="item-name-playful">{{item.name}}</text>
+          <view class="price-row-playful">
+             <view class="price-col-playful">
+               <text class="price-now">Rp {{(item.price/2).toLocaleString('id-ID')}}</text>
+               <text class="price-old">Rp {{item.price.toLocaleString('id-ID')}}</text>
+             </view>
+             <view class="add-btn-playful" catchTap="onAddClick" data-item="{{item}}">Beli</view>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+
+  <!-- Cart Bar for T3 (Playful) -->
+  <view class="cart-bar-playful" onTap="onCheckoutClick" a:if="{{cartCount > 0}}">
+    <view class="cart-badge-playful">{{cartCount}}</view>
+    <view class="cart-content-playful">
+      <text class="cart-total-playful">Rp {{totalCartPrice.toLocaleString('id-ID')}}</text>
+      <text class="cart-msg-playful">Lanjut Bayar Kuy! 🚀</text>
+    </view>
+    <view class="cart-arrow-playful">→</view>
   </view>
 </view>

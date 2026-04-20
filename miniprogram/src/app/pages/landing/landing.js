@@ -38,7 +38,8 @@ Page({
     errorReload: 0,
     allEvents: Array([]),
     isEventsLoading: Boolean(true),
-    eventsLoadingArr: [1, 2, 3]
+    eventsLoadingArr: [1, 2, 3],
+    uniqueCategories: Array([])
   },
 
   onShow() {
@@ -117,11 +118,11 @@ Page({
       dataBanner
     } = partnerMenusRaw.reduce((acc, menu) => {
       const iconMapping = {
-        event: "/src/assets/icons/ic_common_entertainment.svg",
-        gift: "/src/assets/icons/ic_common_dikado.svg",
-        otomotif: "/src/assets/icons/ic_common_cc_automotive.svg",
-        transportasi: "/src/assets/icons/ic_common_transportation.svg",
-        voucher: "/src/assets/icons/ic_common_discount_menu.svg"
+        event: "https://img.icons8.com/color/96/theatre-mask.png",
+        gift: "https://img.icons8.com/color/96/gift.png",
+        otomotif: "https://img.icons8.com/color/96/car.png",
+        transportasi: "https://img.icons8.com/color/96/bus.png",
+        voucher: "https://img.icons8.com/color/96/discount.png"
       };
       const partnerChipIcon = iconMapping[menu.category.toLowerCase()];
       const formattedMenu = {
@@ -138,7 +139,8 @@ Page({
           value: menu.isDiscount ? menu.amount - menu.discount : menu.amount
         }),
         isImageLoading: true,
-        partnerChipIcon
+        partnerChipIcon,
+        rawMenu: menu
       };
 
       acc.dataPartner.push(formattedMenu);
@@ -149,10 +151,78 @@ Page({
       dataBanner: []
     });
 
+    const categories = dataPartner.map(item => item.partnerCategory);
+    const allCategories = ['Hotel', 'Cafe', 'Restoran', 'Rental', 'UMKM', ...categories];
+    const uniqueCategoryNames = [];
+    const seen = new Set();
+
+    allCategories.forEach(cat => {
+      if (!cat) return;
+      const lower = cat.toLowerCase();
+      // Normalize Restaurant -> Restoran
+      const normalized = lower === 'restaurant' ? 'restoran' : lower;
+      
+      if (!seen.has(normalized)) {
+        seen.add(normalized);
+        // Keep the original case or use Title Case for consistency
+        const titleCase = cat === 'UMKM' ? 'UMKM' : cat.charAt(0).toUpperCase() + cat.slice(1).toLowerCase();
+        uniqueCategoryNames.push(titleCase);
+      }
+    });
+
+    uniqueCategoryNames.sort((a, b) => a.localeCompare(b));
+
+    const iconMapping = {
+      event: "https://cdn-icons-png.flaticon.com/128/1614/1614997.png",
+      gift: "https://cdn-icons-png.flaticon.com/128/9466/9466122.png",
+      otomotif: "https://cdn-icons-png.flaticon.com/128/18042/18042764.png",
+      transportasi: "https://cdn-icons-png.flaticon.com/128/18146/18146594.png",
+      voucher: "https://cdn-icons-png.flaticon.com/128/6713/6713699.png",
+      hotel: "https://cdn-icons-png.flaticon.com/128/1475/1475996.png",
+      cafe: "https://cdn-icons-png.flaticon.com/128/4721/4721026.png",
+      restoran: "https://cdn-icons-png.flaticon.com/128/1046/1046798.png",
+      restaurant: "https://cdn-icons-png.flaticon.com/128/1046/1046798.png",
+      rental: "https://cdn-icons-png.flaticon.com/128/18146/18146594.png",
+      umkm: "https://cdn-icons-png.flaticon.com/128/6713/6713699.png",
+      charity: "https://cdn-icons-png.flaticon.com/128/10543/10543622.png"
+    };
+
+    const themeMapping = {
+      hotel: 'blue',
+      cafe: 'green',
+      restoran: 'amber',
+      restaurant: 'amber',
+      rental: 'indigo',
+      umkm: 'rose',
+      event: 'purple',
+      gift: 'purple',
+      otomotif: 'purple',
+      transportasi: 'purple',
+      voucher: 'purple'
+    };
+
+    const uniqueCategories = uniqueCategoryNames.map(name => {
+      const lowerName = name.toLowerCase();
+      let onTap = 'goToCategoryDetail';
+      if (lowerName === 'hotel') onTap = 'goToHotelIndex';
+      else if (lowerName === 'cafe') onTap = 'goToCafeIndex';
+      else if (lowerName === 'restoran' || lowerName === 'restaurant') onTap = 'goToRestaurantIndex';
+      else if (lowerName === 'rental') onTap = 'goToRentalIndex';
+      else if (lowerName === 'umkm') onTap = 'goToUmkmIndex';
+
+      return {
+        name,
+        icon: iconMapping[lowerName] || "/src/assets/icons/ic_common_entertainment.svg",
+        theme: themeMapping[lowerName] || 'purple',
+        onTap
+      };
+    });
+
     this.setData({
       partnerMenus: partnerMenusRaw,
       dataPartner: dataPartner,
       dataBanner: dataBanner,
+      uniqueCategories,
       isOneData: dataPartner.length === 1,
       errorReload: 0
     });
@@ -468,12 +538,65 @@ Page({
       },
     });
   },
-  goToRestaurantIndex() {
+  goToRestaurantIndex(e) {
+    const categoryName = e.currentTarget.dataset.name;
+    const partnerList = this.data.dataPartner.filter(item => item.partnerCategory.toLowerCase() === 'restaurant' || item.partnerCategory.toLowerCase() === 'restoran');
+
     customNavigateTo({
       url: "/src/app/pages/package_culinary/landing-culinary/landing-culinary",
       data: {
-        source: "landing_lifestyle",
-        category: "restaurant",
+        categoryName,
+        partnerList,
+        lang: this.data.lang
+      }
+    });
+  },
+
+  goToRentalIndex(e) {
+    const categoryName = e.currentTarget.dataset.name;
+    const partnerList = this.data.dataPartner.filter(item => item.partnerCategory.toLowerCase() === 'rental');
+
+    customNavigateTo({
+      url: "/src/app/pages/category-list/category-list",
+      data: {
+        categoryName,
+        partnerList,
+        lang: this.data.lang
+      }
+    });
+  },
+
+  goToUmkmIndex(e) {
+    const categoryName = e.currentTarget.dataset.name;
+    const partnerList = this.data.dataPartner.filter(item => item.partnerCategory.toLowerCase() === 'umkm');
+
+    customNavigateTo({
+      url: "/src/app/pages/category-list/category-list",
+      data: {
+        categoryName,
+        partnerList,
+        lang: this.data.lang
+      }
+    });
+  },
+
+  goToCategoryDetail(e) {
+    const categoryName = e.currentTarget.dataset.category;
+    const partnerList = this.data.dataPartner.filter(item => {
+      const itemCat = (item.partnerCategory || "").toLowerCase();
+      const targetCat = categoryName.toLowerCase();
+      if (targetCat === 'restoran' || targetCat === 'restaurant') {
+        return itemCat === 'restoran' || itemCat === 'restaurant';
+      }
+      return itemCat === targetCat;
+    });
+    
+    customNavigateTo({
+      url: "/src/app/pages/category-list/category-list",
+      data: {
+        categoryName,
+        partnerList,
+        lang: this.data.lang
       },
     });
   },

@@ -1,0 +1,22 @@
+<view class="rental-v4-container">
+  <view class="v4-header">
+    <text class="v4-title">{{data.name}}</text>
+    <text class="v4-subtitle">Premium Mobility Solutions</text>
+  </view>
+
+  <view class="v4-list">
+    <block a:for="{{data.vehicles}}">
+      <view class="v4-card" onTap="onVehicleTap" data-item="{{item}}">
+        <view class="v4-card-left">
+          <text class="v4-vname">{{item.name}}</text>
+          <text class="v4-vtype">{{item.type}}</text>
+          <view class="v4-price-row">
+            <text class="v4-vprice">Rp {{item.pricePerDay.toLocaleString('id-ID')}}</text>
+            <text class="v4-vunit">/day</text>
+          </view>
+        </view>
+        <image class="v4-vimg" src="{{item.imageUrl}}" mode="aspectFill" />
+      </view>
+    </block>
+  </view>
+</view>

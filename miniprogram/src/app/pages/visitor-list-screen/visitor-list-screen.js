@@ -6,7 +6,8 @@ import {
 } from "/src/utils/route-util"
 import {
   getPersonalData,
-  orderTickets
+  orderTickets,
+  createServiceOrder
 } from "/src/public/api"
 import generalError from '/src/utils/generalError'
 import {
@@ -360,24 +361,72 @@ Page({
         "Signature": signature
       })
 
-      customNavigateTo({
-        url: '/src/app/package_transaction/pages/gather-screen-va/gather-screen-va',
-        data: {
-          selectedTicket: orderRequest,
-          personalData: this.data.personalData,
-          ticketCount: this.data.ticketCount,
-          priceCount: this.data.priceCount.value,
-          ticketList: this.data.selectedTicket.map((ticket) => {
-            return {
-              title: ticket.tickets[0].title,
-              "totalDetailTicket": ticket.total,
-              "amount": ticket.tickets[0].totalPrice
-            }
-          }),
-          partnerMenu: getApp().globalData.partnerMenu,
-          orderData: data.dataProtected
-        }
-      })
+      // Integrate with Internal POS System
+      try {
+        const posPayload = {
+          orderType: "event",
+          serviceId: this.data.eventDetail.id || "EVENT-JJF",
+          customerName: this.data.personalData.fullName || "User Miniprogram",
+          customerPhone: this.data.personalData.phone || "-",
+          notes: `Booking Tiket Event (Multi): ${this.data.eventDetail.name || "Java Jazz"}`,
+          quantity: this.data.ticketCount || 1,
+          totalAmount: this.data.priceCount.value || 0,
+          orderPayload: {
+            tickets: encryptedReq.tickets,
+            orderId: data.dataProtected.orderId || "INTERNAL-ID"
+          }
+        };
+
+        console.log("Sending to POS:", posPayload);
+        const posRes = await createServiceOrder(posPayload);
+        console.log("POS Response:", posRes);
+
+        // Update orderData with POS result if available
+        const finalOrderData = {
+          ...data.dataProtected,
+          orderId: (posRes.data && posRes.data.id) || posRes.id || (data.dataProtected && data.dataProtected.orderId)
+        };
+
+        customNavigateTo({
+          url: '/src/app/package_transaction/pages/gather-screen-va/gather-screen-va',
+          data: {
+            selectedTicket: orderRequest,
+            personalData: this.data.personalData,
+            ticketCount: this.data.ticketCount,
+            priceCount: this.data.priceCount.value,
+            ticketList: this.data.selectedTicket.map((ticket) => {
+              return {
+                title: ticket.tickets[0].title,
+                "totalDetailTicket": ticket.total,
+                "amount": ticket.tickets[0].totalPrice
+              }
+            }),
+            partnerMenu: getApp().globalData.partnerMenu,
+            orderData: finalOrderData
+          }
+        })
+      } catch (posErr) {
+        console.error("POS Integration Error:", posErr);
+        // Tetap arahkan ke payment screen meskipun POS gagal, agar user bisa bayar
+        customNavigateTo({
+          url: '/src/app/package_transaction/pages/gather-screen-va/gather-screen-va',
+          data: {
+            selectedTicket: orderRequest,
+            personalData: this.data.personalData,
+            ticketCount: this.data.ticketCount,
+            priceCount: this.data.priceCount.value,
+            ticketList: this.data.selectedTicket.map((ticket) => {
+              return {
+                title: ticket.tickets[0].title,
+                "totalDetailTicket": ticket.total,
+                "amount": ticket.tickets[0].totalPrice
+              }
+            }),
+            partnerMenu: getApp().globalData.partnerMenu,
+            orderData: data.dataProtected
+          }
+        })
+      }
     } catch (err) {
       generalError({
         err

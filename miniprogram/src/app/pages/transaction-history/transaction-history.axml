@@ -1,0 +1,57 @@
+<view className="history-container">
+  <view class="sticky-top">
+    <top-bar
+      type="navigation"
+      navigate
+      safeArea
+      pixel
+      backgroundColor="var(--white)"
+      title="Riwayat Transaksi"
+      iconL="/src/assets/icons/ic_common_arrow_back.svg"
+    />
+  </view>
+  
+  <view className="header">
+    <text className="title">Riwayat Transaksi</text>
+    <text className="subtitle">Lacak pesanan gaya hidup Anda</text>
+  </view>
+
+  <view a:if="{{isLoading}}" className="loading-state">
+    <view className="spinner"></view>
+    <text>Memuat riwayat...</text>
+  </view>
+
+  <view a:elif="{{transactions.length > 0}}" className="history-list">
+    <view a:for="{{transactions}}" key="{{item.id}}" className="history-item" onTap="goToDetail" data-id="{{item.id}}">
+      <view className="item-main">
+        <view className="category-icon {{item.orderType}}">
+          <text>{{item.categoryIcon}}</text>
+        </view>
+        <view className="item-info">
+          <text className="service-name">{{item.serviceName}}</text>
+          <text className="order-date">{{item.formattedDate}}</text>
+          <view className="status-badge {{item.status}}">
+            <text>{{item.displayStatus}}</text>
+          </view>
+        </view>
+        <view className="item-amount">
+          <text className="amount">{{item.formattedAmount}}</text>
+          <text className="invoice-no" a:if="{{item.invoiceNumber}}">{{item.invoiceNumber}}</text>
+        </view>
+      </view>
+      
+      <!-- Timeline sederhana untuk status operasional Cafe/Resto -->
+      <view a:if="{{item.orderType === 'cafe' || item.orderType === 'restaurant'}}" className="operational-note">
+        <text a:if="{{item.status === 'preparing'}}">👨‍🍳 Sedang dimasak oleh chef...</text>
+        <text a:if="{{item.status === 'ready'}}">✅ Makanan sudah siap!</text>
+        <text a:if="{{item.status === 'delivering'}}">🛵 Driver sedang menuju lokasi Anda</text>
+      </view>
+    </view>
+  </view>
+
+  <view a:else className="empty-state">
+    <text className="empty-icon">📂</text>
+    <text className="empty-text">Belum ada transaksi terekam</text>
+    <button className="shop-now" onTap="homeHandler">Mulai Belanja</button>
+  </view>
+</view>

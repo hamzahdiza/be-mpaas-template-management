@@ -1,62 +1,36 @@
-<view class="container-index">
-  <view class="banner-section">
-    <image class="banner-img" src="{{data.bannerUrl}}" mode="aspectFill" />
-    <view class="banner-overlay" />
+<view class="container-index hotel-urban">
+  <view class="urban-header">
+    <view class="urban-header-top">
+      <view class="urban-title-col">
+        <text class="urban-tagline">Next-Gen Stay</text>
+        <text class="urban-hotel-name">{{data.name}}</text>
+      </view>
+      <view class="urban-stay-badge">
+        <text class="urban-stay-text">STAY</text>
+      </view>
+    </view>
     
-    <view class="floating-top">
-      <view class="star-container">
-        <text a:for="{{data.starRating}}" class="star-icon">⭐</text>
-      </view>
-      <text class="location-text">{{data.location}}</text>
-    </view>
-
-    <view class="floating-bottom">
-      <text class="hotel-title">{{data.name}}</text>
-      <view class="address-row">
-        <text class="address-text">📍 {{data.locationAddress}}</text>
-      </view>
-    </view>
-  </view>
-
-  <view class="content-body">
-    <view class="section-container">
-      <text class="section-label">OVERVIEW</text>
-      <text class="overview-desc">{{data.description}}</text>
-    </view>
-
-    <view class="section-container">
-      <text class="section-label">OUR ROOMS</text>
-      
-      <view class="room-grid">
-        <block a:for="{{data.categories}}">
-          <view 
-            class="room-card" 
-            onTap="handleRoomTap" 
-            data-item="{{item}}"
-          >
-            <view class="room-img-wrapper">
-              <image class="room-img" src="{{item.images[0]}}" mode="aspectFill" />
-            </view>
-            
-            <view class="room-details">
-              <view>
-                <text class="room-name">{{item.name}}</text>
-                <text class="room-type">{{item.roomType}} • Max {{item.capacity}} Guests</text>
-              </view>
-              
-              <view class="room-price-row">
-                <view>
-                  <text class="price-val">Rp {{item.pricePerNight}}</text>
-                  <text class="price-unit"> /night</text>
-                </view>
-                <view class="arrow-circle">
-                  <text class="arrow-icon">→</text>
-                </view>
-              </view>
+    <view class="urban-list">
+      <block a:for="{{data.categories}}" a:for-index="idx">
+        <view class="urban-room-card" onTap="handleRoomTap" data-item="{{item}}">
+          <view class="urban-img-wrapper">
+            <image class="urban-room-img" src="{{item.images[0]}}" mode="aspectFill" />
+            <view class="urban-number-badge">
+              <text class="urban-number">0{{idx + 1}}</text>
             </view>
           </view>
-        </block>
-      </view>
+          <view class="urban-info-row">
+            <view class="urban-info-left">
+              <text class="urban-room-name">{{item.name}}</text>
+              <text class="urban-room-meta">{{item.roomType}} 👤 {{item.capacity}} Guests</text>
+            </view>
+            <view class="urban-info-right">
+              <text class="urban-price-val">Rp {{item.pricePerNight.toLocaleString('id-ID')}}</text>
+              <text class="urban-price-unit">per night</text>
+            </view>
+          </view>
+        </view>
+      </block>
     </view>
   </view>
 </view>

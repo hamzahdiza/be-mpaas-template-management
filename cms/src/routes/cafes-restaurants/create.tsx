@@ -15,17 +15,17 @@ function CreateCafeRestaurant() {
   const mutation = useMutation({
     mutationFn: createCafeRestaurant,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success('Cafe/Restoran berhasil dibuat');
-      navigate({ to: '/', search: { type: 'cafe' } as any });
+      queryClient.invalidateQueries({ queryKey: ['cafes-restaurants'] });
+      toast.success('Cafe/Restaurant created successfully');
+      navigate({ to: '/' });
     },
-    onError: (err: any) => toast.error(err.message),
+    onError: (err: any) => toast.error('Failed to create: ' + err.message),
   });
 
   return (
     <CafeRestaurantForm
-      title="Buat Cafe / Restoran"
-      submitLabel="Publish"
+      title="Create New Cafe/Restaurant"
+      submitLabel="Create Cafe/Restaurant"
       isSubmitting={mutation.isPending}
       onSubmit={(data: CafeRestaurantFormState) => mutation.mutate(data)}
     />
