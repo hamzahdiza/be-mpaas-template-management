@@ -58,7 +58,7 @@ Page({
     customNavigateTo({
       url: "/src/app/pages/cart-checkout/cart-checkout",
       data: {
-        orderType: "UMKM",
+        orderType: "umkm",
         serviceId: this.data.umkmData.id,
         serviceName: this.data.umkmData.name,
         totalAmount: this.data.totalCartPrice,
