@@ -37,7 +37,13 @@ Page({
     customNavigateTo({
       url: "/src/app/pages/cart-checkout/cart-checkout",
       data: {
-        from: 'rental'
+        orderType: "rental",
+        serviceId: this.data.rentalData.id,
+        serviceName: this.data.rentalData.name,
+        totalAmount: this.data.vehicleData.pricePerDay,
+        quantity: 1,
+        cart: [item],
+        merchantInfo: this.data.rentalData
       }
     });
   }

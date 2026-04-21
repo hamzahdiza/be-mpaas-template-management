@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "../db";
-import { cafesRestaurants, events, hotels, serviceOrders } from "../db/schema";
+import { cafesRestaurants, events, hotels, rentals, serviceOrders, umkms } from "../db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { v4 as uuidv4 } from "uuid";
 import { authMiddleware } from "../middleware/auth";
@@ -11,23 +11,12 @@ import { verify } from "hono/jwt";
 export const orderRoutes = new Hono();
 
 const createOrderSchema = z.object({
-  orderType: z.enum(["event", "hotel", "cafe", "restaurant"]),
+  orderType: z.string().min(1),
   serviceId: z.string().min(1),
   customerName: z.string().min(2),
   customerPhone: z.string().optional(),
   notes: z.string().optional(),
-  status: z.enum([
-    "pending", 
-    "accepted", 
-    "rejected", 
-    "completed",
-    "preparing",
-    "ready",
-    "ready_to_pick",
-    "searching_driver",
-    "driver_found",
-    "delivering"
-  ]).optional(),
+  status: z.string().optional(),
   quantity: z.number().int().min(1).optional().default(1),
   totalAmount: z.number().min(0).optional().default(0),
   orderPayload: z.record(z.string(), z.any()).optional().default({}),
@@ -51,7 +40,8 @@ const updateStatusSchema = z.object({
 
 async function resolveVendorAndName(orderType: string, serviceId: string) {
   try {
-    if (orderType === "event") {
+    const type = orderType.toLowerCase();
+    if (type === "event") {
       // Coba cari berdasarkan ID (UUID)
       let data = await db.query.events.findFirst({ where: eq(events.id, serviceId) });
       
@@ -75,7 +65,7 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
       }
       return { vendorUserId: data.userId || null, serviceName: data.name || "Event" };
     }
-    if (orderType === "hotel") {
+    if (type === "hotel") {
       const data = await db.query.hotels.findFirst({ where: eq(hotels.id, serviceId) });
       if (!data) {
         const latestHotel = await db.query.hotels.findFirst({ orderBy: [desc(hotels.createdAt)] });
@@ -86,6 +76,29 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
       }
       return { vendorUserId: data.userId || null, serviceName: data.name || "Hotel" };
     }
+    if (type === "rental") {
+      const data = await db.query.rentals.findFirst({ where: eq(rentals.id, serviceId) });
+      if (!data) {
+        const latestRental = await db.query.rentals.findFirst({ orderBy: [desc(rentals.createdAt)] });
+        return { 
+          vendorUserId: latestRental?.userId || null, 
+          serviceName: latestRental?.name || "Rental" 
+        };
+      }
+      return { vendorUserId: data.userId || null, serviceName: data.name || "Rental" };
+    }
+    if (type === "umkm") {
+      const data = await db.query.umkms.findFirst({ where: eq(umkms.id, serviceId) });
+      if (!data) {
+        const latestUmkm = await db.query.umkms.findFirst({ orderBy: [desc(umkms.createdAt)] });
+        return { 
+          vendorUserId: latestUmkm?.userId || null, 
+          serviceName: latestUmkm?.name || "UMKM" 
+        };
+      }
+      return { vendorUserId: data.userId || null, serviceName: data.name || "UMKM" };
+    }
+    // Handle "CULINARY", "cafe", or "restaurant"
     const data = await db.query.cafesRestaurants.findFirst({ where: eq(cafesRestaurants.id, serviceId) });
     if (!data) {
       const latestCafe = await db.query.cafesRestaurants.findFirst({ orderBy: [desc(cafesRestaurants.createdAt)] });

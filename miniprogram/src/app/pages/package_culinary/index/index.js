@@ -57,7 +57,7 @@ Page({
     customNavigateTo({
       url: "/src/app/pages/cart-checkout/cart-checkout",
       data: {
-        orderType: "CULINARY",
+        orderType: this.data.culinaryData.category || "cafe",
         serviceId: this.data.culinaryData.id,
         serviceName: this.data.culinaryData.name,
         totalAmount: this.data.totalCartPrice,
