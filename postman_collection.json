@@ -1,0 +1,1723 @@
+{
+  "info": {
+    "name": "Template Backend API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "eventId",
+      "value": ""
+    },
+    {
+      "key": "runningEventId",
+      "value": ""
+    },
+    {
+      "key": "hotelId",
+      "value": ""
+    },
+    {
+      "key": "cafeId",
+      "value": ""
+    },
+    {
+      "key": "rentalId",
+      "value": ""
+    },
+    {
+      "key": "umkmId",
+      "value": ""
+    },
+    {
+      "key": "orderId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register (vendor)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Vendor Name\",\n  \"role\": \"vendor\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Register (admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/register",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"password123\",\n  \"name\": \"Admin Name\",\n  \"role\": \"admin\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) pm.collectionVariables.set('token', res.token);",
+                  "if (res.user?.id) pm.collectionVariables.set('userId', res.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vendor@example.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get All Users (admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/users",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Set User Role Type (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/auth/users/{{userId}}/role-type",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleType\": [\"event\", \"running\", \"hotel\", \"cafe\", \"restaurant\", \"rental\", \"umkm\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Events",
+      "item": [
+        {
+          "name": "Get All Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "events"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data?.id) pm.collectionVariables.set('eventId', res.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/events",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jazz Night 2025\",\n  \"eventType\": \"internal\",\n  \"description\": \"A great jazz festival\",\n  \"startDate\": \"2025-08-01\",\n  \"endDate\": \"2025-08-03\",\n  \"price\": 0,\n  \"location\": \"Surabaya\",\n  \"locationAddress\": \"Jl. Sudirman No. 1\",\n  \"bannerUrl\": \"https://example.com/banner.jpg\",\n  \"bannerUrls\": [\"https://example.com/banner.jpg\"],\n  \"themeColor\": \"#1A1A2E\",\n  \"ticketCategories\": [\n    { \"id\": \"cat-vip\", \"name\": \"VIP\", \"price\": 500000 },\n    { \"id\": \"cat-reg\", \"name\": \"Regular\", \"price\": 150000 }\n  ],\n  \"tickets\": [\n    { \"ticketId\": \"t1\", \"ticketName\": \"VIP Early Bird\", \"category\": \"cat-vip\", \"type\": \"discount\", \"price\": 400000, \"normalPrice\": 500000 },\n    { \"ticketId\": \"t2\", \"ticketName\": \"Regular\", \"category\": \"cat-reg\", \"type\": \"normal\", \"price\": 150000 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly, sets approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): edit saved to pendingData only — listing stays live, public sees old data\n\nAdmin edits always write directly regardless of isActive.\nisActive in the body is ignored — use PATCH /active.",
+            "url": "{{baseUrl}}/api/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jazz Night 2025 Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/events/{{eventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Looks great!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/events/{{eventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Banner quality is too low, please upload at least 1200x600px\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit Event (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/events/{{eventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Fixed the banner, please re-review\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/events/{{eventId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/events/{{eventId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Running Events",
+      "item": [
+        {
+          "name": "Get All Running Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/running-events",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "running-events"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Running Event by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Running Event",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data?.id) pm.collectionVariables.set('runningEventId', res.data.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/running-events",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Surabaya Marathon 2025\",\n  \"eventType\": \"internal\",\n  \"description\": \"Annual city marathon\",\n  \"startDate\": \"2025-10-05\",\n  \"endDate\": \"2025-10-05\",\n  \"price\": 0,\n  \"location\": \"Surabaya\",\n  \"locationAddress\": \"Jl. Sudirman No. 1\",\n  \"bannerUrl\": \"https://example.com/banner.jpg\",\n  \"bannerUrls\": [\"https://example.com/banner.jpg\"],\n  \"ticketCategories\": [\n    { \"id\": \"cat-5k\", \"name\": \"5K\", \"price\": 150000 },\n    { \"id\": \"cat-10k\", \"name\": \"10K\", \"price\": 200000 }\n  ],\n  \"tickets\": [\n    { \"ticketId\": \"t1\", \"ticketName\": \"5K Runner\", \"category\": \"cat-5k\", \"type\": \"normal\", \"price\": 150000, \"stock\": 500 },\n    { \"ticketId\": \"t2\", \"ticketName\": \"10K Runner\", \"category\": \"cat-10k\", \"type\": \"normal\", \"price\": 200000, \"stock\": 300 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Running Event",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly, sets approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): edit saved to pendingData only — listing stays live\n\nAdmin edits always write directly. isActive in the body is ignored.",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Surabaya Marathon 2025 Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Running Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Approved!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Running Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Please add route map image\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit Running Event (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Added route map, please re-review\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate Running Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Running Event (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Running Event",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/running-events/{{runningEventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Hotels",
+      "item": [
+        {
+          "name": "Get All Hotels",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/hotels",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "hotels"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Hotel by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Hotel",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('hotelId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/hotels",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hotel Grand Surabaya\",\n  \"description\": \"Luxury hotel in the heart of Surabaya\",\n  \"location\": \"Surabaya\",\n  \"locationAddress\": \"Jl. Thamrin No. 1\",\n  \"starRating\": 4,\n  \"bannerUrl\": [\"https://example.com/hotel.jpg\"],\n  \"categories\": [\n    {\n      \"name\": \"Deluxe Room\",\n      \"roomType\": \"double\",\n      \"description\": \"Spacious deluxe room with city view\",\n      \"pricePerNight\": 450000,\n      \"capacity\": 2,\n      \"stock\": 10,\n      \"bedConfig\": { \"type\": \"king\", \"count\": 1 },\n      \"roomAmenities\": [\"AC\", \"TV\", \"WiFi\"],\n      \"bathAmenities\": [\"hot shower\", \"bathtub\"],\n      \"images\": [\"https://example.com/room.jpg\"],\n      \"isAvailable\": true\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Hotel",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly to main columns + hotel_categories table. approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): entire edit (including categories) saved to pendingData. hotel_categories table is NOT touched. Listing stays live.\n\nAdmin edits always write directly. isActive in the body is ignored — use PATCH /active.",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hotel Grand Surabaya Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Hotel (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Looks good!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Hotel (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Room photos are too dark, please retake\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit Hotel (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Retook all room photos, please re-review\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate Hotel (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Hotel (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Hotel",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/hotels/{{hotelId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cafes & Restaurants",
+      "item": [
+        {
+          "name": "Get All Cafes & Restaurants",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/cafes-restaurants",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "cafes-restaurants"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "cafe",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Cafe/Restaurant by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Cafe",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('cafeId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/cafes-restaurants",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"cafe\",\n  \"name\": \"Kopi Nusantara\",\n  \"description\": \"Best coffee in town\",\n  \"location\": \"Bandung\",\n  \"locationAddress\": \"Jl. Braga No. 10\",\n  \"halalStatus\": \"halal-certified\",\n  \"openTime\": \"08:00\",\n  \"closeTime\": \"22:00\",\n  \"priceRangeMin\": 20000,\n  \"priceRangeMax\": 80000,\n  \"bannerUrl\": [\"https://example.com/cafe.jpg\"],\n  \"amenities\": [\"WiFi\", \"AC\", \"Parking\"],\n  \"menuItems\": [\n    { \"name\": \"Kopi Susu\", \"description\": \"Creamy milk coffee\", \"price\": 30000, \"isAvailable\": true },\n    { \"name\": \"Matcha Latte\", \"description\": \"Japanese matcha\", \"price\": 35000, \"isAvailable\": true }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Create Restaurant",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('cafeId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/cafes-restaurants",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"restaurant\",\n  \"name\": \"Warung Pak Budi\",\n  \"description\": \"Authentic Javanese cuisine\",\n  \"location\": \"Surabaya\",\n  \"locationAddress\": \"Jl. Darmo No. 5\",\n  \"halalStatus\": \"halal-certified\",\n  \"openTime\": \"09:00\",\n  \"closeTime\": \"21:00\",\n  \"priceRangeMin\": 15000,\n  \"priceRangeMax\": 75000,\n  \"bannerUrl\": [\"https://example.com/resto.jpg\"],\n  \"amenities\": [\"AC\", \"Parking\"],\n  \"menuItems\": [\n    { \"name\": \"Nasi Goreng Special\", \"description\": \"Fried rice with egg\", \"price\": 35000, \"isAvailable\": true },\n    { \"name\": \"Ayam Bakar\", \"description\": \"Grilled chicken\", \"price\": 45000, \"isAvailable\": true }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Cafe/Restaurant",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly, approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): edit saved to pendingData (including menuItems), listing stays live\n\nAdmin edits always write directly. isActive in the body is ignored.",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kopi Nusantara Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Cafe/Restaurant (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Approved!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Cafe/Restaurant (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Menu photos are missing, please add images to each item\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit Cafe/Restaurant (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Added photos for all menu items\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate Cafe/Restaurant (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Cafe/Restaurant (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Cafe/Restaurant",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/cafes-restaurants/{{cafeId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Rentals",
+      "item": [
+        {
+          "name": "Get All Rentals",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/rentals",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rentals"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "car",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Rental by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create Rental",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('rentalId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/rentals",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"car\",\n  \"name\": \"Rental Mobil Pak Joko\",\n  \"description\": \"Affordable car rental in Surabaya\",\n  \"location\": \"Surabaya\",\n  \"locationAddress\": \"Jl. Raya Darmo No. 5\",\n  \"bannerUrl\": [\"https://example.com/rental.jpg\"],\n  \"vehicles\": [\n    {\n      \"name\": \"Toyota Avanza 2023\",\n      \"type\": \"MPV\",\n      \"transmission\": \"manual\",\n      \"capacity\": 7,\n      \"pricePerDay\": 350000,\n      \"isAvailable\": true\n    },\n    {\n      \"name\": \"Honda Jazz 2022\",\n      \"type\": \"Hatchback\",\n      \"transmission\": \"automatic\",\n      \"capacity\": 5,\n      \"pricePerDay\": 300000,\n      \"isAvailable\": true\n    }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Rental",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly, approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): edit saved to pendingData (including vehicles), listing stays live\n\nAdmin edits always write directly. isActive in the body is ignored.",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rental Mobil Pak Joko Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve Rental (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Approved!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject Rental (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Vehicle photos are missing, please add photos for each vehicle\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit Rental (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Added photos for all vehicles\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate Rental (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate Rental (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Rental",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/rentals/{{rentalId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "UMKMs",
+      "item": [
+        {
+          "name": "Get All UMKMs",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/umkms",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "umkms"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "product",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "requested",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get UMKM by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Create UMKM",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('umkmId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/umkms",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"product\",\n  \"name\": \"Batik Bu Sari\",\n  \"description\": \"Authentic handmade batik\",\n  \"location\": \"Yogyakarta\",\n  \"locationAddress\": \"Jl. Malioboro No. 20\",\n  \"bannerUrl\": [\"https://example.com/umkm.jpg\"],\n  \"products\": [\n    { \"name\": \"Batik Tulis Motif Parang\", \"description\": \"Hand-drawn batik\", \"price\": 250000, \"isAvailable\": true, \"stock\": 20 },\n    { \"name\": \"Batik Cap Motif Kawung\", \"description\": \"Stamped batik\", \"price\": 150000, \"isAvailable\": true, \"stock\": 50 }\n  ]\n}"
+            }
+          }
+        },
+        {
+          "name": "Update UMKM",
+          "request": {
+            "method": "PUT",
+            "description": "pendingData behavior:\n- If listing is INACTIVE (isActive=0): writes directly, approvalStatus=requested, isActive=0\n- If listing is LIVE (isActive=1, vendor only): edit saved to pendingData (including products), listing stays live\n\nAdmin edits always write directly. isActive in the body is ignored.",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Batik Bu Sari Updated\",\n  \"description\": \"Updated description\",\n  \"message\": \"Optional note to admin (appended to comments when vendor submits)\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Approve UMKM (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"approved\",\n  \"message\": \"Approved!\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Reject UMKM (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"rejected\",\n  \"message\": \"Product prices seem incorrect, please review your pricing\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Resubmit UMKM (vendor)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"requested\",\n  \"message\": \"Corrected all product prices\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Activate UMKM (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 1\n}"
+            }
+          }
+        },
+        {
+          "name": "Deactivate UMKM (admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}/active",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": 0\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete UMKM",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/umkms/{{umkmId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orders",
+      "item": [
+        {
+          "name": "Get All Orders (vendor/admin)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orders",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending",
+                  "disabled": true
+                },
+                {
+                  "key": "orderType",
+                  "value": "hotel",
+                  "disabled": true
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get Orders by Phone (no auth)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/orders?customerPhone=08123456789",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "customerPhone",
+                  "value": "08123456789"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Order (no auth required)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.id) pm.collectionVariables.set('orderId', res.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/orders",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"orderType\": \"hotel\",\n  \"serviceId\": \"{{hotelId}}\",\n  \"customerName\": \"Andi Wijaya\",\n  \"customerPhone\": \"08123456789\",\n  \"quantity\": 1,\n  \"totalAmount\": 450000,\n  \"notes\": \"Late check-in around 11pm\",\n  \"paymentMethod\": \"transfer\",\n  \"orderPayload\": {\n    \"checkIn\": \"2025-08-10\",\n    \"checkOut\": \"2025-08-11\",\n    \"roomCategory\": \"Deluxe Room\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Order Status",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/status",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Checkout Order",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/orders/{{orderId}}/checkout",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentMethod\": \"transfer\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Get All Services",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/dashboard/all-services",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Lifestyle (Public)",
+      "item": [
+        {
+          "name": "Menu",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/menu"
+          }
+        },
+        {
+          "name": "All Events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-events"
+          }
+        },
+        {
+          "name": "All Running Events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-running-events"
+          }
+        },
+        {
+          "name": "All Hotels",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-hotels"
+          }
+        },
+        {
+          "name": "All Cafes",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-cafes"
+          }
+        },
+        {
+          "name": "All Restaurants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-restaurants"
+          }
+        },
+        {
+          "name": "All Rentals",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-rentals"
+          }
+        },
+        {
+          "name": "All UMKMs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-umkms"
+          }
+        }
+      ]
+    }
+  ]
+}

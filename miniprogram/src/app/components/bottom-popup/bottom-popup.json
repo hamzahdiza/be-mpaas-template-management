@@ -1,6 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "popup-mini": "antd-mini/es/Popup/index"
-  }
-}

@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "umkm-template-one": "/src/app/components/umkm-templates/umkm-template-one/umkm-template-one",
-    "umkm-template-two": "/src/app/components/umkm-templates/umkm-template-two/umkm-template-two",
-    "umkm-template-three": "/src/app/components/umkm-templates/umkm-template-three/umkm-template-three",
-    "umkm-template-four": "/src/app/components/umkm-templates/umkm-template-four/umkm-template-four",
-    "umkm-template-five": "/src/app/components/umkm-templates/umkm-template-five/umkm-template-five"
-  }
-}

@@ -1,6 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "default-ilustration-component": "@bni-maverick-mpaas/lib/es/default-ilustration-report/default-ilustration-report"
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "bni-button": "/node_modules/@bni-maverick-mpaas/lib/es/bni-button/bni-button",
-    "popup": "antd-mini/es/Popup/index"
-  }
-}

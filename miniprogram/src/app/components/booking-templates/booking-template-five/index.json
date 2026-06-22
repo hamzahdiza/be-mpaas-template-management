@@ -1,8 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-      "top-bar": "@bni-maverick-mpaas/lib/es/top-bar/top-bar",
-      "loading": "/node_modules/@bni-maverick-mpaas/lib/es/loading/loading",
-      "snackbar": "@bni-maverick-mpaas/lib/es/snackbar/snackbar"
-  }
-}

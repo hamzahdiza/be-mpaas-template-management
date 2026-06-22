@@ -1,9 +1,0 @@
-{
-  "usingComponents": {
-    "rental-template-one": "/src/app/components/rental-templates/rental-template-one/rental-template-one",
-    "rental-template-two": "/src/app/components/rental-templates/rental-template-two/rental-template-two",
-    "rental-template-three": "/src/app/components/rental-templates/rental-template-three/rental-template-three",
-    "rental-template-four": "/src/app/components/rental-templates/rental-template-four/rental-template-four",
-    "rental-template-five": "/src/app/components/rental-templates/rental-template-five/rental-template-five"
-  }
-}
