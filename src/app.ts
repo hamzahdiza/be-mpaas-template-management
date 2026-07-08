@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
 import { logger } from 'hono/logger';
 import { cors } from 'hono/cors';
+import { swaggerUI } from '@hono/swagger-ui';
 import * as dotenv from 'dotenv';
+import { openApiSpec } from './openapi';
 import { eventRoutes } from './routes/events';
 import { lifestyleRoutes } from './routes/lifestyle';
 import { billPaymentRoutes } from './routes/bill-payment';
@@ -17,14 +19,19 @@ import { runningEventRoutes } from './routes/running-events';
 
 dotenv.config();
 
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable is not set. Add it to your .env file.');
+}
+
 const app = new Hono();
 
 app.use('*', logger());
 app.use('*', cors());
 
-app.get('/', (c) => {
-  return c.json({ message: 'Wondr Event Template API is running' });
-});
+app.get('/', (c) => c.redirect('/docs'));
+
+app.get('/docs', swaggerUI({ url: '/openapi.json' }));
+app.get('/openapi.json', (c) => c.json(openApiSpec));
 
 app.route('/api/auth', authRoutes);
 app.route('/api/events', eventRoutes);

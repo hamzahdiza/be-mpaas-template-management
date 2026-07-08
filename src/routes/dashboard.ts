@@ -2,11 +2,19 @@ import { Hono } from 'hono';
 import { db } from '../db';
 import { cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
-import { authMiddleware } from '../middleware/auth'; 
+import { authMiddleware } from '../middleware/auth';
 
 export const dashboardRoutes = new Hono();
 
 dashboardRoutes.use('*', authMiddleware);
+
+const merge = (item: any) => {
+  const hasPendingEdit = item.pendingData != null && item.isActive === 1;
+  if (hasPendingEdit) {
+    return { ...item, ...item.pendingData, pendingData: item.pendingData, hasPendingEdit: true };
+  }
+  return { ...item, hasPendingEdit: false };
+};
 
 dashboardRoutes.get('/all-services', async (c) => {
   const user = c.get('jwtPayload') as any;
@@ -49,66 +57,85 @@ dashboardRoutes.get('/all-services', async (c) => {
       orderBy: [desc(serviceOrders.createdAt)],
     });
 
+    const mergedEvents = userEvents.map(merge);
+    const mergedHotels = userHotels.map(merge);
+    const mergedCafes = userCafeRestaurants.map(merge);
+    const mergedRentals = userRentals.map(merge);
+    const mergedUmkms = userUmkms.map(merge);
+    const mergedRunning = userRunningEvents.map(merge);
+
     const summary = [
-      ...userEvents.map(e => ({ 
-        id: e.id, 
-        name: e.name, 
-        type: 'EVENT', 
+      ...mergedEvents.map((e: any) => ({
+        id: e.id,
+        name: e.name,
+        type: 'EVENT',
         createdAt: e.createdAt,
-        status: 'Active', 
-        location: e.location 
+        approvalStatus: e.approvalStatus,
+        isActive: e.isActive,
+        hasPendingEdit: e.hasPendingEdit,
+        location: e.location,
       })),
-      ...userHotels.map(h => ({ 
-        id: h.id, 
-        name: h.name, 
-        type: 'HOTEL', 
+      ...mergedHotels.map((h: any) => ({
+        id: h.id,
+        name: h.name,
+        type: 'HOTEL',
         createdAt: h.createdAt,
-        status: 'Active',
-        location: h.location 
+        approvalStatus: h.approvalStatus,
+        isActive: h.isActive,
+        hasPendingEdit: h.hasPendingEdit,
+        location: h.location,
       })),
-      ...userCafeRestaurants.map((v) => ({
+      ...mergedCafes.map((v: any) => ({
         id: v.id,
         name: v.name,
         type: v.category.toUpperCase(),
         createdAt: v.createdAt,
-        status: 'Active',
+        approvalStatus: v.approvalStatus,
+        isActive: v.isActive,
+        hasPendingEdit: v.hasPendingEdit,
         location: v.location,
       })),
-      ...userRentals.map((r) => ({
+      ...mergedRentals.map((r: any) => ({
         id: r.id,
         name: r.name,
         type: 'RENTAL',
         createdAt: r.createdAt,
-        status: 'Active',
+        approvalStatus: r.approvalStatus,
+        isActive: r.isActive,
+        hasPendingEdit: r.hasPendingEdit,
         location: r.location,
       })),
-      ...userUmkms.map((u) => ({
+      ...mergedUmkms.map((u: any) => ({
         id: u.id,
         name: u.name,
         type: 'UMKM',
         createdAt: u.createdAt,
-        status: 'Active',
+        approvalStatus: u.approvalStatus,
+        isActive: u.isActive,
+        hasPendingEdit: u.hasPendingEdit,
         location: u.location,
       })),
-      ...userRunningEvents.map((e) => ({
+      ...mergedRunning.map((e: any) => ({
         id: e.id,
         name: e.name,
         type: 'RUNNING',
         createdAt: e.createdAt,
-        status: 'Active',
+        approvalStatus: e.approvalStatus,
+        isActive: e.isActive,
+        hasPendingEdit: e.hasPendingEdit,
         location: e.location,
-      }))
+      })),
     ].sort((a, b) => {
-        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return dateB - dateA;
+      const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return dateB - dateA;
     });
 
     return c.json({
       success: true,
       message: "Data dashboard berhasil dimuat",
       data: {
-        summary: summary,
+        summary,
         totalEvents: userEvents.length,
         totalHotels: userHotels.length,
         totalCafesRestaurants: userCafeRestaurants.length,
@@ -117,21 +144,18 @@ dashboardRoutes.get('/all-services', async (c) => {
         totalRunningEvents: userRunningEvents.length,
         totalOrders: userOrders.length,
         raw: {
-          events: userEvents,
-          hotels: userHotels,
-          cafesRestaurants: userCafeRestaurants,
-          rentals: userRentals,
-          umkms: userUmkms,
-          runningEvents: userRunningEvents,
-          orders: userOrders
-        }
-      }
+          events: mergedEvents,
+          hotels: mergedHotels,
+          cafesRestaurants: mergedCafes,
+          rentals: mergedRentals,
+          umkms: mergedUmkms,
+          runningEvents: mergedRunning,
+          orders: userOrders,
+        },
+      },
     });
   } catch (error: any) {
     console.error('Dashboard Error:', error);
-    return c.json({ 
-      error: 'Gagal mengambil data dashboard', 
-      details: error.message 
-    }, 500);
+    return c.json({ error: 'Gagal mengambil data dashboard', details: error.message }, 500);
   }
 });

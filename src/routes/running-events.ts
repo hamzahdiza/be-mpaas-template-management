@@ -4,45 +4,19 @@ import { z } from 'zod';
 import { db } from '../db';
 import { runningEvents, runningCategories, runningTickets } from '../db/schema';
 import { eq, desc, and } from 'drizzle-orm';
-import { verify } from 'hono/jwt';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-
-const authMiddleware = async (c: any, next: any) => {
-  const authHeader = c.req.header('Authorization');
-  if (!authHeader) {
-    return c.json({ error: 'Unauthorized' }, 401);
-  }
-
-  try {
-    const token = authHeader.replace('Bearer ', '');
-    const payload = await verify(token, JWT_SECRET, 'HS256');
-    c.set('jwtPayload', payload);
-    await next();
-  } catch (err) {
-    console.error('JWT Verification Error:', err);
-    return c.json({ error: 'Invalid token' }, 401);
-  }
-};
+import { authMiddleware } from '../middleware/auth';
 
 export const runningEventRoutes = new Hono();
-
+runningEventRoutes.use('*', authMiddleware);
 
 const runningEventSchema = z.object({
   name: z.string().min(3),
   eventType: z.enum(['internal', 'external']).optional().default('internal'),
   externalUrl: z.string().optional(),
   description: z.string().optional(),
-  vendorConfig: z.object({
-    purchaseMode: z.enum(['single', 'multiple']).optional()
-  }).optional(),
+  vendorConfig: z.object({ purchaseMode: z.enum(['single', 'multiple']).optional() }).optional(),
   templateId: z.number().int().min(1).max(5).optional().default(1),
-  templates: z.object({
-    index: z.any(),
-    bookTicket: z.any(),
-    visitorList: z.any(),
-    visitorInput: z.any()
-  }).optional(),
+  templates: z.object({ index: z.any(), bookTicket: z.any(), visitorList: z.any(), visitorInput: z.any() }).optional(),
   startDate: z.string(),
   endDate: z.string(),
   price: z.number().min(0),
@@ -58,8 +32,9 @@ const runningEventSchema = z.object({
     instagram: z.object({ url: z.string(), visible: z.boolean() }).optional(),
     website: z.object({ url: z.string(), visible: z.boolean() }).optional(),
   }).optional(),
-  themeColor: z.string().default("#FFFFFF"),
+  themeColor: z.string().default('#FFFFFF'),
   isActive: z.number().int().min(0).max(1).optional(),
+  message: z.string().optional(),
   paymentMethod: z.enum(['biller', 'transfer']).optional(),
   accountNumber: z.string().optional(),
   ticketCategories: z.array(z.object({
@@ -83,257 +58,245 @@ const runningEventSchema = z.object({
   })).optional(),
 });
 
+const statusSchema = z.object({
+  status: z.enum(['approved', 'rejected', 'requested']),
+  message: z.string().optional(),
+});
+
+async function upsertRunningTickets(eventId: string, cats: any[], tix: any[]) {
+  await db.delete(runningCategories).where(eq(runningCategories.runningEventId, eventId));
+  const catMap = new Map<string, string>();
+  if (cats?.length) {
+    await db.insert(runningCategories).values(cats.map(cat => {
+      const newId = crypto.randomUUID(); catMap.set(cat.id, newId);
+      return { id: newId, runningEventId: eventId, name: cat.name, price: cat.price, maxPrice: cat.maxPrice || null, description: cat.description || null, status: cat.status || 'available' };
+    }));
+  }
+  if (tix?.length) {
+    await db.insert(runningTickets).values(tix.map(t => ({
+      id: crypto.randomUUID(), categoryId: catMap.get(t.category) || t.category,
+      name: t.ticketName, type: t.type || 'normal', price: t.price,
+      normalPrice: t.normalPrice || null, stock: t.stock ?? 100, description: t.description || null,
+      isAvailable: typeof t.isAvailable === 'boolean' ? (t.isAvailable ? 1 : 0) : (t.isAvailable ?? 1),
+    })));
+  }
+}
+
 runningEventRoutes.get('/', async (c) => {
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
+  const status = c.req.query('status');
 
-  try {
-    const whereClause = (user && user.role !== 'admin') ? eq(runningEvents.userId, user.sub) : undefined;
+  const filters: any[] = [];
+  if (!isAdmin) filters.push(eq(runningEvents.userId, user.sub));
+  if (status) filters.push(eq(runningEvents.approvalStatus, status as any));
 
-    const allEvents = await db.query.runningEvents.findMany({
-      where: whereClause,
-      orderBy: [desc(runningEvents.createdAt)],
-      with: {
-        categories: {
-          with: { tickets: true }
-        }
+  const whereClause = filters.length === 0 ? undefined : filters.length === 1 ? filters[0] : and(...filters as [any, any, ...any[]]);
+  const data = await db.query.runningEvents.findMany({
+    where: whereClause, orderBy: [desc(runningEvents.createdAt)],
+    with: { categories: { with: { tickets: true } } },
+  });
+  return c.json({
+    data: data.map((ev: any) => {
+      const base = { ...ev, vendorConfig: { ...(ev.vendorConfig || {}), purchaseMode: ev.vendorConfig?.purchaseMode || 'multiple' } };
+      if (ev.pendingData && ev.isActive === 1) {
+        const pending = ev.pendingData as any;
+        const liveFlatTickets = ev.categories.flatMap((cat: any) =>
+          cat.tickets.map((t: any) => ({ ticketId: t.id, ticketName: t.name, category: cat.id, type: t.type, price: t.price, normalPrice: t.normalPrice, description: t.description, isAvailable: t.isAvailable }))
+        );
+        return {
+          ...base,
+          ...Object.fromEntries(Object.entries(pending).filter(([k]) => k !== 'ticketCategories' && k !== 'tickets')),
+          ticketCategories: pending.ticketCategories ?? ev.categories.map((cat: any) => ({ id: cat.id, name: cat.name, price: cat.price, maxPrice: cat.maxPrice || 0, description: cat.description || '', status: cat.status || 'available' })),
+          tickets: pending.tickets ?? liveFlatTickets,
+        };
       }
-    });
-
-    const withVendorConfig = allEvents.map((ev: any) => ({
-      ...ev,
-      vendorConfig: {
-        ...(ev.vendorConfig || {}),
-        purchaseMode: ev.vendorConfig?.purchaseMode || 'multiple'
-      }
-    }));
-
-    return c.json({ data: withVendorConfig });
-  } catch (error) {
-    console.error(error);
-    return c.json({ error: 'Failed to fetch running events' }, 500);
-  }
+      return base;
+    }),
+  });
 });
 
 runningEventRoutes.get('/:id', async (c) => {
-  const id = c.req.param('id');
   const user = c.get('jwtPayload') as any;
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user.role === 'admin';
+  const id = c.req.param('id');
 
-  try {
-    const event = await db.query.runningEvents.findFirst({
-      where: (user && !isAdmin) ? and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)) : eq(runningEvents.id, id),
-      with: {
-        categories: {
-          with: { tickets: true }
-        }
-      }
+  const event = await db.query.runningEvents.findFirst({
+    where: isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)),
+    with: { categories: { with: { tickets: true } } },
+  });
+  if (!event) return c.json({ error: 'Running event not found' }, 404);
+
+  const liveFlatTickets = event.categories.flatMap(cat =>
+    cat.tickets.map(t => ({ ticketId: t.id, ticketName: t.name, category: cat.id, type: t.type as any, price: t.price, normalPrice: t.normalPrice, stock: t.stock, description: t.description, isAvailable: t.isAvailable }))
+  );
+  const liveCatsSummary = event.categories.map(cat => ({ id: cat.id, name: cat.name, price: cat.price, maxPrice: cat.maxPrice || 0, description: cat.description || '', status: cat.status || 'available' }));
+
+  if (event.pendingData && event.isActive === 1) {
+    const pending = event.pendingData as any;
+    return c.json({
+      data: {
+        ...event,
+        ...Object.fromEntries(Object.entries(pending).filter(([k]) => k !== 'ticketCategories' && k !== 'tickets')),
+        ticketCategories: pending.ticketCategories ?? liveCatsSummary,
+        tickets: pending.tickets ?? liveFlatTickets,
+        pendingData: event.pendingData,
+        vendorConfig: { ...(event.vendorConfig || {}), purchaseMode: event.vendorConfig?.purchaseMode || 'multiple' },
+        ...(isAdmin && { liveSnapshot: { ticketCategories: liveCatsSummary, tickets: liveFlatTickets } }),
+      },
     });
-
-    if (!event) {
-      return c.json({ error: 'Running event not found' }, 404);
-    }
-
-    const flatTickets = event.categories.flatMap(cat =>
-      cat.tickets.map(t => ({
-        ticketId: t.id,
-        ticketName: t.name,
-        category: cat.id,
-        type: t.type as 'normal' | 'b1g1' | 'discount',
-        price: t.price,
-        normalPrice: t.normalPrice,
-        stock: t.stock,
-        description: t.description,
-        isAvailable: t.isAvailable
-      }))
-    );
-
-    const responseData = {
-      ...event,
-      ticketCategories: event.categories.map(cat => ({
-        id: cat.id,
-        name: cat.name,
-        price: cat.price,
-        maxPrice: cat.maxPrice || 0,
-        description: cat.description || '',
-        status: cat.status || 'available',
-      })),
-      tickets: flatTickets,
-      vendorConfig: {
-        ...((event as any).vendorConfig || {}),
-        purchaseMode: ((event as any).vendorConfig?.purchaseMode) || 'multiple'
-      }
-    };
-
-    return c.json({ data: responseData });
-  } catch (error) {
-    console.error(error);
-    return c.json({ error: 'Failed to fetch running event' }, 500);
   }
+
+  return c.json({ data: { ...event, ticketCategories: liveCatsSummary, tickets: liveFlatTickets, vendorConfig: { ...(event.vendorConfig || {}), purchaseMode: event.vendorConfig?.purchaseMode || 'multiple' } } });
 });
 
-runningEventRoutes.post('/', authMiddleware, zValidator('json', runningEventSchema), async (c) => {
-  const data = c.req.valid('json');
+runningEventRoutes.post('/', zValidator('json', runningEventSchema), async (c) => {
   const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
+  const { ticketCategories: cats, tickets: tix, ...eventData } = c.req.valid('json');
+  if (!eventData.bannerUrl && eventData.bannerUrls?.length) eventData.bannerUrl = eventData.bannerUrls[0];
+
+  if (!isAdmin && !(user.roleType ?? []).includes('running'))
+    return c.json({ error: 'Access denied: running permission required' }, 403);
+
   const id = crypto.randomUUID();
-
-  try {
-    const { ticketCategories: cats, tickets: tix, ...eventData } = data;
-
-    if (!eventData.bannerUrl && eventData.bannerUrls && eventData.bannerUrls.length > 0) {
-      eventData.bannerUrl = eventData.bannerUrls[0];
-    }
-
-    const computedBasePrice = ((): number => {
-      if (cats && cats.length > 0) {
-        return Math.min(...cats.map((c) => c.price));
-      }
-      return eventData.price ?? 0;
-    })();
-
-    const newEvent = await db.insert(runningEvents).values({
-      id,
-      ...eventData,
-      price: computedBasePrice,
-      userId: user.sub,
-      isActive: 0,
-    }).returning();
-
-    const categoryIdMap = new Map<string, string>();
-
-    if (cats && cats.length > 0) {
-      await db.insert(runningCategories).values(
-        cats.map(cat => {
-          const newId = crypto.randomUUID();
-          if (cat.id) categoryIdMap.set(cat.id, newId);
-          return {
-            id: newId,
-            runningEventId: id,
-            name: cat.name,
-            price: cat.price,
-            maxPrice: cat.maxPrice || null,
-            description: cat.description || null,
-            status: cat.status || 'available'
-          };
-        })
-      );
-    }
-
-    if (tix && tix.length > 0) {
-      await db.insert(runningTickets).values(
-        tix.map(t => ({
-          id: crypto.randomUUID(),
-          categoryId: categoryIdMap.get(t.category) || t.category,
-          name: t.ticketName,
-          type: t.type || 'normal',
-          price: t.price,
-          normalPrice: t.normalPrice || null,
-          stock: t.stock ?? 100,
-          description: t.description || null,
-          isAvailable: typeof t.isAvailable === 'boolean' ? (t.isAvailable ? 1 : 0) : (t.isAvailable ?? 1)
-        }))
-      );
-    }
-
-    return c.json({ data: newEvent[0] }, 201);
-  } catch (error: any) {
-    console.error('Error creating running event:', error);
-    if (error.issues) return c.json({ error: 'Validation failed', details: error.issues }, 400);
-    return c.json({ error: 'Failed to create running event', details: error.message }, 500);
-  }
+  const price = cats?.length ? Math.min(...cats.map(c => c.price)) : (eventData.price ?? 0);
+  await db.insert(runningEvents).values({
+    id, ...eventData, price, userId: user.sub, isActive: 0,
+    approvalStatus: isAdmin ? 'approved' : 'requested',
+    comments: [],
+  });
+  await upsertRunningTickets(id, cats || [], tix || []);
+  return c.json({ data: { id } }, 201);
 });
 
-runningEventRoutes.put('/:id', authMiddleware, zValidator('json', runningEventSchema.partial()), async (c) => {
-  const id = c.req.param('id');
-  const data = c.req.valid('json');
+runningEventRoutes.put('/:id', zValidator('json', runningEventSchema.partial()), async (c) => {
   const user = c.get('jwtPayload') as any;
   const isAdmin = user.role === 'admin';
+  const id = c.req.param('id');
+  const { ticketCategories: cats, tickets: tix, isActive: _isActive, message, ...eventData } = c.req.valid('json');
+  if (!eventData.bannerUrl && (eventData.bannerUrls as any)?.length) eventData.bannerUrl = (eventData.bannerUrls as any)[0];
 
-  try {
-    const { ticketCategories: cats, tickets: tix, ...eventData } = data;
+  const existing = await db.query.runningEvents.findFirst({
+    where: isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)),
+  });
+  if (!existing) return c.json({ error: 'Running event not found' }, 404);
 
-    if (!isAdmin) delete (eventData as any).isActive;
+  let priceToSet: number | undefined;
+  if (cats?.length) priceToSet = Math.min(...cats.map(c => c.price));
+  else if (typeof eventData.price === 'number') priceToSet = eventData.price;
 
-    if (!eventData.bannerUrl && eventData.bannerUrls && eventData.bannerUrls.length > 0) {
-      eventData.bannerUrl = eventData.bannerUrls[0];
-    }
+  const newComment = (!isAdmin && message)
+    ? { id: crypto.randomUUID(), senderName: user.name, senderRole: user.role, message, statusSnapshot: 'requested', createdAt: new Date().toISOString() }
+    : null;
+  const updatedComments = newComment ? [...(existing.comments || []), newComment] : existing.comments;
 
-    let priceToSet: number | undefined = undefined;
-    if (cats && cats.length > 0) {
-      priceToSet = Math.min(...cats.map((c) => c.price));
-    } else if (typeof eventData.price === 'number') {
-      priceToSet = eventData.price;
-    }
+  if (!isAdmin && existing.isActive === 1) {
+    const pendingData: Record<string, any> = { ...eventData };
+    if (priceToSet !== undefined) pendingData.price = priceToSet;
+    if (cats !== undefined) pendingData.ticketCategories = cats;
+    if (tix !== undefined) pendingData.tickets = tix;
 
-    const updatedEvent = await db.update(runningEvents)
-      .set({
-        ...eventData,
-        ...(priceToSet !== undefined ? { price: priceToSet } : {}),
-        updatedAt: new Date().toISOString()
-      })
-      .where(isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)))
-      .returning();
-
-    if (!updatedEvent.length) {
-      return c.json({ error: 'Running event not found' }, 404);
-    }
-
-    // Only replace categories/tickets if they were explicitly sent
-    if (cats !== undefined) {
-      await db.delete(runningCategories).where(eq(runningCategories.runningEventId, id));
-      if (cats.length > 0) {
-        await db.insert(runningCategories).values(
-          cats.map(cat => ({
-            id: cat.id || crypto.randomUUID(),
-            runningEventId: id,
-            name: cat.name,
-            price: cat.price,
-            maxPrice: cat.maxPrice || null,
-            description: cat.description || null,
-            status: cat.status || 'available'
-          }))
-        );
-      }
-      if (tix && tix.length > 0) {
-        await db.insert(runningTickets).values(
-          tix.map(t => ({
-            id: t.ticketId || crypto.randomUUID(),
-            categoryId: t.category,
-            name: t.ticketName,
-            type: t.type || 'normal',
-            price: t.price,
-            normalPrice: t.normalPrice || null,
-            stock: t.stock ?? 100,
-            description: t.description || null,
-            isAvailable: typeof t.isAvailable === 'boolean' ? (t.isAvailable ? 1 : 0) : (t.isAvailable ?? 1)
-          }))
-        );
-      }
-    }
-
-    return c.json({ data: updatedEvent[0] });
-  } catch (error: any) {
-    console.error('Error updating running event:', error);
-    if (error.issues) return c.json({ error: 'Validation failed', details: error.issues }, 400);
-    return c.json({ error: 'Failed to update running event', details: error.message }, 500);
+    await db.update(runningEvents).set({
+      pendingData,
+      approvalStatus: 'requested',
+      ...(newComment && { comments: updatedComments }),
+      updatedAt: new Date().toISOString(),
+    }).where(eq(runningEvents.id, id));
+    return c.json({ success: true });
   }
+
+  await db.update(runningEvents).set({
+    ...eventData, ...(priceToSet !== undefined ? { price: priceToSet } : {}),
+    ...(!isAdmin && { approvalStatus: 'requested', isActive: 0, comments: updatedComments }),
+    updatedAt: new Date().toISOString(),
+  }).where(eq(runningEvents.id, id));
+
+  if (cats !== undefined) await upsertRunningTickets(id, cats, tix || []);
+  return c.json({ success: true });
 });
 
-runningEventRoutes.delete('/:id', authMiddleware, async (c) => {
-  const id = c.req.param('id');
+runningEventRoutes.patch('/:id/status', zValidator('json', statusSchema), async (c) => {
   const user = c.get('jwtPayload') as any;
   const isAdmin = user.role === 'admin';
+  const id = c.req.param('id');
+  const { status, message } = c.req.valid('json');
 
-  try {
-    const deleted = await db.delete(runningEvents)
-      .where(isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)))
-      .returning();
+  if (status === 'approved' && !isAdmin) return c.json({ error: 'Forbidden' }, 403);
+  if (status === 'rejected' && !isAdmin) return c.json({ error: 'Forbidden' }, 403);
+  if (status === 'requested' && isAdmin) return c.json({ error: 'Only vendors can resubmit' }, 403);
+  if (status === 'rejected' && !message) return c.json({ error: 'Message required when rejecting' }, 400);
 
-    if (!deleted.length) {
-      return c.json({ error: 'Running event not found' }, 404);
-    }
+  const record = await db.query.runningEvents.findFirst({
+    where: isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)),
+  });
+  if (!record) return c.json({ error: 'Running event not found' }, 404);
 
-    return c.json({ message: 'Running event deleted successfully' });
-  } catch (error) {
-    return c.json({ error: 'Failed to delete running event' }, 500);
+  if (status === 'approved' && record.approvalStatus !== 'requested')
+    return c.json({ error: 'Only requested items can be approved' }, 400);
+  if (status === 'rejected' && record.approvalStatus !== 'requested')
+    return c.json({ error: 'Only requested items can be rejected' }, 400);
+  if (status === 'requested' && record.approvalStatus !== 'rejected')
+    return c.json({ error: 'Only rejected items can be resubmitted' }, 400);
+
+  const comments = message
+    ? [...(record.comments || []), { id: crypto.randomUUID(), senderName: user.name, senderRole: user.role, message, statusSnapshot: status, createdAt: new Date().toISOString() }]
+    : record.comments;
+
+  const isLiveEdit = record.isActive === 1 && record.pendingData != null;
+
+  if (status === 'approved' && isLiveEdit) {
+    const { ticketCategories: pendingCats, tickets: pendingTix, ...pendingFields } = record.pendingData as any;
+    await db.update(runningEvents).set({
+      ...(pendingFields as any),
+      approvalStatus: 'approved',
+      pendingData: null,
+      comments,
+      updatedAt: new Date().toISOString(),
+    }).where(eq(runningEvents.id, id));
+    if (pendingCats !== undefined) await upsertRunningTickets(id, pendingCats, pendingTix || []);
+  } else if (status === 'rejected' && isLiveEdit) {
+    await db.update(runningEvents).set({
+      approvalStatus: 'rejected',
+      pendingData: null,
+      comments,
+      updatedAt: new Date().toISOString(),
+    }).where(eq(runningEvents.id, id));
+  } else {
+    await db.update(runningEvents).set({
+      approvalStatus: status,
+      comments,
+      ...(status === 'requested' && { isActive: 0 }),
+      updatedAt: new Date().toISOString(),
+    }).where(eq(runningEvents.id, id));
   }
+
+  return c.json({ success: true });
+});
+
+runningEventRoutes.patch('/:id/active', zValidator('json', z.object({ isActive: z.number().int().min(0).max(1) })), async (c) => {
+  const user = c.get('jwtPayload') as any;
+  if (user.role !== 'admin') return c.json({ error: 'Forbidden' }, 403);
+  const id = c.req.param('id');
+  const { isActive } = c.req.valid('json');
+
+  const record = await db.query.runningEvents.findFirst({ where: eq(runningEvents.id, id) });
+  if (!record) return c.json({ error: 'Running event not found' }, 404);
+  if (isActive === 1 && record.approvalStatus !== 'approved')
+    return c.json({ error: 'Cannot activate unapproved listing' }, 400);
+
+  await db.update(runningEvents).set({ isActive, updatedAt: new Date().toISOString() }).where(eq(runningEvents.id, id));
+  return c.json({ success: true, isActive });
+});
+
+runningEventRoutes.delete('/:id', async (c) => {
+  const user = c.get('jwtPayload') as any;
+  const isAdmin = user.role === 'admin';
+  const id = c.req.param('id');
+
+  const deleted = await db.delete(runningEvents)
+    .where(isAdmin ? eq(runningEvents.id, id) : and(eq(runningEvents.id, id), eq(runningEvents.userId, user.sub)))
+    .returning();
+  if (!deleted.length) return c.json({ error: 'Running event not found' }, 404);
+  return c.json({ success: true });
 });

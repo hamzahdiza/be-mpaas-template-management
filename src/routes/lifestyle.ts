@@ -3,17 +3,22 @@ import { db } from '../db';
 import { and, desc, eq } from 'drizzle-orm';
 import { cafesRestaurants, events, hotels, rentals, runningEvents, umkms } from '../db/schema';
 
-
 export const lifestyleRoutes = new Hono();
+
+const strip = (item: any) => {
+  const { pendingData: _p, comments: _c, ...rest } = item;
+  return rest;
+};
 
 // Mimic: lifestyle/v1/menu
 lifestyleRoutes.get('/v1/menu', async (c) => {
-  const userEvents = await db.query.events.findMany({ where: eq(events.isActive, 1) });
-  const userRunningEvents = await db.query.runningEvents.findMany({ where: eq(runningEvents.isActive, 1) });
-  const userHotels = await db.query.hotels.findMany({ where: eq(hotels.isActive, 1) });
-  const userCafeRestaurants = await db.query.cafesRestaurants.findMany({ where: eq(cafesRestaurants.isActive, 1) });
-  const userRentals = await db.query.rentals.findMany({ where: eq(rentals.isActive, 1) });
-  const userUmkms = await db.query.umkms.findMany({ where: eq(umkms.isActive, 1) });
+  const active = (col: any) => eq(col.isActive, 1);
+  const userEvents = await db.query.events.findMany({ where: active(events) });
+  const userRunningEvents = await db.query.runningEvents.findMany({ where: active(runningEvents) });
+  const userHotels = await db.query.hotels.findMany({ where: active(hotels) });
+  const userCafeRestaurants = await db.query.cafesRestaurants.findMany({ where: active(cafesRestaurants) });
+  const userRentals = await db.query.rentals.findMany({ where: active(rentals) });
+  const userUmkms = await db.query.umkms.findMany({ where: active(umkms) });
 
   const partnerMenus = [
     ...userEvents.map(e => ({
@@ -29,7 +34,7 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: e.name,
       transactionTypeDisplay: "Event",
       isActive: e.isActive === 1,
-      rawMenu: e
+      rawMenu: strip(e),
     })),
     ...userRunningEvents.map(e => ({
       id: e.id,
@@ -44,7 +49,7 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: e.name,
       transactionTypeDisplay: "Running",
       isActive: e.isActive === 1,
-      rawMenu: e
+      rawMenu: strip(e),
     })),
     ...userHotels.map(h => ({
       id: h.id,
@@ -59,7 +64,7 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: h.name,
       transactionTypeDisplay: "Hotel",
       isActive: h.isActive === 1,
-      rawMenu: h
+      rawMenu: strip(h),
     })),
     ...userCafeRestaurants.map(v => ({
       id: v.id,
@@ -74,7 +79,7 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: v.name,
       transactionTypeDisplay: v.category.charAt(0).toUpperCase() + v.category.slice(1),
       isActive: v.isActive === 1,
-      rawMenu: v
+      rawMenu: strip(v),
     })),
     ...userRentals.map(r => ({
       id: r.id,
@@ -89,7 +94,7 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: r.name,
       transactionTypeDisplay: "Rental",
       isActive: r.isActive === 1,
-      rawMenu: r
+      rawMenu: strip(r),
     })),
     ...userUmkms.map(u => ({
       id: u.id,
@@ -104,31 +109,26 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       title: u.name,
       transactionTypeDisplay: "UMKM",
       isActive: u.isActive === 1,
-      rawMenu: u
-    }))
+      rawMenu: strip(u),
+    })),
   ];
 
   return c.json({
-    data: {
-      isNeedUpdate: false,
-      partnerMenus
-    },
+    data: { isNeedUpdate: false, partnerMenus },
     latency: 0,
     statusCode: 200,
     message: "Success"
   });
 });
 
-// Mock: lifestyle/v1/all-events
 lifestyleRoutes.get('/v1/all-events', async (c) => {
   try {
     const allEvents = await db.query.events.findMany({
       where: eq(events.isActive, 1),
       orderBy: [desc(events.createdAt)],
-      with: { ticketCategories: { with: { tickets: true } } }
+      with: { ticketCategories: { with: { tickets: true } } },
     });
 
-    // Backfill price
     for (const ev of allEvents) {
       if (!ev.price || ev.price <= 0) {
         const minCatPrice = ev.ticketCategories?.length > 0
@@ -143,12 +143,7 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
       }
     }
 
-    return c.json({
-      data: allEvents,
-      latency: 0,
-      statusCode: 200,
-      message: "Success"
-    });
+    return c.json({ data: allEvents.map(strip), latency: 0, statusCode: 200, message: "Success" });
   } catch (error) {
     console.error(error);
     return c.json({ error: 'Failed to fetch events' }, 500);
@@ -160,23 +155,12 @@ lifestyleRoutes.get('/v1/all-hotels', async (c) => {
     const allHotels = await db.query.hotels.findMany({
       where: eq(hotels.isActive, 1),
       orderBy: [desc(hotels.createdAt)],
-      with: {
-        categories: true
-      }
+      with: { categories: true },
     });
-
-    return c.json({
-      data: allHotels,
-      latency: 0,
-      statusCode: 200,
-      message: "Success"
-    });
+    return c.json({ data: allHotels.map(strip), latency: 0, statusCode: 200, message: "Success" });
   } catch (error: any) {
     console.error('Fetch Hotels Error:', error);
-    return c.json({ 
-      error: 'Failed to fetch hotels', 
-      details: error.message 
-    }, 500);
+    return c.json({ error: 'Failed to fetch hotels', details: error.message }, 500);
   }
 });
 
@@ -186,7 +170,7 @@ lifestyleRoutes.get('/v1/all-cafes', async (c) => {
       where: and(eq(cafesRestaurants.category, 'cafe'), eq(cafesRestaurants.isActive, 1)),
       orderBy: [desc(cafesRestaurants.createdAt)],
     });
-    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch cafes', details: error.message }, 500);
   }
@@ -198,7 +182,7 @@ lifestyleRoutes.get('/v1/all-restaurants', async (c) => {
       where: and(eq(cafesRestaurants.category, 'restaurant'), eq(cafesRestaurants.isActive, 1)),
       orderBy: [desc(cafesRestaurants.createdAt)],
     });
-    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch restaurants', details: error.message }, 500);
   }
@@ -210,7 +194,7 @@ lifestyleRoutes.get('/v1/all-rentals', async (c) => {
       where: eq(rentals.isActive, 1),
       orderBy: [desc(rentals.createdAt)],
     });
-    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch rentals', details: error.message }, 500);
   }
@@ -222,7 +206,7 @@ lifestyleRoutes.get('/v1/all-umkms', async (c) => {
       where: eq(umkms.isActive, 1),
       orderBy: [desc(umkms.createdAt)],
     });
-    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch umkms', details: error.message }, 500);
   }
@@ -235,7 +219,7 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
       orderBy: [desc(runningEvents.createdAt)],
       with: { categories: { with: { tickets: true } } },
     });
-    return c.json({ data, latency: 0, statusCode: 200, message: 'Success' });
+    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch running events', details: error.message }, 500);
   }
