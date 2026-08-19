@@ -2,7 +2,10 @@ import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "../db";
-import { cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms } from "../db/schema";
+import {
+  cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms, runningTickets, // <-- Tambahkan ini
+  tickets
+} from "../db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { authMiddleware } from "../middleware/auth";
 import { verify } from "hono/jwt";
@@ -12,10 +15,11 @@ export const orderRoutes = new Hono();
 const createOrderSchema = z.object({
   orderType: z.string().min(1),
   serviceId: z.string().min(1),
-  customerName: z.string().min(2),
-  customerPhone: z.string().optional(),
+  // Berikan default agar tidak gagal validasi jika miniprogram mengirim undefined
+  customerName: z.string().optional().default("User Lifestyle"),
+  customerPhone: z.string().optional().default("-"),
   notes: z.string().optional(),
-  status: z.string().optional(),
+  status: z.string().optional().default("completed"),
   quantity: z.number().int().min(1).optional().default(1),
   totalAmount: z.number().min(0).optional().default(0),
   orderPayload: z.record(z.string(), z.any()).optional().default({}),
@@ -107,7 +111,7 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
 }
 
 orderRoutes.post("/:id/checkout", zValidator("json", z.object({ paymentMethod: z.string() })), async (c) => {
-  const authResult = await authMiddleware(c, async () => {});
+  const authResult = await authMiddleware(c, async () => { });
   if (authResult) return authResult as any;
 
   const user = c.get("jwtPayload") as any;
@@ -142,7 +146,6 @@ orderRoutes.get("/", async (c) => {
   let user: any = null;
   let isAdmin = false;
 
-  // Hanya coba auth jika ada header yang valid
   if (authHeader && authHeader !== 'Bearer undefined' && authHeader !== 'Bearer null' && authHeader !== 'Bearer ') {
     try {
       const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
@@ -150,42 +153,37 @@ orderRoutes.get("/", async (c) => {
       user = await verify(token, JWT_SECRET, 'HS256');
       isAdmin = user?.role === 'admin';
     } catch (err) {
-      // Token tidak valid, anggap sebagai visitor biasa (jangan return 401 di sini)
-      console.log("Invalid token in GET /orders, treating as visitor");
+      console.log("Invalid token in GET /orders");
     }
   }
 
   const status = c.req.query("status");
   const orderType = c.req.query("orderType");
+  const serviceId = c.req.query("serviceId");
   const customerPhone = c.req.query("customerPhone");
 
   const clauses = [];
 
-  // Jika ada user (Vendor/Admin), filter berdasarkan hak akses mereka
-  if (user) {
-    if (!isAdmin) {
-      clauses.push(eq(serviceOrders.vendorUserId, user.sub));
-    }
-  } else {
-    // Jika visitor (tanpa auth), WAJIB filter berdasarkan customerPhone
-    // agar tidak bisa melihat pesanan orang lain secara sembarangan
-    if (customerPhone) {
-      clauses.push(eq(serviceOrders.customerPhone, customerPhone));
-    } else {
-      // Jika tidak ada auth dan tidak ada filter phone, kembalikan data kosong demi keamanan
-      // (Kecuali untuk demo ini kita izinkan lihat semua jika memang itu tujuannya)
-      // Untuk "Real Life", kita batasi.
-      return c.json({ data: [] });
-    }
+  // Jika dipanggil dengan serviceId spesifik dari halaman detail tiket, cari langsung berdasarkan serviceId
+  if (serviceId) {
+    clauses.push(eq(serviceOrders.serviceId, serviceId));
+  } else if (user && !isAdmin) {
+    // Hanya filter by vendorUserId jika tidak mencari by serviceId spesifik
+    clauses.push(eq(serviceOrders.vendorUserId, user.sub));
   }
 
   if (status) clauses.push(eq(serviceOrders.status, status));
   if (orderType) clauses.push(eq(serviceOrders.orderType, orderType));
+  if (customerPhone) clauses.push(eq(serviceOrders.customerPhone, customerPhone));
+
+  console.log(`[GET /orders] Querying with serviceId: ${serviceId}, user: ${user?.sub}`);
 
   const data = await db.query.serviceOrders.findMany({
     where: clauses.length > 0 ? and(...clauses) : undefined,
     orderBy: [desc(serviceOrders.createdAt)],
   });
+
+  console.log(`[GET /orders] Found ${data.length} records`);
 
   return c.json({ data });
 });
@@ -217,7 +215,7 @@ orderRoutes.post("/", zValidator("json", createOrderSchema), async (c) => {
 });
 
 orderRoutes.patch("/:id/status", zValidator("json", updateStatusSchema), async (c) => {
-  const authResult = await authMiddleware(c, async () => {});
+  const authResult = await authMiddleware(c, async () => { });
   if (authResult) return authResult as any;
 
   const user = c.get("jwtPayload") as any;
@@ -232,4 +230,171 @@ orderRoutes.patch("/:id/status", zValidator("json", updateStatusSchema), async (
 
   if (!updated.length) return c.json({ error: "Order tidak ditemukan / tidak berizin" }, 404);
   return c.json({ success: true, data: updated[0] });
+});
+
+
+const completePaymentSchema = z.object({
+  serviceId: z.string().optional(),
+  orderType: z.string().optional(),
+  tickets: z.array(z.any()).optional(),
+  paymentMethod: z.string().optional().default("VA")
+});
+
+orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSchema), async (c) => {
+  const orderId = c.req.param("id");
+  const payload = c.req.valid("json");
+
+  try {
+    // 1. Ambil data order dari database
+    const existingOrder = await db.query.serviceOrders.findFirst({
+      where: eq(serviceOrders.id, orderId)
+    });
+
+    if (!existingOrder) {
+      return c.json({ error: "Order not found" }, 404);
+    }
+
+    const serviceId = payload.serviceId || existingOrder.serviceId;
+    const purchasedTicketList = payload.tickets || (existingOrder.orderPayload as any)?.tickets || [];
+
+    console.log("Processing complete-payment for Service ID:", serviceId);
+    console.log("Purchased Ticket List:", JSON.stringify(purchasedTicketList, null, 2));
+
+    // 2. Loop setiap item tiket yang dibeli
+    for (const ticketItem of purchasedTicketList) {
+      const qty = Number(ticketItem.ticketQty || ticketItem.total || (ticketItem.customerTicket ? ticketItem.customerTicket.length : 1));
+
+      // Kumpulkan semua kemungkinan ID
+      let candidateIds: string[] = [];
+      if (ticketItem.ticketId) candidateIds.push(ticketItem.ticketId);
+      if (ticketItem.id) candidateIds.push(ticketItem.id);
+      if (typeof ticketItem.category3 === 'string') candidateIds.push(ticketItem.category3.split('_')[0]);
+      if (typeof ticketItem.category2 === 'string') candidateIds.push(ticketItem.category2);
+      if (typeof ticketItem.category === 'string') candidateIds.push(ticketItem.category);
+
+      candidateIds = candidateIds.filter(id => Boolean(id) && typeof id === 'string');
+
+      // Ambil kemungkinan nama tiket / kategori
+      const candidateName = ticketItem.name ||
+        ticketItem.ticketName ||
+        ticketItem.title ||
+        (ticketItem.customerTicket && ticketItem.customerTicket[0]?.ticketName) ||
+        "";
+
+      let runningTicketFound: any = null;
+
+      // STRATEGI 1: Cari langsung by candidate ID di running_tickets
+      for (const idToTry of candidateIds) {
+        let t = await db.query.runningTickets.findFirst({
+          where: eq(runningTickets.id, idToTry)
+        });
+        if (!t) {
+          t = await db.query.runningTickets.findFirst({
+            where: eq(runningTickets.categoryId, idToTry)
+          });
+        }
+        if (t) {
+          runningTicketFound = t;
+          break;
+        }
+      }
+
+      // STRATEGI 2: Cari via Service ID (Event ID) -> Categories -> Tickets
+      if (!runningTicketFound && serviceId) {
+        const eventWithCats = await db.query.runningEvents.findFirst({
+          where: eq(runningEvents.id, serviceId),
+          with: {
+            categories: {
+              with: {
+                tickets: true
+              }
+            }
+          }
+        });
+
+        if (eventWithCats && eventWithCats.categories.length > 0) {
+          // Cari tiket yang namanya cocok di dalam event tersebut
+          for (const cat of eventWithCats.categories) {
+            for (const t of cat.tickets) {
+              if (
+                candidateName &&
+                (t.name.toLowerCase().includes(candidateName.toLowerCase()) ||
+                  cat.name.toLowerCase().includes(candidateName.toLowerCase()))
+              ) {
+                runningTicketFound = t;
+                break;
+              }
+            }
+            if (runningTicketFound) break;
+          }
+
+          // Fallback: Jika nama tidak cocok, ambil tiket pertama dari event tersebut
+          if (!runningTicketFound && eventWithCats.categories[0]?.tickets[0]) {
+            runningTicketFound = eventWithCats.categories[0].tickets[0];
+          }
+        }
+      }
+
+      // STRATEGI 3: Eksekusi Update Stok & Order di database
+      if (runningTicketFound) {
+        const currentStock = Number(runningTicketFound.stock ?? 30);
+        const currentOrder = Number(runningTicketFound.order ?? 0);
+
+        const newStock = Math.max(0, currentStock - qty);
+        const newOrder = currentOrder + qty;
+
+        await db.update(runningTickets)
+          .set({
+            stock: newStock,
+            order: newOrder,
+            isAvailable: newStock > 0 ? 1 : 0
+          })
+          .where(eq(runningTickets.id, runningTicketFound.id));
+
+        console.log(`[SUCCESS] Running Ticket "${runningTicketFound.name}" (${runningTicketFound.id}) Updated:`);
+        console.log(`- Stock: ${currentStock} -> ${newStock}`);
+        console.log(`- Order: ${currentOrder} -> ${newOrder}`);
+        continue;
+      }
+
+      // STRATEGI 4: Cek jika Regular Event Ticket
+      for (const idToTry of candidateIds) {
+        const regTicket = await db.query.tickets.findFirst({
+          where: eq(tickets.id, idToTry)
+        });
+        if (regTicket) {
+          const curOrder = Number(regTicket.order ?? 0);
+          await db.update(tickets)
+            .set({
+              order: curOrder + qty,
+              isAvailable: 1
+            })
+            .where(eq(tickets.id, regTicket.id));
+          break;
+        }
+      }
+    }
+
+    // 4. Update status Order menjadi completed
+    const updatedOrder = await db.update(serviceOrders)
+      .set({
+        status: "completed",
+        paymentMethod: payload.paymentMethod || "VA",
+        invoiceNumber: `INV-${Date.now()}-${orderId.slice(-4).toUpperCase()}`,
+        completedAt: new Date().toISOString(),
+        updatedAt: sql`CURRENT_TIMESTAMP`
+      })
+      .where(eq(serviceOrders.id, orderId))
+      .returning();
+
+    return c.json({
+      success: true,
+      message: "Payment processed, stock deducted, and order count updated",
+      data: updatedOrder[0]
+    });
+
+  } catch (error) {
+    console.error("Error in complete-payment:", error);
+    return c.json({ error: "Internal Server Error", details: String(error) }, 500);
+  }
 });
