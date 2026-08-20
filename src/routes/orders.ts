@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "../db";
 import {
-  cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms, runningTickets, // <-- Tambahkan ini
+  cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms, runningTickets,
   tickets
 } from "../db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
@@ -15,7 +15,6 @@ export const orderRoutes = new Hono();
 const createOrderSchema = z.object({
   orderType: z.string().min(1),
   serviceId: z.string().min(1),
-  // Berikan default agar tidak gagal validasi jika miniprogram mengirim undefined
   customerName: z.string().optional().default("User Lifestyle"),
   customerPhone: z.string().optional().default("-"),
   notes: z.string().optional(),
@@ -45,10 +44,8 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
   try {
     const type = orderType.toLowerCase();
     if (type === "event") {
-      // Coba cari berdasarkan ID (UUID)
       let data = await db.query.events.findFirst({ where: eq(events.id, serviceId) });
 
-      // Jika tidak ketemu ID, coba cari berdasarkan nama (untuk case "EVENT-JJF" atau sejenisnya)
       if (!data && serviceId.startsWith("EVENT-")) {
         const namePart = serviceId.replace("EVENT-", "").replace("-", " ");
         data = await db.query.events.findFirst({
@@ -57,9 +54,6 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
       }
 
       if (!data) {
-        // Fallback terakhir: ambil event pertama milik user tersebut jika ada context user,
-        // tapi di sini kita tidak punya user context.
-        // Jadi kita hanya ambil event paling baru sebagai best effort daripada null.
         const latestEvent = await db.query.events.findFirst({ orderBy: [desc(events.createdAt)] });
         return { vendorUserId: latestEvent?.userId || null, serviceName: latestEvent?.name || "Event" };
       }
@@ -97,7 +91,6 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
       }
       return { vendorUserId: data.userId || null, serviceName: data.name || "Running Event" };
     }
-    // Handle "CULINARY", "cafe", or "restaurant"
     const data = await db.query.cafesRestaurants.findFirst({ where: eq(cafesRestaurants.id, serviceId) });
     if (!data) {
       const latestCafe = await db.query.cafesRestaurants.findFirst({ orderBy: [desc(cafesRestaurants.createdAt)] });
@@ -164,11 +157,9 @@ orderRoutes.get("/", async (c) => {
 
   const clauses = [];
 
-  // Jika dipanggil dengan serviceId spesifik dari halaman detail tiket, cari langsung berdasarkan serviceId
   if (serviceId) {
     clauses.push(eq(serviceOrders.serviceId, serviceId));
   } else if (user && !isAdmin) {
-    // Hanya filter by vendorUserId jika tidak mencari by serviceId spesifik
     clauses.push(eq(serviceOrders.vendorUserId, user.sub));
   }
 
@@ -232,7 +223,6 @@ orderRoutes.patch("/:id/status", zValidator("json", updateStatusSchema), async (
   return c.json({ success: true, data: updated[0] });
 });
 
-
 const completePaymentSchema = z.object({
   serviceId: z.string().optional(),
   orderType: z.string().optional(),
@@ -245,7 +235,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
   const payload = c.req.valid("json");
 
   try {
-    // 1. Ambil data order dari database
     const existingOrder = await db.query.serviceOrders.findFirst({
       where: eq(serviceOrders.id, orderId)
     });
@@ -260,11 +249,9 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
     console.log("Processing complete-payment for Service ID:", serviceId);
     console.log("Purchased Ticket List:", JSON.stringify(purchasedTicketList, null, 2));
 
-    // 2. Loop setiap item tiket yang dibeli
     for (const ticketItem of purchasedTicketList) {
       const qty = Number(ticketItem.ticketQty || ticketItem.total || (ticketItem.customerTicket ? ticketItem.customerTicket.length : 1));
 
-      // Kumpulkan semua kemungkinan ID
       let candidateIds: string[] = [];
       if (ticketItem.ticketId) candidateIds.push(ticketItem.ticketId);
       if (ticketItem.id) candidateIds.push(ticketItem.id);
@@ -274,7 +261,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
 
       candidateIds = candidateIds.filter(id => Boolean(id) && typeof id === 'string');
 
-      // Ambil kemungkinan nama tiket / kategori
       const candidateName = ticketItem.name ||
         ticketItem.ticketName ||
         ticketItem.title ||
@@ -283,7 +269,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
 
       let runningTicketFound: any = null;
 
-      // STRATEGI 1: Cari langsung by candidate ID di running_tickets
       for (const idToTry of candidateIds) {
         let t = await db.query.runningTickets.findFirst({
           where: eq(runningTickets.id, idToTry)
@@ -299,7 +284,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
         }
       }
 
-      // STRATEGI 2: Cari via Service ID (Event ID) -> Categories -> Tickets
       if (!runningTicketFound && serviceId) {
         const eventWithCats = await db.query.runningEvents.findFirst({
           where: eq(runningEvents.id, serviceId),
@@ -313,7 +297,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
         });
 
         if (eventWithCats && eventWithCats.categories.length > 0) {
-          // Cari tiket yang namanya cocok di dalam event tersebut
           for (const cat of eventWithCats.categories) {
             for (const t of cat.tickets) {
               if (
@@ -328,14 +311,12 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
             if (runningTicketFound) break;
           }
 
-          // Fallback: Jika nama tidak cocok, ambil tiket pertama dari event tersebut
           if (!runningTicketFound && eventWithCats.categories[0]?.tickets[0]) {
             runningTicketFound = eventWithCats.categories[0].tickets[0];
           }
         }
       }
 
-      // STRATEGI 3: Eksekusi Update Stok & Order di database
       if (runningTicketFound) {
         const currentStock = Number(runningTicketFound.stock ?? 30);
         const currentOrder = Number(runningTicketFound.order ?? 0);
@@ -357,7 +338,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
         continue;
       }
 
-      // STRATEGI 4: Cek jika Regular Event Ticket
       for (const idToTry of candidateIds) {
         const regTicket = await db.query.tickets.findFirst({
           where: eq(tickets.id, idToTry)
@@ -375,7 +355,6 @@ orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSche
       }
     }
 
-    // 4. Update status Order menjadi completed
     const updatedOrder = await db.update(serviceOrders)
       .set({
         status: "completed",

@@ -10,7 +10,6 @@ const strip = (item: any) => {
   return rest;
 };
 
-// Mimic: lifestyle/v1/menu
 lifestyleRoutes.get('/v1/menu', async (c) => {
   const active = (col: any) => eq(col.isActive, 1);
   const userEvents = await db.query.events.findMany({ where: active(events) });

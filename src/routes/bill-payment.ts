@@ -2,12 +2,8 @@ import { Hono } from 'hono';
 
 export const billPaymentRoutes = new Hono();
 
-// Mimic: bill-payment/v1/biller/preparation
 billPaymentRoutes.post('/v1/biller/preparation', async (c) => {
   const body = await c.req.json();
-
-  // Logic to process preparation request
-  // Usually this returns a transaction ID and biller info
 
   return c.json({
     data: {
