@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms } from '../db/schema';
+import { cafesRestaurants, events, hotels, rentals, serviceOrders, umkms } from '../db/schema';
 import { eq, desc } from 'drizzle-orm';
 import { authMiddleware } from '../middleware/auth';
 
@@ -47,11 +47,6 @@ dashboardRoutes.get('/all-services', async (c) => {
       orderBy: [desc(umkms.createdAt)],
     });
 
-    const userRunningEvents = await db.query.runningEvents.findMany({
-      where: isAdmin ? undefined : eq(runningEvents.userId, userId),
-      orderBy: [desc(runningEvents.createdAt)],
-    });
-
     const userOrders = await db.query.serviceOrders.findMany({
       where: isAdmin ? undefined : eq(serviceOrders.vendorUserId, userId),
       orderBy: [desc(serviceOrders.createdAt)],
@@ -62,13 +57,12 @@ dashboardRoutes.get('/all-services', async (c) => {
     const mergedCafes = userCafeRestaurants.map(merge);
     const mergedRentals = userRentals.map(merge);
     const mergedUmkms = userUmkms.map(merge);
-    const mergedRunning = userRunningEvents.map(merge);
 
     const summary = [
       ...mergedEvents.map((e: any) => ({
         id: e.id,
         name: e.name,
-        type: 'EVENT',
+        type: ((e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run')) ? 'RUNNING' : 'EVENT',
         createdAt: e.createdAt,
         approvalStatus: e.approvalStatus,
         isActive: e.isActive,
@@ -115,16 +109,6 @@ dashboardRoutes.get('/all-services', async (c) => {
         hasPendingEdit: u.hasPendingEdit,
         location: u.location,
       })),
-      ...mergedRunning.map((e: any) => ({
-        id: e.id,
-        name: e.name,
-        type: 'RUNNING',
-        createdAt: e.createdAt,
-        approvalStatus: e.approvalStatus,
-        isActive: e.isActive,
-        hasPendingEdit: e.hasPendingEdit,
-        location: e.location,
-      })),
     ].sort((a, b) => {
       const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
@@ -141,7 +125,6 @@ dashboardRoutes.get('/all-services', async (c) => {
         totalCafesRestaurants: userCafeRestaurants.length,
         totalRentals: userRentals.length,
         totalUmkms: userUmkms.length,
-        totalRunningEvents: userRunningEvents.length,
         totalOrders: userOrders.length,
         raw: {
           events: mergedEvents,
@@ -149,7 +132,6 @@ dashboardRoutes.get('/all-services', async (c) => {
           cafesRestaurants: mergedCafes,
           rentals: mergedRentals,
           umkms: mergedUmkms,
-          runningEvents: mergedRunning,
           orders: userOrders,
         },
       },

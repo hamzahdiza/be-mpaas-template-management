@@ -8,6 +8,7 @@
     "start": "tsx src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:push": "drizzle-kit push",
+    "seed": "tsx seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

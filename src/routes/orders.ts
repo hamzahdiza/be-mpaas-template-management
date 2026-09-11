@@ -3,8 +3,8 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { db } from "../db";
 import {
-  cafesRestaurants, events, hotels, rentals, runningEvents, serviceOrders, umkms, runningTickets,
-  tickets
+  cafesRestaurants, events, hotels, rentals, serviceOrders, umkms,
+  ticketCategories, tickets, issuedTickets
 } from "../db/schema";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { authMiddleware } from "../middleware/auth";
@@ -17,10 +17,14 @@ const createOrderSchema = z.object({
   serviceId: z.string().min(1),
   customerName: z.string().optional().default("User Lifestyle"),
   customerPhone: z.string().optional().default("-"),
+  customerEmail: z.string().optional(),
+  customerNik: z.string().optional(),
   notes: z.string().optional(),
   status: z.string().optional().default("completed"),
   quantity: z.number().int().min(1).optional().default(1),
   totalAmount: z.number().min(0).optional().default(0),
+  paymentMethod: z.string().optional().default("va"),
+  vaNumber: z.string().optional(),
   orderPayload: z.record(z.string(), z.any()).optional().default({}),
 });
 
@@ -35,29 +39,31 @@ const updateStatusSchema = z.object({
     "ready_to_pick",
     "searching_driver",
     "driver_found",
-    "delivering"
+    "delivering",
+    "canceled",
+    "refund"
   ]),
   paymentMethod: z.string().optional(),
 });
 
 async function resolveVendorAndName(orderType: string, serviceId: string) {
   try {
-    const type = orderType.toLowerCase();
-    if (type === "event") {
-      let data = await db.query.events.findFirst({ where: eq(events.id, serviceId) });
+    // 1. Cek tabel events terlebih dahulu
+    let eventData = await db.query.events.findFirst({ where: eq(events.id, serviceId) });
+    if (!eventData && serviceId && serviceId.startsWith("EVENT-")) {
+      const namePart = serviceId.replace("EVENT-", "").replace(/-/g, " ");
+      eventData = await db.query.events.findFirst({
+        where: sql`LOWER(${events.name}) LIKE ${'%' + namePart.toLowerCase() + '%'}`
+      });
+    }
+    if (eventData) {
+      return { vendorUserId: eventData.userId || null, serviceName: eventData.name || "Event" };
+    }
 
-      if (!data && serviceId.startsWith("EVENT-")) {
-        const namePart = serviceId.replace("EVENT-", "").replace("-", " ");
-        data = await db.query.events.findFirst({
-          where: sql`LOWER(${events.name}) LIKE ${'%' + namePart.toLowerCase() + '%'}`
-        });
-      }
-
-      if (!data) {
-        const latestEvent = await db.query.events.findFirst({ orderBy: [desc(events.createdAt)] });
-        return { vendorUserId: latestEvent?.userId || null, serviceName: latestEvent?.name || "Event" };
-      }
-      return { vendorUserId: data.userId || null, serviceName: data.name || "Event" };
+    const type = (orderType || '').toLowerCase();
+    if (type === "event" || type === "running" || type === "lari" || type.includes("sport") || type.includes("musik")) {
+      const latestEvent = await db.query.events.findFirst({ orderBy: [desc(events.createdAt)] });
+      return { vendorUserId: latestEvent?.userId || null, serviceName: latestEvent?.name || "Event" };
     }
     if (type === "hotel") {
       const data = await db.query.hotels.findFirst({ where: eq(hotels.id, serviceId) });
@@ -83,14 +89,6 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
       }
       return { vendorUserId: data.userId || null, serviceName: data.name || "UMKM" };
     }
-    if (type === "running") {
-      const data = await db.query.runningEvents.findFirst({ where: eq(runningEvents.id, serviceId) });
-      if (!data) {
-        const latest = await db.query.runningEvents.findFirst({ orderBy: [desc(runningEvents.createdAt)] });
-        return { vendorUserId: latest?.userId || null, serviceName: latest?.name || "Running Event" };
-      }
-      return { vendorUserId: data.userId || null, serviceName: data.name || "Running Event" };
-    }
     const data = await db.query.cafesRestaurants.findFirst({ where: eq(cafesRestaurants.id, serviceId) });
     if (!data) {
       const latestCafe = await db.query.cafesRestaurants.findFirst({ orderBy: [desc(cafesRestaurants.createdAt)] });
@@ -103,46 +101,195 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
   }
 }
 
-orderRoutes.post("/:id/checkout", zValidator("json", z.object({ paymentMethod: z.string() })), async (c) => {
-  const authResult = await authMiddleware(c, async () => { });
-  if (authResult) return authResult as any;
+// Helper: Handle Stock Deduction, Revenue, and Issued Tickets on Completed Order
+// ----------------------------------------------------------------------
+async function handleOrderCompletion(order: any, extraPayload?: any) {
+  try {
+    let ev = await db.query.events.findFirst({
+      where: eq(events.id, order.serviceId),
+      with: { ticketCategories: true }
+    });
 
-  const user = c.get("jwtPayload") as any;
-  const id = c.req.param("id");
-  const { paymentMethod } = c.req.valid("json");
+    if (!ev && order.serviceId && order.serviceId.startsWith("EVENT-")) {
+      const namePart = order.serviceId.replace("EVENT-", "").replace(/-/g, " ");
+      ev = await db.query.events.findFirst({
+        where: sql`LOWER(${events.name}) LIKE ${'%' + namePart.toLowerCase() + '%'}`,
+        with: { ticketCategories: true }
+      });
+    }
 
-  const order = await db.query.serviceOrders.findFirst({
-    where: and(eq(serviceOrders.id, id), eq(serviceOrders.vendorUserId, user.sub))
-  });
+    if (!ev && order.serviceName) {
+      ev = await db.query.events.findFirst({
+        where: sql`LOWER(${events.name}) LIKE ${'%' + order.serviceName.toLowerCase() + '%'}`,
+        with: { ticketCategories: true }
+      });
+    }
 
-  if (!order) return c.json({ error: "Order tidak ditemukan" }, 404);
+    const isEvent = Boolean(ev) || (order.orderType || '').toLowerCase() === 'event' || (order.orderType || '').toLowerCase() === 'running';
+    if (!isEvent) return;
 
-  const invoiceNumber = `INV-${Date.now()}-${order.id.slice(-4).toUpperCase()}`;
+    if (ev && ev.userId && order.vendorUserId !== ev.userId) {
+      await db.update(serviceOrders).set({
+        vendorUserId: ev.userId,
+        serviceId: ev.id,
+        serviceName: ev.name
+      }).where(eq(serviceOrders.id, order.id));
+      order.vendorUserId = ev.userId;
+      order.serviceId = ev.id;
+      order.serviceName = ev.name;
+    }
 
-  const updated = await db
-    .update(serviceOrders)
-    .set({
-      status: 'completed',
-      paymentMethod,
-      invoiceNumber,
-      completedAt: new Date().toISOString(),
-      updatedAt: sql`CURRENT_TIMESTAMP`
-    })
-    .where(eq(serviceOrders.id, id))
-    .returning();
+    const payload = { ...(order.orderPayload || {}), ...(extraPayload || {}) };
+    const ticketsPurchased = payload.tickets || payload.ticketTiers || [];
+    let attendees = payload.attendees || payload.participants || [];
 
-  return c.json({ success: true, data: updated[0] });
-});
+    // Extract customerTicket from ticketsPurchased if present
+    if (attendees.length === 0 && ticketsPurchased.length > 0) {
+      for (const tix of ticketsPurchased) {
+        if (Array.isArray(tix.customerTicket) && tix.customerTicket.length > 0) {
+          tix.customerTicket.forEach((cust: any) => {
+            attendees.push({
+              name: cust.fullName || cust.name || order.customerName,
+              fullName: cust.fullName || cust.name || order.customerName,
+              nik: cust.idCard || cust.nik || order.customerNik,
+              idCard: cust.idCard || cust.nik || order.customerNik,
+              email: cust.email || order.customerEmail || "",
+              phone: cust.phone || order.customerPhone || "",
+              ticketName: cust.ticketName || tix.title || tix.ticketName || tix.name,
+              categoryId: cust.ticketId || cust.categoryId || tix.ticketId || tix.categoryId || tix.id,
+              ticketId: cust.ticketId || cust.categoryId || tix.ticketId || tix.categoryId || tix.id,
+              price: cust.price !== undefined ? cust.price : tix.price,
+            });
+          });
+        }
+      }
+    }
 
+    const totalQty = order.quantity || (ticketsPurchased.length > 0 ? ticketsPurchased.reduce((s: number, t: any) => s + Number(t.ticketQty || t.quantity || t.qty || t.total || 1), 0) : 1);
+
+    // 1. DEDUCT TICKET STOCK & INCREMENT TICKETS_SOLD
+    if (ev && ev.ticketCategories && ev.ticketCategories.length > 0) {
+      const catCountMap = new Map<string, number>();
+
+      // A. If we have attendees list with specific ticket info per attendee
+      if (attendees.length > 0) {
+        for (const att of attendees) {
+          const tixId = att.ticketId || att.categoryId;
+          const matchedCat = ev.ticketCategories.find((c: any) =>
+            (tixId && c.id === tixId) ||
+            (att.ticketName && c.name.toLowerCase() === att.ticketName.toLowerCase()) ||
+            (att.title && c.name.toLowerCase() === att.title.toLowerCase())
+          );
+          if (matchedCat) {
+            catCountMap.set(matchedCat.id, (catCountMap.get(matchedCat.id) || 0) + 1);
+          }
+        }
+      }
+
+      // B. If catCountMap is still empty (e.g. no attendees or no match), count from ticketsPurchased
+      if (catCountMap.size === 0 && ticketsPurchased.length > 0) {
+        for (const tix of ticketsPurchased) {
+          const qty = Number(tix.ticketQty || tix.quantity || tix.qty || tix.total || 1);
+          const tixId = tix.ticketId || tix.categoryId || tix.id;
+          const matchedCat = ev.ticketCategories.find((c: any) =>
+            (tixId && c.id === tixId) ||
+            (tix.ticketName && c.name.toLowerCase() === tix.ticketName.toLowerCase()) ||
+            (tix.title && c.name.toLowerCase() === tix.title.toLowerCase()) ||
+            (tix.name && c.name.toLowerCase() === tix.name.toLowerCase())
+          ) || ev.ticketCategories[0];
+
+          if (matchedCat) {
+            catCountMap.set(matchedCat.id, (catCountMap.get(matchedCat.id) || 0) + qty);
+          }
+        }
+      }
+
+      // C. If still empty, fallback to first category
+      if (catCountMap.size === 0) {
+        const firstCat = ev.ticketCategories[0];
+        catCountMap.set(firstCat.id, totalQty);
+      }
+
+      for (const [catId, qty] of catCountMap.entries()) {
+        console.log(`[Order Completion] Deducting stock for Cat ID: ${catId}, Sold Qty: +${qty}`);
+        await db.update(ticketCategories).set({
+          ticketsSold: sql`COALESCE(${ticketCategories.ticketsSold}, 0) + ${qty}`,
+          updatedAt: new Date().toISOString()
+        }).where(eq(ticketCategories.id, catId));
+      }
+    }
+
+    // 2. CREATE ISSUED TICKETS (ATTENDEES / E-TICKETS)
+    const existingIssued = await db.query.issuedTickets.findMany({
+      where: eq(issuedTickets.orderId, order.id)
+    });
+
+    if (existingIssued.length === 0) {
+      const countToCreate = Math.max(attendees.length, totalQty, 1);
+      for (let i = 0; i < countToCreate; i++) {
+        const att = attendees[i] || attendees[0] || {};
+        const tix = ticketsPurchased[i] || ticketsPurchased[0] || {};
+        const tixId = att.ticketId || att.categoryId || tix.ticketId || tix.categoryId || tix.id;
+        const matchedCat = ev?.ticketCategories?.find((c: any) => 
+          (tixId && c.id === tixId) ||
+          (att.ticketName && c.name.toLowerCase() === att.ticketName.toLowerCase()) ||
+          (tix.ticketName && c.name.toLowerCase() === tix.ticketName.toLowerCase())
+        ) || ev?.ticketCategories?.[0];
+
+        const participantName = att.name || att.participantName || att.fullName || order.customerName || `Peserta ${i + 1}`;
+        const nik = att.nik || att.idCard || order.customerNik || `31710${Date.now().toString().slice(-6)}${String(i + 1).padStart(2, '0')}`;
+        const email = att.email || order.customerEmail || "";
+        const phone = att.phone || order.customerPhone || "";
+        const ticketName = att.ticketName || matchedCat?.name || tix.ticketName || tix.title || tix.name || "Tiket Masuk";
+        const ticketCategory = matchedCat?.type || tix.category || tix.ticketCategory || "Regular";
+        const nominal = Number(
+          att.nominal ||
+          att.price ||
+          matchedCat?.price ||
+          (tix.price !== undefined && totalQty === 1 ? tix.price : (order.totalAmount / countToCreate))
+        );
+        const tixGenId = `TIX-${Date.now().toString().slice(-6)}-${String(i + 1).padStart(2, '0')}`;
+
+        await db.insert(issuedTickets).values({
+          id: tixGenId,
+          orderId: order.id,
+          eventId: ev?.id || order.serviceId,
+          ticketCategoryId: matchedCat?.id || null,
+          participantName,
+          nik,
+          email,
+          phone,
+          buyerName: order.customerName || participantName,
+          buyerPhone: order.customerPhone || phone,
+          buyerEmail: order.customerEmail || email,
+          ticketName,
+          ticketCategory,
+          ticketQuantity: 1,
+          ticketIndex: i + 1,
+          nominal,
+          status: 'COMPLETED',
+          qrCode: `QR-${order.id.slice(0, 8).toUpperCase()}-${i + 1}`,
+          purchaseDate: new Date().toISOString(),
+        });
+      }
+    }
+  } catch (err) {
+    console.error("Error processing completed order stock/attendees:", err);
+  }
+}
+
+// ----------------------------------------------------------------------
+// GET /api/orders - List orders
+// ----------------------------------------------------------------------
 orderRoutes.get("/", async (c) => {
   const authHeader = c.req.header('Authorization');
   let user: any = null;
   let isAdmin = false;
 
-  if (authHeader && authHeader !== 'Bearer undefined' && authHeader !== 'Bearer null' && authHeader !== 'Bearer ') {
+  if (authHeader && authHeader !== 'Bearer undefined' && authHeader !== 'Bearer null' && authHeader.startsWith('Bearer ')) {
     try {
-      const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret';
-      const token = authHeader.replace('Bearer ', '');
+      const JWT_SECRET = process.env.JWT_SECRET || 'wondr-event-template-secret-key-2026';
+      const token = authHeader.replace('Bearer ', '').trim();
       user = await verify(token, JWT_SECRET, 'HS256');
       isAdmin = user?.role === 'admin';
     } catch (err) {
@@ -167,26 +314,23 @@ orderRoutes.get("/", async (c) => {
   if (orderType) clauses.push(eq(serviceOrders.orderType, orderType));
   if (customerPhone) clauses.push(eq(serviceOrders.customerPhone, customerPhone));
 
-  console.log(`[GET /orders] Querying with serviceId: ${serviceId}, user: ${user?.sub}`);
-
   const data = await db.query.serviceOrders.findMany({
     where: clauses.length > 0 ? and(...clauses) : undefined,
     orderBy: [desc(serviceOrders.createdAt)],
   });
 
-  console.log(`[GET /orders] Found ${data.length} records`);
-
   return c.json({ data });
 });
 
+// ----------------------------------------------------------------------
+// POST /api/orders - Create new order
+// ----------------------------------------------------------------------
 orderRoutes.post("/", zValidator("json", createOrderSchema), async (c) => {
   const payload = c.req.valid("json");
-  console.log("Creating order with payload:", JSON.stringify(payload, null, 2));
-
   const id = crypto.randomUUID();
-  const { vendorUserId, serviceName } = await resolveVendorAndName(payload.orderType, payload.serviceId);
-
-  console.log("Resolved vendor:", vendorUserId, "Service name:", serviceName);
+  const resolved = await resolveVendorAndName(payload.orderType, payload.serviceId);
+  const serviceName = payload.serviceName && payload.serviceName !== "Service" ? payload.serviceName : resolved.serviceName;
+  const vendorUserId = resolved.vendorUserId;
 
   try {
     const newOrder = await db.insert(serviceOrders).values({
@@ -194,10 +338,13 @@ orderRoutes.post("/", zValidator("json", createOrderSchema), async (c) => {
       ...payload,
       vendorUserId,
       serviceName,
-      status: (payload as any).status || "pending",
+      status: payload.status || "pending",
     }).returning();
 
-    console.log("Order created successfully:", newOrder[0].id);
+    if (payload.status === 'completed') {
+      await handleOrderCompletion(newOrder[0], payload.orderPayload);
+    }
+
     return c.json({ success: true, id: newOrder[0].id, data: newOrder[0] }, 201);
   } catch (err) {
     console.error("Database error creating order:", err);
@@ -205,175 +352,103 @@ orderRoutes.post("/", zValidator("json", createOrderSchema), async (c) => {
   }
 });
 
-orderRoutes.patch("/:id/status", zValidator("json", updateStatusSchema), async (c) => {
-  const authResult = await authMiddleware(c, async () => { });
-  if (authResult) return authResult as any;
-
-  const user = c.get("jwtPayload") as any;
+// ----------------------------------------------------------------------
+// POST /api/orders/:id/checkout - Complete order checkout
+// ----------------------------------------------------------------------
+orderRoutes.post("/:id/checkout", zValidator("json", z.object({ paymentMethod: z.string().optional().default("VA") })), async (c) => {
   const id = c.req.param("id");
-  const { status } = c.req.valid("json");
+  const { paymentMethod } = c.req.valid("json");
+
+  const order = await db.query.serviceOrders.findFirst({
+    where: eq(serviceOrders.id, id)
+  });
+
+  if (!order) return c.json({ error: "Order tidak ditemukan" }, 404);
+
+  if (order.status === 'completed') {
+    return c.json({ success: true, message: "Order already completed", data: order });
+  }
+
+  const invoiceNumber = `INV-${Date.now()}-${order.id.slice(-4).toUpperCase()}`;
 
   const updated = await db
     .update(serviceOrders)
-    .set({ status, updatedAt: sql`CURRENT_TIMESTAMP` })
-    .where(and(eq(serviceOrders.id, id), eq(serviceOrders.vendorUserId, user.sub)))
+    .set({
+      status: 'completed',
+      paymentMethod,
+      invoiceNumber,
+      completedAt: new Date().toISOString(),
+      updatedAt: sql`CURRENT_TIMESTAMP`
+    })
+    .where(eq(serviceOrders.id, id))
     .returning();
 
-  if (!updated.length) return c.json({ error: "Order tidak ditemukan / tidak berizin" }, 404);
+  await handleOrderCompletion(updated[0]);
+
   return c.json({ success: true, data: updated[0] });
 });
 
-const completePaymentSchema = z.object({
-  serviceId: z.string().optional(),
-  orderType: z.string().optional(),
-  tickets: z.array(z.any()).optional(),
-  paymentMethod: z.string().optional().default("VA")
+// ----------------------------------------------------------------------
+// POST /api/orders/:id/complete-payment - Complete payment simulation
+// ----------------------------------------------------------------------
+orderRoutes.post("/:id/complete-payment", async (c) => {
+  const orderId = c.req.param("id");
+  let body: any = {};
+  try {
+    body = await c.req.json();
+  } catch (e) {
+    // optional body
+  }
+
+  const existingOrder = await db.query.serviceOrders.findFirst({
+    where: eq(serviceOrders.id, orderId)
+  });
+
+  if (!existingOrder) {
+    return c.json({ error: "Order not found" }, 404);
+  }
+
+  if (existingOrder.status === 'completed') {
+    return c.json({ success: true, message: "Order already completed", data: existingOrder });
+  }
+
+  const invoiceNumber = `INV-${Date.now()}-${existingOrder.id.slice(-4).toUpperCase()}`;
+
+  const updated = await db.update(serviceOrders).set({
+    status: 'completed',
+    invoiceNumber,
+    paymentMethod: body.paymentMethod || existingOrder.paymentMethod || 'VA',
+    completedAt: new Date().toISOString(),
+    updatedAt: sql`CURRENT_TIMESTAMP`
+  }).where(eq(serviceOrders.id, orderId)).returning();
+
+  await handleOrderCompletion(updated[0], body);
+
+  return c.json({ success: true, message: "Payment completed successfully", data: updated[0] });
 });
 
-orderRoutes.post("/:id/complete-payment", zValidator("json", completePaymentSchema), async (c) => {
-  const orderId = c.req.param("id");
-  const payload = c.req.valid("json");
+// ----------------------------------------------------------------------
+// PATCH /api/orders/:id/status - Update order status
+// ----------------------------------------------------------------------
+orderRoutes.patch("/:id/status", zValidator("json", updateStatusSchema), async (c) => {
+  const id = c.req.param("id");
+  const { status, paymentMethod } = c.req.valid("json");
 
-  try {
-    const existingOrder = await db.query.serviceOrders.findFirst({
-      where: eq(serviceOrders.id, orderId)
-    });
+  const updated = await db
+    .update(serviceOrders)
+    .set({
+      status,
+      ...(paymentMethod && { paymentMethod }),
+      updatedAt: sql`CURRENT_TIMESTAMP`
+    })
+    .where(eq(serviceOrders.id, id))
+    .returning();
 
-    if (!existingOrder) {
-      return c.json({ error: "Order not found" }, 404);
-    }
+  if (!updated.length) return c.json({ error: "Order tidak ditemukan" }, 404);
 
-    const serviceId = payload.serviceId || existingOrder.serviceId;
-    const purchasedTicketList = payload.tickets || (existingOrder.orderPayload as any)?.tickets || [];
-
-    console.log("Processing complete-payment for Service ID:", serviceId);
-    console.log("Purchased Ticket List:", JSON.stringify(purchasedTicketList, null, 2));
-
-    for (const ticketItem of purchasedTicketList) {
-      const qty = Number(ticketItem.ticketQty || ticketItem.total || (ticketItem.customerTicket ? ticketItem.customerTicket.length : 1));
-
-      let candidateIds: string[] = [];
-      if (ticketItem.ticketId) candidateIds.push(ticketItem.ticketId);
-      if (ticketItem.id) candidateIds.push(ticketItem.id);
-      if (typeof ticketItem.category3 === 'string') candidateIds.push(ticketItem.category3.split('_')[0]);
-      if (typeof ticketItem.category2 === 'string') candidateIds.push(ticketItem.category2);
-      if (typeof ticketItem.category === 'string') candidateIds.push(ticketItem.category);
-
-      candidateIds = candidateIds.filter(id => Boolean(id) && typeof id === 'string');
-
-      const candidateName = ticketItem.name ||
-        ticketItem.ticketName ||
-        ticketItem.title ||
-        (ticketItem.customerTicket && ticketItem.customerTicket[0]?.ticketName) ||
-        "";
-
-      let runningTicketFound: any = null;
-
-      for (const idToTry of candidateIds) {
-        let t = await db.query.runningTickets.findFirst({
-          where: eq(runningTickets.id, idToTry)
-        });
-        if (!t) {
-          t = await db.query.runningTickets.findFirst({
-            where: eq(runningTickets.categoryId, idToTry)
-          });
-        }
-        if (t) {
-          runningTicketFound = t;
-          break;
-        }
-      }
-
-      if (!runningTicketFound && serviceId) {
-        const eventWithCats = await db.query.runningEvents.findFirst({
-          where: eq(runningEvents.id, serviceId),
-          with: {
-            categories: {
-              with: {
-                tickets: true
-              }
-            }
-          }
-        });
-
-        if (eventWithCats && eventWithCats.categories.length > 0) {
-          for (const cat of eventWithCats.categories) {
-            for (const t of cat.tickets) {
-              if (
-                candidateName &&
-                (t.name.toLowerCase().includes(candidateName.toLowerCase()) ||
-                  cat.name.toLowerCase().includes(candidateName.toLowerCase()))
-              ) {
-                runningTicketFound = t;
-                break;
-              }
-            }
-            if (runningTicketFound) break;
-          }
-
-          if (!runningTicketFound && eventWithCats.categories[0]?.tickets[0]) {
-            runningTicketFound = eventWithCats.categories[0].tickets[0];
-          }
-        }
-      }
-
-      if (runningTicketFound) {
-        const currentStock = Number(runningTicketFound.stock ?? 30);
-        const currentOrder = Number(runningTicketFound.order ?? 0);
-
-        const newStock = Math.max(0, currentStock - qty);
-        const newOrder = currentOrder + qty;
-
-        await db.update(runningTickets)
-          .set({
-            stock: newStock,
-            order: newOrder,
-            isAvailable: newStock > 0 ? 1 : 0
-          })
-          .where(eq(runningTickets.id, runningTicketFound.id));
-
-        console.log(`[SUCCESS] Running Ticket "${runningTicketFound.name}" (${runningTicketFound.id}) Updated:`);
-        console.log(`- Stock: ${currentStock} -> ${newStock}`);
-        console.log(`- Order: ${currentOrder} -> ${newOrder}`);
-        continue;
-      }
-
-      for (const idToTry of candidateIds) {
-        const regTicket = await db.query.tickets.findFirst({
-          where: eq(tickets.id, idToTry)
-        });
-        if (regTicket) {
-          const curOrder = Number(regTicket.order ?? 0);
-          await db.update(tickets)
-            .set({
-              order: curOrder + qty,
-              isAvailable: 1
-            })
-            .where(eq(tickets.id, regTicket.id));
-          break;
-        }
-      }
-    }
-
-    const updatedOrder = await db.update(serviceOrders)
-      .set({
-        status: "completed",
-        paymentMethod: payload.paymentMethod || "VA",
-        invoiceNumber: `INV-${Date.now()}-${orderId.slice(-4).toUpperCase()}`,
-        completedAt: new Date().toISOString(),
-        updatedAt: sql`CURRENT_TIMESTAMP`
-      })
-      .where(eq(serviceOrders.id, orderId))
-      .returning();
-
-    return c.json({
-      success: true,
-      message: "Payment processed, stock deducted, and order count updated",
-      data: updatedOrder[0]
-    });
-
-  } catch (error) {
-    console.error("Error in complete-payment:", error);
-    return c.json({ error: "Internal Server Error", details: String(error) }, 500);
+  if (status === 'completed') {
+    await handleOrderCompletion(updated[0]);
   }
+
+  return c.json({ success: true, data: updated[0] });
 });

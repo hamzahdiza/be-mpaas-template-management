@@ -16,6 +16,8 @@ import { orderRoutes } from './routes/orders';
 import { rentalRoutes } from './routes/rentals';
 import { umkmRoutes } from './routes/umkms';
 import { runningEventRoutes } from './routes/running-events';
+import { tenantRoutes } from './routes/tenant';
+import { adminRoutes } from './routes/admin';
 
 dotenv.config();
 
@@ -33,8 +35,23 @@ app.get('/', (c) => c.redirect('/docs'));
 app.get('/docs', swaggerUI({ url: '/openapi.json' }));
 app.get('/openapi.json', (c) => c.json(openApiSpec));
 
+// Auth routes (supports both /api/v1/auth and /api/auth)
+app.route('/api/v1/auth', authRoutes);
 app.route('/api/auth', authRoutes);
+
+// Tenant overview, performance & profile routes
+app.route('/api/v1/tenant', tenantRoutes);
+app.route('/api/tenant', tenantRoutes);
+
+// Events routes (supports both /api/v1/events and /api/events)
+app.route('/api/v1/events', eventRoutes);
 app.route('/api/events', eventRoutes);
+
+// Admin review & moderation routes
+app.route('/api/v1/admin', adminRoutes);
+app.route('/api/admin', adminRoutes);
+
+// Lifestyle & Mini Program routes
 app.route('/lifestyle', lifestyleRoutes);
 app.route('/lifestyle-javajazz', javajazzRoutes);
 app.route('/bill-payment', billPaymentRoutes);
@@ -42,8 +59,10 @@ app.route('/api/hotels', hotelRoutes);
 app.route('/api/cafes-restaurants', cafeRestaurantRoutes);
 app.route('/api/rentals', rentalRoutes);
 app.route('/api/umkms', umkmRoutes);
+app.route('/api/v1/orders', orderRoutes);
 app.route('/api/orders', orderRoutes);
 app.route('/api/dashboard', dashboardRoutes);
 app.route('/api/running-events', runningEventRoutes);
 
 export default app;
+

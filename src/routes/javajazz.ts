@@ -1,283 +1,359 @@
 import { Hono } from 'hono';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
-import { ticketCategories, tickets, events as eventsTable, runningEvents, runningCategories, runningTickets } from '../db/schema';
+import { ticketCategories, tickets, events as eventsTable } from '../db/schema';
 
 export const javajazzRoutes = new Hono();
 
-javajazzRoutes.get('/v1/category-ticket', async (c) => {
-    const eventId = c.req.query('id');
+javajazzRoutes.get('/v1/personal-data', async (c) => {
+  return c.json({
+    dataProtected: {
+      fullName: 'Marcus Holt',
+      email: 'marcus.holt@orbitalinc.com',
+      phone: '081234567890',
+      gender: 'M',
+      dateBirth: '15',
+      monthBirth: '10',
+      yearBirth: '1995',
+      nationality: 'ID',
+      nik: '3171012304850001',
+      subdistrict: 'KEBAYORAN BARU',
+      postalCode: '12160',
+    }
+  });
+});
 
-    if (!eventId) {
-        return c.json({ error: 'Event ID is required' }, 400);
+javajazzRoutes.get('/v1/category-ticket', async (c) => {
+  const eventId = c.req.query('id');
+
+  if (!eventId) {
+    return c.json({ error: 'Event ID is required' }, 400);
+  }
+
+  try {
+    const event = await db.query.events.findFirst({
+      where: eq(eventsTable.id, eventId)
+    });
+
+    if (event) {
+      const categories = await db.query.ticketCategories.findMany({
+        where: eq(ticketCategories.eventId, eventId),
+        orderBy: (ticketCategories, { asc }) => [asc(ticketCategories.order)]
+      });
+
+      return c.json({
+        dataProtected: {
+          detailEvent: {
+            id: event.id,
+            eventName: event.name,
+            eventDate: event.startDate,
+            location: event.location,
+            locationAddress: event.locationAddress,
+            description: event.description,
+            banner: event.bannerUrls || [event.bannerUrl],
+            bannerUrls: event.bannerUrls || [event.bannerUrl],
+            seatingPlanUrl: event.seatingPlanUrl,
+            termsAndConditions: event.termsAndConditions,
+            templateId: event.templateId,
+            templates: event.templates,
+            socials: event.socials,
+            instagram: event.socials?.instagram?.url || "",
+            website: event.socials?.website?.url || "",
+            locationUrl: event.locationUrl,
+            vendorConfig: event.vendorConfig || { purchaseMode: "single" }
+          },
+          ticketCategories: categories.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            price: cat.price,
+            startFrom: cat.price,
+            description: cat.description,
+            status: cat.status || "available"
+          }))
+        }
+      });
     }
 
-    try {
-        const event = await db.query.events.findFirst({
-            where: eq(eventsTable.id, eventId)
-        });
+    return c.json({ error: 'Event not found' }, 404);
+  } catch (error) {
+    console.error("Error in javajazz /v1/category-ticket:", error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
 
-        if (event) {
-            const categories = await db.query.ticketCategories.findMany({
-                where: eq(ticketCategories.eventId, eventId),
-                orderBy: (ticketCategories, { asc }) => [asc(ticketCategories.order)]
-            });
+javajazzRoutes.get('/v1/landing-data', async (c) => {
+  const eventId = c.req.query('id');
 
-            return c.json({
-                dataProtected: {
-                    detailEvent: {
-                        id: event.id,
-                        eventName: event.name,
-                        eventDate: event.startDate,
-                        location: event.location,
-                        locationAddress: event.locationAddress,
-                        description: event.description,
-                        banner: event.bannerUrls || [event.bannerUrl],
-                        bannerUrls: event.bannerUrls || [event.bannerUrl],
-                        seatingPlanUrl: event.seatingPlanUrl,
-                        termsAndConditions: event.termsAndConditions,
-                        templateId: event.templateId,
-                        templates: event.templates,
-                        socials: event.socials,
-                        instagram: event.socials?.instagram?.url || "",
-                        website: event.socials?.website?.url || "",
-                        locationUrl: event.locationUrl,
-                        vendorConfig: event.vendorConfig || { purchaseMode: "single" }
-                    },
-                    ticketCategories: categories.map(cat => ({
-                        id: cat.id,
-                        name: cat.name,
-                        price: cat.price,
-                        startFrom: cat.price,
-                        description: cat.description,
-                        status: cat.status || "available"
-                    }))
-                }
-            });
-        }
+  if (!eventId) {
+    return c.json({ error: 'Event ID is required' }, 400);
+  }
 
-        const runningEvent = await db.query.runningEvents.findFirst({
-            where: eq(runningEvents.id, eventId)
-        });
+  try {
+    const event = await db.query.events.findFirst({
+      where: eq(eventsTable.id, eventId)
+    });
 
-        if (!runningEvent) {
-            return c.json({ error: 'Event not found' }, 404);
-        }
+    if (!event) {
+      return c.json({ error: 'Event not found' }, 404);
+    }
 
-        const categories = await db.query.runningCategories.findMany({
-            where: eq(runningCategories.runningEventId, eventId),
-            orderBy: (runningCategories, { asc }) => [asc(runningCategories.order)]
+    const categories = await db.query.ticketCategories.findMany({
+      where: eq(ticketCategories.eventId, eventId),
+      orderBy: (ticketCategories, { asc }) => [asc(ticketCategories.order)]
+    });
+
+    return c.json({
+      dataProtected: {
+        detailEvent: {
+          id: event.id,
+          eventName: event.name,
+          eventDate: event.startDate,
+          location: event.location,
+          locationAddress: event.locationAddress,
+          description: event.description,
+          banner: event.bannerUrls || [event.bannerUrl],
+          bannerUrls: event.bannerUrls || [event.bannerUrl],
+          seatingPlanUrl: event.seatingPlanUrl,
+          termsAndConditions: event.termsAndConditions,
+          templateId: event.templateId,
+          templates: event.templates,
+          socials: event.socials,
+          instagram: event.socials?.instagram?.url || "",
+          website: event.socials?.website?.url || "",
+          locationUrl: event.locationUrl,
+          vendorConfig: event.vendorConfig || { purchaseMode: "single" }
+        },
+        ticketCategories: categories.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          price: cat.price,
+          startFrom: cat.price,
+          description: cat.description,
+          status: cat.status || "available"
+        }))
+      }
+    });
+  } catch (error) {
+    console.error("Error in javajazz /v1/landing-data:", error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
+});
+
+javajazzRoutes.get('/v1/list-ticket', async (c) => {
+  const categoryId = c.req.query('categoryId');
+  const eventId = c.req.query('eventId');
+
+  try {
+    if (categoryId) {
+      const category = await db.query.ticketCategories.findFirst({
+        where: eq(ticketCategories.id, categoryId),
+        with: { tickets: true }
+      });
+
+      if (category) {
+        const parentEvent = await db.query.events.findFirst({
+          where: eq(eventsTable.id, category.eventId)
         });
 
         return c.json({
-            dataProtected: {
-                detailEvent: {
-                    id: runningEvent.id,
-                    eventName: runningEvent.name,
-                    eventDate: runningEvent.startDate,
-                    location: runningEvent.location,
-                    locationAddress: runningEvent.locationAddress,
-                    description: runningEvent.description,
-                    banner: runningEvent.bannerUrls || [runningEvent.bannerUrl],
-                    bannerUrls: runningEvent.bannerUrls || [runningEvent.bannerUrl],
-                    seatingPlanUrl: runningEvent.seatingPlanUrl,
-                    termsAndConditions: runningEvent.termsAndConditions,
-                    templateId: runningEvent.templateId,
-                    templates: runningEvent.templates,
-                    socials: runningEvent.socials,
-                    instagram: runningEvent.socials?.instagram?.url || "",
-                    website: runningEvent.socials?.website?.url || "",
-                    locationUrl: runningEvent.locationUrl,
-                    vendorConfig: runningEvent.vendorConfig || { purchaseMode: "single" },
-                    paymentMethod: runningEvent.paymentMethod || null,
-                    accountNumber: runningEvent.accountNumber || null
-                },
-                ticketCategories: categories.map(cat => ({
-                    id: cat.id,
-                    name: cat.name,
-                    price: cat.price,
-                    startFrom: cat.price,
-                    description: cat.description,
-                    status: cat.status || "available"
-                }))
-            }
+          dataProtected: {
+            detailEvent: {
+              id: parentEvent?.id,
+              eventName: parentEvent?.name,
+              eventDate: parentEvent?.startDate,
+              location: parentEvent?.location,
+              vendorConfig: parentEvent?.vendorConfig || { purchaseMode: "single" }
+            },
+            ticketCategory: {
+              id: category.id,
+              name: category.name,
+              price: category.price,
+              description: category.description,
+            },
+            tickets: category.tickets.map(t => ({
+              ticketId: t.id,
+              ticketName: t.name,
+              price: t.price,
+              normalPrice: t.normalPrice || t.price,
+              type: t.type,
+              isAvailable: t.isAvailable === 1,
+              description: t.description
+            }))
+          }
         });
-    } catch (error) {
-        console.error(error);
-        return c.json({ error: 'Failed to fetch categories' }, 500);
+      }
     }
+
+    if (eventId) {
+      const categories = await db.query.ticketCategories.findMany({
+        where: eq(ticketCategories.eventId, eventId),
+        with: { tickets: true }
+      });
+
+      const parentEvent = await db.query.events.findFirst({
+        where: eq(eventsTable.id, eventId)
+      });
+
+      return c.json({
+        dataProtected: {
+          detailEvent: {
+            id: parentEvent?.id,
+            eventName: parentEvent?.name,
+            eventDate: parentEvent?.startDate,
+            location: parentEvent?.location,
+            vendorConfig: parentEvent?.vendorConfig || { purchaseMode: "single" }
+          },
+          ticketCategories: categories.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            price: cat.price,
+            description: cat.description,
+            tickets: cat.tickets.map(t => ({
+              ticketId: t.id,
+              ticketName: t.name,
+              price: t.price,
+              normalPrice: t.normalPrice || t.price,
+              type: t.type,
+              isAvailable: t.isAvailable === 1,
+              description: t.description
+            }))
+          }))
+        }
+      });
+    }
+
+    return c.json({ error: 'categoryId or eventId is required' }, 400);
+  } catch (error) {
+    console.error("Error in javajazz /v1/list-ticket:", error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
 });
 
 javajazzRoutes.get('/v1/tickets', async (c) => {
-    const categoryId = c.req.query('category');
+  const categoryParam = c.req.query('category') || c.req.query('categoryId') || c.req.query('eventId') || c.req.query('id');
 
-    if (!categoryId) {
-        return c.json({ error: 'Category ID is required' }, 400);
+  try {
+    let targetEvent: any = null;
+    let categories: any[] = [];
+
+    if (categoryParam) {
+      // 1. Try finding by ticketCategory ID
+      const cat = await db.query.ticketCategories.findFirst({
+        where: eq(ticketCategories.id, categoryParam),
+        with: { tickets: true }
+      });
+      if (cat) {
+        targetEvent = await db.query.events.findFirst({
+          where: eq(eventsTable.id, cat.eventId),
+          with: { ticketCategories: true }
+        });
+        categories = targetEvent?.ticketCategories || [cat];
+      } else {
+        // 2. Try finding by Event ID
+        targetEvent = await db.query.events.findFirst({
+          where: eq(eventsTable.id, categoryParam),
+          with: { ticketCategories: true }
+        });
+        if (targetEvent) {
+          categories = targetEvent.ticketCategories || [];
+        }
+      }
     }
 
-    try {
-        const runningCategory = await db.query.runningCategories.findFirst({
-            where: eq(runningCategories.id, categoryId)
-        });
-
-        if (runningCategory) {
-            const runningTicketList = await db.query.runningTickets.findMany({
-                where: eq(runningTickets.categoryId, categoryId),
-                orderBy: (t, { asc }) => [asc(t.order)]
-            });
-
-            const parentRunningEvent = await db.query.runningEvents.findFirst({
-                where: eq(runningEvents.id, runningCategory.runningEventId)
-            });
-            const eventTicketDate = parentRunningEvent?.startDate || "";
-
-            const effectiveTickets = runningTicketList.length > 0 ? runningTicketList : [{
-                id: runningCategory.id,
-                name: runningCategory.name,
-                type: 'normal' as const,
-                price: runningCategory.price,
-                normalPrice: null as number | null,
-                stock: 0,
-                isAvailable: 1,
-                description: runningCategory.description,
-            }];
-
-            const promoList = effectiveTickets
-                .filter(t => t.type === 'discount' || t.type === 'b1g1')
-                .map(t => ({
-                    ticketDate: eventTicketDate,
-                    category2: categoryId,
-                    category3: t.id + "_promo",
-                    priceTaxService: t.price,
-                    oldPrice: t.normalPrice || t.price,
-                    ticketName: t.name,
-                    countAdd: 1,
-                    isAvailable: t.isAvailable,
-                    category: categoryId,
-                    ticketId: t.id,
-                    description: t.description ? [t.description] : [],
-                    type: "promo",
-                    price: t.price,
-                    stock: t.stock ?? 0
-                }));
-
-            const regulerList = effectiveTickets
-                .filter(t => t.type === 'normal' || !t.type)
-                .map(t => ({
-                    ticketDate: eventTicketDate,
-                    category2: categoryId,
-                    category3: t.id + "_regular",
-                    priceTaxService: t.price,
-                    oldPrice: 0,
-                    ticketName: t.name,
-                    countAdd: 1,
-                    isAvailable: t.isAvailable,
-                    category: categoryId,
-                    ticketId: t.id,
-                    description: t.description ? [t.description] : [],
-                    type: "regular",
-                    price: t.price,
-                    stock: t.stock ?? 0
-                }));
-
-            return c.json({
-                dataProtected: {
-                    promoList,
-                    regulerList,
-                    validation: [{
-                        maxOrder: 4,
-                        category3List: regulerList.concat(promoList).map(t => t.category3),
-                        ticketIdList: regulerList.concat(promoList).map(t => t.ticketId)
-                    }]
-                }
-            });
-        }
-
-        const category = await db.query.ticketCategories.findFirst({
-            where: eq(ticketCategories.id, categoryId)
-        });
-
-        if (!category) {
-            return c.json({ error: 'Category not found' }, 404);
-        }
-
-        const ticketList = await db.query.tickets.findMany({
-            where: eq(tickets.categoryId, categoryId),
-            orderBy: (t, { asc }) => [asc(t.order)]
-        });
-
-        const parentEvent = await db.query.events.findFirst({
-            where: eq(eventsTable.id, category.eventId)
-        });
-        const eventTicketDate = parentEvent?.startDate || "";
-
-        const promoList = ticketList
-            .filter(t => t.type === 'discount' || t.type === 'b1g1')
-            .map(t => ({
-                ticketDate: eventTicketDate,
-                category2: categoryId,
-                category3: t.id + "_promo",
-                priceTaxService: t.price,
-                oldPrice: t.normalPrice || t.price,
-                ticketName: t.name,
-                countAdd: 1,
-                isAvailable: t.isAvailable,
-                category: categoryId,
-                ticketId: t.id,
-                description: t.description ? [t.description] : [],
-                type: "promo",
-                price: t.price
-            }));
-
-        const regulerList = ticketList
-            .filter(t => t.type === 'normal' || !t.type)
-            .map(t => ({
-                ticketDate: eventTicketDate,
-                category2: categoryId,
-                category3: t.id + "_regular",
-                priceTaxService: t.price,
-                oldPrice: 0,
-                ticketName: t.name,
-                countAdd: 1,
-                isAvailable: t.isAvailable,
-                category: categoryId,
-                ticketId: t.id,
-                description: t.description ? [t.description] : [],
-                type: "regular",
-                price: t.price
-            }));
-
-        return c.json({
-            dataProtected: {
-                promoList,
-                regulerList,
-                validation: [{
-                    maxOrder: 4,
-                    category3List: regulerList.concat(promoList).map(t => t.category3),
-                    ticketIdList: regulerList.concat(promoList).map(t => t.ticketId)
-                }]
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return c.json({ error: 'Failed to fetch tickets' }, 500);
+    // If still not found, get first active event as fallback
+    if (!targetEvent) {
+      targetEvent = await db.query.events.findFirst({
+        where: eq(eventsTable.isActive, 1),
+        with: { ticketCategories: true }
+      });
+      categories = targetEvent?.ticketCategories || [];
     }
-});
 
-javajazzRoutes.get('/v1/personal-data', (c) => {
+    if (!targetEvent) {
+      return c.json({
+        dataProtected: {
+          validation: [],
+          promoList: [],
+          regulerList: []
+        }
+      });
+    }
+
+    const promoList: any[] = [];
+    const regulerList: any[] = [];
+    const validation: any[] = [];
+
+    for (const cat of categories) {
+      const remainingStock = Math.max(0, (cat.stock || 0) - (cat.ticketsSold || 0));
+      const isAvailable = remainingStock > 0 ? 1 : 0;
+      const maxOrder = Math.min(10, remainingStock > 0 ? remainingStock : 10);
+
+      validation.push({
+        ticketIdList: [cat.id],
+        maxOrder: isAvailable ? maxOrder : 0
+      });
+
+      const isPromo = Boolean(cat.isPromoActive || (cat.discountedPrice && cat.discountedPrice < cat.price));
+      const effectivePrice = isPromo && cat.discountedPrice ? cat.discountedPrice : cat.price;
+      const oldPrice = isPromo ? (cat.normalPrice || cat.price) : 0;
+
+      const ticketItem = {
+        ticketId: cat.id,
+        ticketName: cat.name,
+        category: cat.name,
+        type: isPromo ? (cat.type || 'disc25') : 'regular',
+        price: effectivePrice,
+        priceTaxService: effectivePrice,
+        oldPrice: oldPrice,
+        isAvailable,
+        stock: remainingStock,
+        description: [cat.description || 'Akses masuk event'],
+        ticketDate: targetEvent.startDate || '',
+      };
+
+      if (isPromo) {
+        promoList.push(ticketItem);
+      } else {
+        regulerList.push(ticketItem);
+      }
+    }
+
+    // If all are regular, put all in regulerList
+    if (promoList.length === 0 && regulerList.length === 0 && categories.length > 0) {
+      for (const cat of categories) {
+        regulerList.push({
+          ticketId: cat.id,
+          ticketName: cat.name,
+          category: cat.name,
+          type: 'regular',
+          price: cat.price,
+          priceTaxService: cat.price,
+          oldPrice: 0,
+          isAvailable: 1,
+          stock: cat.stock || 10,
+          description: [cat.description || ''],
+          ticketDate: targetEvent.startDate || '',
+        });
+      }
+    }
+
     return c.json({
-        "dataProtected": {
-            "phone": "89681430435",
-            "subdistrict": "CENGKARENG BARAT",
-            "fullName": "SYAMSUL BAHRI",
-            "nationality": "ID",
-            "dateBirth": "08",
-            "nik": "3671060808950005",
-            "postalCode": "11730",
-            "email": "ai.syamsulbahri@gmail.com",
-            "gender": "M",
-            "monthBirth": "08",
-            "yearBirth": "1995"
+      dataProtected: {
+        validation,
+        promoList,
+        regulerList,
+        detailEvent: {
+          id: targetEvent.id,
+          eventName: targetEvent.name,
+          eventDate: targetEvent.startDate,
+          location: targetEvent.location,
+          vendorConfig: targetEvent.vendorConfig || { purchaseMode: 'multiple' }
         }
+      }
     });
+  } catch (error) {
+    console.error("Error in javajazz /v1/tickets:", error);
+    return c.json({ error: 'Internal Server Error' }, 500);
+  }
 });
+

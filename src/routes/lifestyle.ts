@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { db } from '../db';
-import { and, desc, eq } from 'drizzle-orm';
-import { cafesRestaurants, events, hotels, rentals, runningEvents, umkms } from '../db/schema';
+import { and, desc, eq, sql } from 'drizzle-orm';
+import { cafesRestaurants, events, hotels, rentals, umkms } from '../db/schema';
 
 export const lifestyleRoutes = new Hono();
 
@@ -13,7 +13,6 @@ const strip = (item: any) => {
 lifestyleRoutes.get('/v1/menu', async (c) => {
   const active = (col: any) => eq(col.isActive, 1);
   const userEvents = await db.query.events.findMany({ where: active(events) });
-  const userRunningEvents = await db.query.runningEvents.findMany({ where: active(runningEvents) });
   const userHotels = await db.query.hotels.findMany({ where: active(hotels) });
   const userCafeRestaurants = await db.query.cafesRestaurants.findMany({ where: active(cafesRestaurants) });
   const userRentals = await db.query.rentals.findMany({ where: active(rentals) });
@@ -25,28 +24,13 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
       paymentType: "BILL_PAYMENT",
       amount: e.price || 0,
       screenId: "exploreScreen",
-      transactionType: "event",
-      category: "event",
+      transactionType: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "running" : "event",
+      category: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "running" : "event",
       partnerAlias: e.name,
       partnerId: e.id,
-      displayImage: e.bannerUrl || e.images?.[0],
+      displayImage: e.bannerUrl || e.bannerUrls?.[0] || e.images?.[0],
       title: e.name,
-      transactionTypeDisplay: "Event",
-      isActive: e.isActive === 1,
-      rawMenu: strip(e),
-    })),
-    ...userRunningEvents.map(e => ({
-      id: e.id,
-      paymentType: "BILL_PAYMENT",
-      amount: e.price || 0,
-      screenId: "exploreScreen",
-      transactionType: "running",
-      category: "running",
-      partnerAlias: e.name,
-      partnerId: e.id,
-      displayImage: e.bannerUrl || e.images?.[0],
-      title: e.name,
-      transactionTypeDisplay: "Running",
+      transactionTypeDisplay: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "Running" : "Event",
       isActive: e.isActive === 1,
       rawMenu: strip(e),
     })),
@@ -123,7 +107,10 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
 lifestyleRoutes.get('/v1/all-events', async (c) => {
   try {
     const allEvents = await db.query.events.findMany({
-      where: eq(events.isActive, 1),
+      where: and(
+        eq(events.isActive, 1),
+        sql`(${events.approvalStatus} = 'APPROVED' OR ${events.reviewedDate} IS NOT NULL)`
+      ),
       orderBy: [desc(events.createdAt)],
       with: { ticketCategories: { with: { tickets: true } } },
     });
@@ -131,7 +118,7 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
     for (const ev of allEvents) {
       if (!ev.price || ev.price <= 0) {
         const minCatPrice = ev.ticketCategories?.length > 0
-          ? Math.min(...ev.ticketCategories.map((c: any) => c.price))
+          ? Math.min(...ev.ticketCategories.map((cat: any) => cat.price))
           : 0;
         ev.price = minCatPrice;
         if (minCatPrice > 0) {
@@ -142,10 +129,100 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
       }
     }
 
-    return c.json({ data: allEvents.map(strip), latency: 0, statusCode: 200, message: "Success" });
+    const formattedEvents = allEvents.map((ev: any) => {
+      const cats = (ev.ticketCategories || []).map((cat: any) => {
+        const stock = cat.stock || 0;
+        const sold = cat.ticketsSold || 0;
+        const remainingStock = Math.max(0, stock - sold);
+        return {
+          ...cat,
+          stock,
+          ticketsSold: sold,
+          tickets_sold: sold,
+          remainingStock,
+          remaining_stock: remainingStock,
+          isAvailable: remainingStock > 0 ? 1 : 0
+        };
+      });
+
+      const totalTickets = cats.reduce((sum: number, cat: any) => sum + cat.stock, 0);
+      const ticketsSold = cats.reduce((sum: number, cat: any) => sum + cat.ticketsSold, 0);
+      const remainingStock = Math.max(0, totalTickets - ticketsSold);
+
+      return {
+        ...strip(ev),
+        totalTickets,
+        total_tickets: totalTickets,
+        ticketsSold,
+        tickets_sold: ticketsSold,
+        remainingTickets: remainingStock,
+        remaining_tickets: remainingStock,
+        remainingStock,
+        remaining_stock: remainingStock,
+        ticketCategories: cats,
+        tickets: cats,
+        ticket_tiers: cats
+      };
+    });
+
+    return c.json({ data: formattedEvents, latency: 0, statusCode: 200, message: "Success" });
   } catch (error) {
     console.error(error);
     return c.json({ error: 'Failed to fetch events' }, 500);
+  }
+});
+
+lifestyleRoutes.get('/v1/all-running-events', async (c) => {
+  try {
+    const data = await db.query.events.findMany({
+      where: and(
+        eq(events.isActive, 1),
+        sql`(${events.approvalStatus} = 'APPROVED' OR ${events.reviewedDate} IS NOT NULL)`,
+        sql`(LOWER(${events.category}) LIKE '%lari%' OR LOWER(${events.category}) LIKE '%run%')`
+      ),
+      orderBy: [desc(events.createdAt)],
+      with: { ticketCategories: { with: { tickets: true } } },
+    });
+
+    const formattedData = data.map((ev: any) => {
+      const cats = (ev.ticketCategories || []).map((cat: any) => {
+        const stock = cat.stock || 0;
+        const sold = cat.ticketsSold || 0;
+        const remainingStock = Math.max(0, stock - sold);
+        return {
+          ...cat,
+          stock,
+          ticketsSold: sold,
+          tickets_sold: sold,
+          remainingStock,
+          remaining_stock: remainingStock,
+          isAvailable: remainingStock > 0 ? 1 : 0
+        };
+      });
+
+      const totalTickets = cats.reduce((sum: number, cat: any) => sum + cat.stock, 0);
+      const ticketsSold = cats.reduce((sum: number, cat: any) => sum + cat.ticketsSold, 0);
+      const remainingStock = Math.max(0, totalTickets - ticketsSold);
+
+      return {
+        ...strip(ev),
+        totalTickets,
+        total_tickets: totalTickets,
+        ticketsSold,
+        tickets_sold: ticketsSold,
+        remainingTickets: remainingStock,
+        remaining_tickets: remainingStock,
+        remainingStock,
+        remaining_stock: remainingStock,
+        ticketCategories: cats,
+        tickets: cats,
+        ticket_tiers: cats
+      };
+    });
+
+    return c.json({ data: formattedData, latency: 0, statusCode: 200, message: 'Success' });
+  } catch (error: any) {
+    return c.json({ error: 'Failed to fetch running events', details: error.message }, 500);
   }
 });
 
@@ -208,18 +285,5 @@ lifestyleRoutes.get('/v1/all-umkms', async (c) => {
     return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch umkms', details: error.message }, 500);
-  }
-});
-
-lifestyleRoutes.get('/v1/all-running-events', async (c) => {
-  try {
-    const data = await db.query.runningEvents.findMany({
-      where: eq(runningEvents.isActive, 1),
-      orderBy: [desc(runningEvents.createdAt)],
-      with: { categories: { with: { tickets: true } } },
-    });
-    return c.json({ data: data.map(strip), latency: 0, statusCode: 200, message: 'Success' });
-  } catch (error: any) {
-    return c.json({ error: 'Failed to fetch running events', details: error.message }, 500);
   }
 });

@@ -43,6 +43,14 @@
     {
       "key": "userId",
       "value": ""
+    },
+    {
+      "key": "adminToken",
+      "value": ""
+    },
+    {
+      "key": "vendorToken",
+      "value": ""
     }
   ],
   "item": [
@@ -1715,6 +1723,175 @@
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/lifestyle/v1/all-umkms"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin Review & Moderation",
+      "item": [
+        {
+          "name": "1. Login Super Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('adminToken', res.token);",
+                  "  pm.collectionVariables.set('token', res.token);",
+                  "  console.log('Admin token saved successfully');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@lifestyle.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "2. Login Vendor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.token) {",
+                  "  pm.collectionVariables.set('vendorToken', res.token);",
+                  "  console.log('Vendor token saved successfully');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/auth/login",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"vendor@orbitalinc.com\",\n  \"password\": \"password123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "3. Get All Events (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/events",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "4. Get Pending Review Events (status=WAITING)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/events?status=WAITING",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "5. Get Event Review Details & Diff",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "6. Approve Event (Action: APPROVE)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/review",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"APPROVE\"\n}"
+            }
+          }
+        },
+        {
+          "name": "7. Reject Event (Action: REJECT with Note)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/review",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"REJECT\",\n  \"rejectionNote\": \"Mohon perbaiki tanggal pelaksanaan dan kuota tiket.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "8. Admin Dashboard Metrics",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/dashboard",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "9. Mini Program Live Events (Public)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-events"
           }
         }
       ]
