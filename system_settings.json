@@ -1,0 +1,22 @@
+{
+  "platformFee": {
+    "feeType": "percentage",
+    "percentage": 5,
+    "minimumFee": 15000,
+    "maximumFee": 200000,
+    "fixedAmount": 10000
+  },
+  "technical": {
+    "mode": "maintenance",
+    "maintenanceMode": true,
+    "systemVersion": "v2.4.1",
+    "uptime": "99.98%",
+    "notificationEmail": "ops@cms-admin.id",
+    "autoBackup": true,
+    "backupSchedule": "daily",
+    "requireBNIAccount": true,
+    "autoApproveFreeEvents": false,
+    "maxTicketsPerOrder": 10,
+    "miniProgramSync": true
+  }
+}
