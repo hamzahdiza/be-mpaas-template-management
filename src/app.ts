@@ -47,9 +47,11 @@ app.route('/api/tenant', tenantRoutes);
 app.route('/api/v1/events', eventRoutes);
 app.route('/api/events', eventRoutes);
 
-// Admin review & moderation routes
+// Admin review & moderation & tenant routes
 app.route('/api/v1/admin', adminRoutes);
 app.route('/api/admin', adminRoutes);
+app.route('/api/v1/tenants', adminRoutes);
+app.route('/api/tenants', adminRoutes);
 
 // Lifestyle & Mini Program routes
 app.route('/lifestyle', lifestyleRoutes);
