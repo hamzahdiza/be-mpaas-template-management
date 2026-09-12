@@ -1888,10 +1888,109 @@
           }
         },
         {
-          "name": "9. Mini Program Live Events (Public)",
+          "name": "9. Toggle Event Live Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "url": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/live-status",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isActive\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "10. Get All Registered Tenants (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/tenants",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "11. Get All Orders Across Tenants (Admin)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/orders?status=all",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "12. Mini Program Live Events (Public)",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/lifestyle/v1/all-events"
+          }
+        },
+        {
+          "name": "13. Get Event Sales Summary (Detail Penjualan)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/events/run-001/sales-summary",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "14. Get Event Attendees & Buyers (Daftar Pengunjung & Akun Pembeli)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/events/run-001/attendees?status=ALL",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "15. Get Admin Event Detail (Popup Detail Event & Ticket)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/admin/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ]
+          }
+        },
+        {
+          "name": "16. Get Tenant Event Detail (Popup Detail Event & Ticket)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/events/{{eventId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ]
           }
         }
       ]
