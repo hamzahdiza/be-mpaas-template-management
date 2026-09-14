@@ -20,9 +20,9 @@ async function main() {
     orderType: "event",
     serviceId: "run-004",
     serviceName: "BNI RUNNING 2026",
-    customerName: "Marcus Holt",
+    customerName: "Hamzah Diza",
     customerPhone: "081234567890",
-    customerEmail: "marcus.holt@orbitalinc.com",
+    customerEmail: "hamzah.diza@orbitalinc.com",
     customerNik: "3171012304850001",
     quantity: 2,
     totalAmount: 650000,
@@ -46,8 +46,8 @@ async function main() {
       ],
       attendees: [
         {
-          fullName: "Marcus Holt",
-          name: "Marcus Holt",
+          fullName: "Hamzah Diza",
+          name: "Hamzah Diza",
           nik: "3171012304850001",
           ticketName: "5K National",
           ticketId: "tier-004-1",
@@ -55,8 +55,8 @@ async function main() {
           price: 250000
         },
         {
-          fullName: "Marcus Holt",
-          name: "Marcus Holt",
+          fullName: "Hamzah Diza",
+          name: "Hamzah Diza",
           nik: "3171096022602",
           ticketName: "10K Championship",
           ticketId: "tier-004-2",

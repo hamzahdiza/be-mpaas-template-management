@@ -8,8 +8,8 @@ export const javajazzRoutes = new Hono();
 javajazzRoutes.get('/v1/personal-data', async (c) => {
   return c.json({
     dataProtected: {
-      fullName: 'Marcus Holt',
-      email: 'marcus.holt@orbitalinc.com',
+      fullName: 'Hamzah Diza',
+      email: 'hamzah.diza@orbitalinc.com',
       phone: '081234567890',
       gender: 'M',
       dateBirth: '15',
