@@ -10,6 +10,21 @@ const strip = (item: any) => {
   return rest;
 };
 
+const isRunningCategoryOrName = (cat: string = '', name: string = '') => {
+  const c = (cat || '').toLowerCase();
+  const n = (name || '').toLowerCase();
+  return (
+    c.includes('lari') ||
+    c.includes('run') ||
+    c.includes('sport') ||
+    c.includes('olahraga') ||
+    c.includes('marathon') ||
+    n.includes('lari') ||
+    n.includes('run') ||
+    n.includes('marathon')
+  );
+};
+
 lifestyleRoutes.get('/v1/menu', async (c) => {
   const active = (col: any) => eq(col.isActive, 1);
   const userEvents = await db.query.events.findMany({ where: active(events) });
@@ -19,21 +34,42 @@ lifestyleRoutes.get('/v1/menu', async (c) => {
   const userUmkms = await db.query.umkms.findMany({ where: active(umkms) });
 
   const partnerMenus = [
-    ...userEvents.map(e => ({
-      id: e.id,
-      paymentType: "BILL_PAYMENT",
-      amount: e.price || 0,
-      screenId: "exploreScreen",
-      transactionType: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "running" : "event",
-      category: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "running" : "event",
-      partnerAlias: e.name,
-      partnerId: e.id,
-      displayImage: e.bannerUrl || e.bannerUrls?.[0] || e.images?.[0],
-      title: e.name,
-      transactionTypeDisplay: (e.category || '').toLowerCase().includes('lari') || (e.category || '').toLowerCase().includes('run') ? "Running" : "Event",
-      isActive: e.isActive === 1,
-      rawMenu: strip(e),
-    })),
+    ...userEvents.map(e => {
+      const isRunning = isRunningCategoryOrName(e.category || '', e.name || '');
+      const entryMode = e.entryMode || 'manual';
+      const externalProvider = e.externalProvider || '';
+      const externalUrl = e.externalUrl || '';
+
+      return {
+        id: e.id,
+        paymentType: "BILL_PAYMENT",
+        amount: e.price || 0,
+        screenId: "exploreScreen",
+        transactionType: isRunning ? "running" : "event",
+        category: isRunning ? "running" : (e.category || "event"),
+        partnerAlias: e.name,
+        partnerId: e.id,
+        displayImage: e.bannerUrl || e.bannerUrls?.[0] || e.images?.[0],
+        title: e.name,
+        transactionTypeDisplay: isRunning ? "Running" : "Event",
+        isActive: e.isActive === 1,
+        entryMode,
+        entry_mode: entryMode,
+        externalProvider,
+        external_provider: externalProvider,
+        externalUrl,
+        external_url: externalUrl,
+        rawMenu: {
+          ...strip(e),
+          entryMode,
+          entry_mode: entryMode,
+          externalProvider,
+          external_provider: externalProvider,
+          externalUrl,
+          external_url: externalUrl,
+        },
+      };
+    }),
     ...userHotels.map(h => ({
       id: h.id,
       paymentType: "VIRTUAL_ACCOUNT",
@@ -148,9 +184,18 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
       const totalTickets = cats.reduce((sum: number, cat: any) => sum + cat.stock, 0);
       const ticketsSold = cats.reduce((sum: number, cat: any) => sum + cat.ticketsSold, 0);
       const remainingStock = Math.max(0, totalTickets - ticketsSold);
+      const entryMode = ev.entryMode || 'manual';
+      const externalProvider = ev.externalProvider || '';
+      const externalUrl = ev.externalUrl || '';
 
       return {
         ...strip(ev),
+        entryMode,
+        entry_mode: entryMode,
+        externalProvider,
+        external_provider: externalProvider,
+        externalUrl,
+        external_url: externalUrl,
         totalTickets,
         total_tickets: totalTickets,
         ticketsSold,
@@ -178,7 +223,16 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
       where: and(
         eq(events.isActive, 1),
         sql`(${events.approvalStatus} = 'APPROVED' OR ${events.reviewedDate} IS NOT NULL)`,
-        sql`(LOWER(${events.category}) LIKE '%lari%' OR LOWER(${events.category}) LIKE '%run%')`
+        sql`(
+          LOWER(${events.category}) LIKE '%lari%' OR 
+          LOWER(${events.category}) LIKE '%run%' OR 
+          LOWER(${events.category}) LIKE '%sport%' OR 
+          LOWER(${events.category}) LIKE '%olahraga%' OR 
+          LOWER(${events.category}) LIKE '%marathon%' OR 
+          LOWER(${events.name}) LIKE '%run%' OR 
+          LOWER(${events.name}) LIKE '%lari%' OR 
+          LOWER(${events.name}) LIKE '%marathon%'
+        )`
       ),
       orderBy: [desc(events.createdAt)],
       with: { ticketCategories: { with: { tickets: true } } },
@@ -203,9 +257,18 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
       const totalTickets = cats.reduce((sum: number, cat: any) => sum + cat.stock, 0);
       const ticketsSold = cats.reduce((sum: number, cat: any) => sum + cat.ticketsSold, 0);
       const remainingStock = Math.max(0, totalTickets - ticketsSold);
+      const entryMode = ev.entryMode || 'manual';
+      const externalProvider = ev.externalProvider || '';
+      const externalUrl = ev.externalUrl || '';
 
       return {
         ...strip(ev),
+        entryMode,
+        entry_mode: entryMode,
+        externalProvider,
+        external_provider: externalProvider,
+        externalUrl,
+        external_url: externalUrl,
         totalTickets,
         total_tickets: totalTickets,
         ticketsSold,

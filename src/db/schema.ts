@@ -407,6 +407,25 @@ export const umkmsRelations = relations(umkms, ({ one }) => ({
 }));
 
 // ----------------------------------------------------------------------
+// 12. SDUI Templates (Dynamic Server-Driven UI Schemas for Mobile & Web)
+// ----------------------------------------------------------------------
+export const sduiTemplates = sqliteTable("sdui_templates", {
+  id: text("id").primaryKey(), // e.g. 'template-1', 'template-2'
+  templateId: text("template_id").notNull(), // 'template-1'
+  templateName: text("template_name").notNull(),
+  category: text("category").default("events"), // events | hotels | culinary | etc.
+  schemaVersion: text("schema_version").default("1.0"),
+  pageBackground: text("page_background").default("#F5F5F5"),
+  headerSection: text("header_section", { mode: 'json' }).$type<any>(),
+  contentSection: text("content_section", { mode: 'json' }).$type<any>(),
+  ctaConfig: text("cta_config", { mode: 'json' }).$type<any>(),
+  ticketDetailSection: text("ticket_detail_section", { mode: 'json' }).$type<any>(),
+  isActive: integer("is_active").default(1),
+  createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+  updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),
+});
+
+// ----------------------------------------------------------------------
 // Type Exports
 // ----------------------------------------------------------------------
 export type User = typeof users.$inferSelect;
@@ -431,3 +450,6 @@ export type Rental = typeof rentals.$inferSelect;
 export type NewRental = typeof rentals.$inferInsert;
 export type Umkm = typeof umkms.$inferSelect;
 export type NewUmkm = typeof umkms.$inferInsert;
+export type SduiTemplate = typeof sduiTemplates.$inferSelect;
+export type NewSduiTemplate = typeof sduiTemplates.$inferInsert;
+

@@ -55,6 +55,10 @@
     {
       "key": "tenantId",
       "value": ""
+    },
+    {
+      "key": "templateId",
+      "value": "template-1"
     }
   ],
   "item": [
@@ -375,6 +379,252 @@
                 "value": "Bearer {{token}}"
               }
             ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Templates (Server-Driven UI)",
+      "item": [
+        {
+          "name": "1. List All Active Templates",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil daftar seluruh template SDUI yang aktif dari database Turso / fallback."
+          }
+        },
+        {
+          "name": "2. Get Template Schema by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema lengkap SDUI untuk templateId tertentu (contoh: template-1, template-2, template-3, template-4)."
+          }
+        },
+        {
+          "name": "3. Get Template 1 Schema (Clean Card)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/template-1",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema SDUI Template 1 (Clean Card Theme)."
+          }
+        },
+        {
+          "name": "4. Get Template 2 Schema (Navy Blue Overlapping)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/template-2",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema SDUI Template 2 (Navy Blue Overlapping Header Theme)."
+          }
+        },
+        {
+          "name": "5. Get Template 3 Schema (Dark Slate Hero)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/template-3",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema SDUI Template 3 (Dark Slate Hero Theme)."
+          }
+        },
+        {
+          "name": "6. Get Template 4 Schema (Crimson Maroon)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/template-4",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema SDUI Template 4 (Crimson Maroon Theme)."
+          }
+        },
+        {
+          "name": "7. Get Event Template (By Category & ID)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/events/{{templateId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil skema template kategori event spesifik."
+          }
+        },
+        {
+          "name": "8. Create New SDUI Template (Admin)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/templates",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateId\": \"template-custom-1\",\n  \"templateName\": \"Template Custom Emerald Theme\",\n  \"category\": \"events\",\n  \"schemaVersion\": \"1.0\",\n  \"pageBackground\": \"#064E3B\",\n  \"headerSection\": {\n    \"headerConfig\": {\n      \"background\": \"#064E3B\",\n      \"color\": \"#FFFFFF\",\n      \"showBackButton\": true\n    },\n    \"fields\": [\n      {\n        \"key\": \"banner\",\n        \"type\": \"banner\",\n        \"height\": \"240px\"\n      }\n    ]\n  },\n  \"contentSection\": {\n    \"fields\": [\n      {\n        \"key\": \"location\",\n        \"type\": \"location\"\n      }\n    ]\n  },\n  \"ctaConfig\": {\n    \"label\": \"Beli Tiket Sekarang\",\n    \"background\": \"#10B981\",\n    \"color\": \"#FFFFFF\"\n  }\n}"
+            },
+            "description": "Membuat template SDUI kustom baru langsung ke database Turso."
+          }
+        },
+        {
+          "name": "9. Update SDUI Template (Admin)",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateName\": \"Updated SDUI Template Name\",\n  \"pageBackground\": \"#F8FAFC\",\n  \"ctaConfig\": {\n    \"label\": \"Daftar Event\",\n    \"background\": \"#014558\",\n    \"color\": \"#FFFFFF\"\n  }\n}"
+            },
+            "description": "Memperbarui styling dan tata letak template SDUI di database."
+          }
+        },
+        {
+          "name": "10. Deactivate SDUI Template (Admin)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Menonaktifkan template SDUI (isActive = 0)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tenant Overview & Performance",
+      "item": [
+        {
+          "name": "1. Get Tenant Overview & KPIs",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/tenant/overview",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil ringkasan data tenant, KPI pendapatan, jumlah produk, dan conversion funnel."
+          }
+        },
+        {
+          "name": "2. Get Products Performance List",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/tenant/products-performance",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil daftar performa produk / event beserta status live, tiket terjual, dan revenue."
+          }
+        },
+        {
+          "name": "3. Get Tenant Profile & Access List",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/tenant/profile",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "description": "Mengambil data profil PIC tenant, rekening pencairan BNI, dan modul yang aktif."
+          }
+        },
+        {
+          "name": "4. Update Tenant Profile & PIC",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/tenant/profile",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Orbital Inc.\",\n  \"picName\": \"Hamzah Diza\",\n  \"picPhone\": \"+62 812-3456-7890\",\n  \"picEmail\": \"hamzah.diza@orbitalinc.com\"\n}"
+            },
+            "description": "Memperbarui nama tenant dan kontak PIC."
           }
         }
       ]
@@ -2279,6 +2529,75 @@
             "description": "Mengambil seluruh order / transaksi lintas semua tenant"
           },
           "response": []
+        }
+      ]
+    },
+    {
+      "name": "Lifestyle & Mini Program APIs",
+      "item": [
+        {
+          "name": "1. Get All Running Events (Supports External Links)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-running-events",
+            "description": "Mengambil daftar event lari & olahraga, mendukung internal dan external link event"
+          }
+        },
+        {
+          "name": "2. Get All Lifestyle Events",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-events",
+            "description": "Mengambil seluruh event lifestyle yang approved & active"
+          }
+        },
+        {
+          "name": "3. Get Lifestyle Menu (Wondr Mini Program Landing)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/menu",
+            "description": "Mengambil susunan menu partner (Events, Hotels, Culinary, Rentals, UMKM) untuk Mini Program"
+          }
+        },
+        {
+          "name": "4. Get All Hotels",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-hotels",
+            "description": "Mengambil data seluruh hotel aktif"
+          }
+        },
+        {
+          "name": "5. Get All Cafes",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-cafes",
+            "description": "Mengambil data seluruh cafe aktif"
+          }
+        },
+        {
+          "name": "6. Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-restaurants",
+            "description": "Mengambil data seluruh restoran aktif"
+          }
+        },
+        {
+          "name": "7. Get All Rentals",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-rentals",
+            "description": "Mengambil data seluruh persewaan / rental aktif"
+          }
+        },
+        {
+          "name": "8. Get All UMKM",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/lifestyle/v1/all-umkms",
+            "description": "Mengambil data seluruh UMKM aktif"
+          }
         }
       ]
     }

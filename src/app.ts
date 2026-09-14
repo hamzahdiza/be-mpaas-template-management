@@ -18,6 +18,7 @@ import { umkmRoutes } from './routes/umkms';
 import { runningEventRoutes } from './routes/running-events';
 import { tenantRoutes } from './routes/tenant';
 import { adminRoutes } from './routes/admin';
+import { templatesRoutes } from './routes/templates';
 
 dotenv.config();
 
@@ -42,6 +43,10 @@ app.route('/api/auth', authRoutes);
 // Tenant overview, performance & profile routes
 app.route('/api/v1/tenant', tenantRoutes);
 app.route('/api/tenant', tenantRoutes);
+
+// Templates routes (Server-Driven UI)
+app.route('/api/v1/templates', templatesRoutes);
+app.route('/api/templates', templatesRoutes);
 
 // Events routes (supports both /api/v1/events and /api/events)
 app.route('/api/v1/events', eventRoutes);
