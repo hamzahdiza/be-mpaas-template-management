@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { db } from '../db';
 import { and, desc, eq, sql } from 'drizzle-orm';
 import { cafesRestaurants, events, hotels, rentals, umkms } from '../db/schema';
+import { getSingleTemplate } from './templates';
 
 export const lifestyleRoutes = new Hono();
 
@@ -165,7 +166,7 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
       }
     }
 
-    const formattedEvents = allEvents.map((ev: any) => {
+    const formattedEvents = await Promise.all(allEvents.map(async (ev: any) => {
       const cats = (ev.ticketCategories || []).map((cat: any) => {
         const stock = cat.stock || 0;
         const sold = cat.ticketsSold || 0;
@@ -187,6 +188,7 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
       const entryMode = ev.entryMode || 'manual';
       const externalProvider = ev.externalProvider || '';
       const externalUrl = ev.externalUrl || '';
+      const templateConfig = await getSingleTemplate(ev.templateId || '1');
 
       return {
         ...strip(ev),
@@ -206,9 +208,17 @@ lifestyleRoutes.get('/v1/all-events', async (c) => {
         remaining_stock: remainingStock,
         ticketCategories: cats,
         tickets: cats,
-        ticket_tiers: cats
+        ticket_tiers: cats,
+        templateId: ev.templateId || '1',
+        selected_template: ev.templateId || '1',
+        selectedTemplate: ev.templateId || '1',
+        templateConfig: templateConfig || null,
+        templateSchema: templateConfig || null,
+        templates: ev.templates || {
+          index: { id: ev.templateId || 1, title: 'Event Detail', bannerUrl: ev.bannerUrl || '' }
+        }
       };
-    });
+    }));
 
     return c.json({ data: formattedEvents, latency: 0, statusCode: 200, message: "Success" });
   } catch (error) {
@@ -238,7 +248,7 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
       with: { ticketCategories: { with: { tickets: true } } },
     });
 
-    const formattedData = data.map((ev: any) => {
+    const formattedData = await Promise.all(data.map(async (ev: any) => {
       const cats = (ev.ticketCategories || []).map((cat: any) => {
         const stock = cat.stock || 0;
         const sold = cat.ticketsSold || 0;
@@ -260,6 +270,7 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
       const entryMode = ev.entryMode || 'manual';
       const externalProvider = ev.externalProvider || '';
       const externalUrl = ev.externalUrl || '';
+      const templateConfig = await getSingleTemplate(ev.templateId || '1');
 
       return {
         ...strip(ev),
@@ -279,13 +290,59 @@ lifestyleRoutes.get('/v1/all-running-events', async (c) => {
         remaining_stock: remainingStock,
         ticketCategories: cats,
         tickets: cats,
-        ticket_tiers: cats
+        ticket_tiers: cats,
+        templateId: ev.templateId || '1',
+        selected_template: ev.templateId || '1',
+        selectedTemplate: ev.templateId || '1',
+        templateConfig: templateConfig || null,
+        templateSchema: templateConfig || null,
+        templates: ev.templates || {
+          index: { id: ev.templateId || 1, title: 'Event Detail', bannerUrl: ev.bannerUrl || '' }
+        }
       };
-    });
+    }));
 
     return c.json({ data: formattedData, latency: 0, statusCode: 200, message: 'Success' });
   } catch (error: any) {
     return c.json({ error: 'Failed to fetch running events', details: error.message }, 500);
+  }
+});
+
+lifestyleRoutes.get('/v1/favorite-events', async (c) => {
+  try {
+    const data = await db.query.events.findMany({
+      where: and(
+        eq(events.isActive, 1),
+        sql`(${events.approvalStatus} = 'APPROVED' OR ${events.reviewedDate} IS NOT NULL)`
+      ),
+      orderBy: [desc(events.viewsDetail)],
+      limit: 5,
+      with: { ticketCategories: { with: { tickets: true } } },
+    });
+
+    const formattedEvents = await Promise.all(data.map(async (ev: any) => {
+      const cats = (ev.ticketCategories || []).map((cat: any) => ({
+        ...cat,
+        stock: cat.stock || 0,
+        ticketsSold: cat.ticketsSold || 0,
+        remainingStock: Math.max(0, (cat.stock || 0) - (cat.ticketsSold || 0)),
+        isAvailable: ((cat.stock || 0) - (cat.ticketsSold || 0)) > 0 ? 1 : 0
+      }));
+      const templateConfig = await getSingleTemplate(ev.templateId || '1');
+      return {
+        ...strip(ev),
+        ticketCategories: cats,
+        tickets: cats,
+        ticket_tiers: cats,
+        templateId: ev.templateId || '1',
+        templateConfig: templateConfig || null,
+        templateSchema: templateConfig || null,
+      };
+    }));
+
+    return c.json({ data: formattedEvents, latency: 0, statusCode: 200, message: "Success" });
+  } catch (error: any) {
+    return c.json({ error: 'Failed to fetch favorite events', details: error.message }, 500);
   }
 });
 

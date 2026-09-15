@@ -56,6 +56,13 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
         where: sql`LOWER(${events.name}) LIKE ${'%' + namePart.toLowerCase() + '%'}`
       });
     }
+    // 1b. Cek apakah serviceId adalah ticketCategoryId
+    if (!eventData && serviceId) {
+      const cat = await db.query.ticketCategories.findFirst({ where: eq(ticketCategories.id, serviceId) });
+      if (cat && cat.eventId) {
+        eventData = await db.query.events.findFirst({ where: eq(events.id, cat.eventId) });
+      }
+    }
     if (eventData) {
       return { vendorUserId: eventData.userId || null, serviceName: eventData.name || "Event" };
     }
@@ -105,6 +112,10 @@ async function resolveVendorAndName(orderType: string, serviceId: string) {
 // ----------------------------------------------------------------------
 async function handleOrderCompletion(order: any, extraPayload?: any) {
   try {
+    const payload = { ...(order.orderPayload || {}), ...(extraPayload || {}) };
+    const ticketsPurchased = payload.tickets || payload.ticketTiers || [];
+    let attendees = payload.attendees || payload.participants || [];
+
     let ev = await db.query.events.findFirst({
       where: eq(events.id, order.serviceId),
       with: { ticketCategories: true }
@@ -118,17 +129,47 @@ async function handleOrderCompletion(order: any, extraPayload?: any) {
       });
     }
 
-    if (!ev && order.serviceName) {
+    if (!ev && (order.serviceName && order.serviceName !== 'BNI RUNNING 2026' && order.serviceName !== 'Event' && order.serviceName !== 'Service')) {
       ev = await db.query.events.findFirst({
         where: sql`LOWER(${events.name}) LIKE ${'%' + order.serviceName.toLowerCase() + '%'}`,
         with: { ticketCategories: true }
       });
     }
 
+    // Inspect tickets payload to discover the actual event
+    if (!ev && ticketsPurchased.length > 0) {
+      for (const t of ticketsPurchased) {
+        const potentialEventId = t.category || t.categoryId;
+        if (potentialEventId) {
+          const foundEv = await db.query.events.findFirst({
+            where: eq(events.id, potentialEventId),
+            with: { ticketCategories: true }
+          });
+          if (foundEv) {
+            ev = foundEv;
+            break;
+          }
+        }
+        const tixId = t.ticketId || t.id;
+        if (tixId) {
+          const cat = await db.query.ticketCategories.findFirst({
+            where: eq(ticketCategories.id, tixId)
+          });
+          if (cat && cat.eventId) {
+            ev = await db.query.events.findFirst({
+              where: eq(events.id, cat.eventId),
+              with: { ticketCategories: true }
+            });
+            if (ev) break;
+          }
+        }
+      }
+    }
+
     const isEvent = Boolean(ev) || (order.orderType || '').toLowerCase() === 'event' || (order.orderType || '').toLowerCase() === 'running';
     if (!isEvent) return;
 
-    if (ev && ev.userId && order.vendorUserId !== ev.userId) {
+    if (ev && (order.serviceId !== ev.id || order.vendorUserId !== ev.userId || order.serviceName !== ev.name)) {
       await db.update(serviceOrders).set({
         vendorUserId: ev.userId,
         serviceId: ev.id,
@@ -138,10 +179,6 @@ async function handleOrderCompletion(order: any, extraPayload?: any) {
       order.serviceId = ev.id;
       order.serviceName = ev.name;
     }
-
-    const payload = { ...(order.orderPayload || {}), ...(extraPayload || {}) };
-    const ticketsPurchased = payload.tickets || payload.ticketTiers || [];
-    let attendees = payload.attendees || payload.participants || [];
 
     // Extract customerTicket from ticketsPurchased if present
     if (attendees.length === 0 && ticketsPurchased.length > 0) {
@@ -329,7 +366,8 @@ orderRoutes.post("/", zValidator("json", createOrderSchema), async (c) => {
   const payload = c.req.valid("json");
   const id = crypto.randomUUID();
   const resolved = await resolveVendorAndName(payload.orderType, payload.serviceId);
-  const serviceName = payload.serviceName && payload.serviceName !== "Service" ? payload.serviceName : resolved.serviceName;
+  const rawPayload = payload as any;
+  const serviceName = rawPayload.serviceName && rawPayload.serviceName !== "Service" ? rawPayload.serviceName : resolved.serviceName;
   const vendorUserId = resolved.vendorUserId;
 
   try {
@@ -405,7 +443,34 @@ orderRoutes.post("/:id/complete-payment", async (c) => {
   });
 
   if (!existingOrder) {
-    return c.json({ error: "Order not found" }, 404);
+    // If order was not created beforehand, create it as completed directly
+    const orderType = body.orderType || "event";
+    const serviceId = body.serviceId || "run-004";
+    const resolved = await resolveVendorAndName(orderType, serviceId);
+    const serviceName = body.serviceName && body.serviceName !== "Service" ? body.serviceName : resolved.serviceName;
+    const vendorUserId = resolved.vendorUserId;
+    const invoiceNumber = `INV-${Date.now()}-${orderId.slice(-4).toUpperCase()}`;
+
+    const newOrders = await db.insert(serviceOrders).values({
+      id: orderId,
+      orderType,
+      serviceId,
+      serviceName,
+      vendorUserId,
+      customerName: body.customerName || "User Lifestyle",
+      customerPhone: body.customerPhone || "-",
+      notes: body.notes || `Order ${orderType}: ${body.customerName || 'User Lifestyle'}`,
+      quantity: Number(body.quantity || (body.tickets ? body.tickets.length : 1)),
+      totalAmount: Number(body.totalAmount || 0),
+      paymentMethod: body.paymentMethod || 'VA',
+      status: 'completed',
+      invoiceNumber,
+      orderPayload: body.orderPayload || body,
+      completedAt: new Date().toISOString(),
+    }).returning();
+
+    await handleOrderCompletion(newOrders[0], body);
+    return c.json({ success: true, message: "Payment completed successfully", data: newOrders[0] });
   }
 
   if (existingOrder.status === 'completed') {

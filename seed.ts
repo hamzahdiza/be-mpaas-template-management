@@ -84,7 +84,7 @@ async function seed() {
       picEmail: "hamzah.diza@orbitalinc.com",
       accountNumberBNI: "2132134142342",
       description: "Penyelenggara acara olahraga marathon, festival musik, dan ekshibisi terkemuka di Indonesia.",
-      monthlyRevenue: "Rp 63 jt / bln",
+      monthlyRevenue: "Rp 1,9 jt / bln",
       joinDate: "1 Agustus 2026",
       joinDateDisplay: "Bergabung Jan 2025",
     },
@@ -242,9 +242,9 @@ async function seed() {
       viewsDetail: 18450,
       viewsConfirm: 16200,
       tiers: [
-        { id: "tier-001-1", name: "5K National", price: 250000, maxPrice: 300000, stock: 6000, sold: 2400, desc: "Race kit eksklusif BNI, medali finisher, hydration station tiap 1.5 km" },
-        { id: "tier-001-2", name: "10K Championship", price: 400000, maxPrice: 450000, stock: 6000, sold: 1800, desc: "Kategori kejuaraan dengan total hadiah ratusan juta rupiah" },
-        { id: "tier-001-3", name: "Half Marathon 21K", price: 550000, maxPrice: 650000, stock: 4000, sold: 1200, desc: "Tantangan 21K dengan cut-off time 3.5 jam dan medali putar emas" },
+        { id: "tier-001-1", name: "5K National", price: 250000, maxPrice: 300000, stock: 6000, sold: 2, desc: "Race kit eksklusif BNI, medali finisher, hydration station tiap 1.5 km" },
+        { id: "tier-001-2", name: "10K Championship", price: 400000, maxPrice: 450000, stock: 6000, sold: 1, desc: "Kategori kejuaraan dengan total hadiah ratusan juta rupiah" },
+        { id: "tier-001-3", name: "Half Marathon 21K", price: 550000, maxPrice: 650000, stock: 4000, sold: 1, desc: "Tantangan 21K dengan cut-off time 3.5 jam dan medali putar emas" },
       ]
     },
 
@@ -289,8 +289,8 @@ async function seed() {
       viewsDetail: 8500,
       viewsConfirm: 6400,
       tiers: [
-        { id: "tier-002-1", name: "5K Fun Run", price: 150000, maxPrice: 175000, stock: 5000, sold: 2100, desc: "Jersey, Medali Finisher, Refreshment, Bib & Timing Chip" },
-        { id: "tier-002-2", name: "10K Challenge", price: 250000, maxPrice: 300000, stock: 3000, sold: 1500, desc: "Jersey, Medali Finisher Eksklusif, E-Certificate, Refreshment" },
+        { id: "tier-002-1", name: "5K Fun Run", price: 150000, maxPrice: 175000, stock: 5000, sold: 1, desc: "Jersey, Medali Finisher, Refreshment, Bib & Timing Chip" },
+        { id: "tier-002-2", name: "10K Challenge", price: 250000, maxPrice: 300000, stock: 3000, sold: 1, desc: "Jersey, Medali Finisher Eksklusif, E-Certificate, Refreshment" },
       ]
     },
 
@@ -570,7 +570,7 @@ async function seed() {
       viewsDetail: 14200,
       viewsConfirm: 12800,
       tiers: [
-        { id: "tier-008-1", name: "All-Access Pass (Sold Out)", price: 100000, maxPrice: 150000, stock: 500, sold: 500, desc: "Tiket akses penuh seluruh ekshibisi & workshop (Habis Terjual)" }
+        { id: "tier-008-1", name: "All-Access Pass", price: 100000, maxPrice: 150000, stock: 500, sold: 1, desc: "Tiket akses penuh seluruh ekshibisi & workshop" }
       ]
     }
   ];
@@ -626,7 +626,7 @@ async function seed() {
     { name: "Rizky Pratama", nik: "3273012207940006", phone: "+62 878-3344-5566", email: "rizky.pratama@gmail.com", eventId: "run-001", tierId: "tier-001-2", ticketName: "10K Championship", nominal: 400000, status: "REFUND" },
     { name: "Jessica Tan", nik: "3175054301970007", phone: "+62 811-2233-4455", email: "jessica.tan@gmail.com", eventId: "run-002", tierId: "tier-002-1", ticketName: "5K Fun Run", nominal: 150000, status: "COMPLETED" },
     { name: "Kevin Sanjaya", nik: "3374021908950008", phone: "+62 813-4455-6677", email: "kevin.sanjaya@gmail.com", eventId: "run-002", tierId: "tier-002-2", ticketName: "10K Challenge", nominal: 250000, status: "COMPLETED" },
-    { name: "Nadia Amanda", nik: "3171096504980009", phone: "+62 857-7788-9900", email: "nadia.amanda@gmail.com", eventId: "run-008", tierId: "tier-008-1", ticketName: "All-Access Pass (Sold Out)", nominal: 100000, status: "COMPLETED" },
+    { name: "Nadia Amanda", nik: "3171096504980009", phone: "+62 857-7788-9900", email: "nadia.amanda@gmail.com", eventId: "run-008", tierId: "tier-008-1", ticketName: "All-Access Pass", nominal: 100000, status: "COMPLETED" },
   ];
 
   for (let i = 0; i < attendeesData.length; i++) {

@@ -80,7 +80,7 @@ export const events = sqliteTable("events", {
   feePayer: text("fee_payer").default("customer"), // customer | organizer
   paymentMethod: text("payment_method").default("VA"),
   accountNumberBNI: text("account_number_bni"),
-  templateId: integer("template_id").notNull().default(1),
+  templateId: text("template_id").default("1"),
   templates: text("templates", { mode: 'json' }).$type<{
     index?: { id: number; title?: string; bannerUrl?: string };
     bookTicket?: { id: number; title?: string; bannerUrl?: string };
@@ -413,6 +413,7 @@ export const sduiTemplates = sqliteTable("sdui_templates", {
   id: text("id").primaryKey(), // e.g. 'template-1', 'template-2'
   templateId: text("template_id").notNull(), // 'template-1'
   templateName: text("template_name").notNull(),
+  description: text("description"),
   category: text("category").default("events"), // events | hotels | culinary | etc.
   schemaVersion: text("schema_version").default("1.0"),
   pageBackground: text("page_background").default("#F5F5F5"),
@@ -420,6 +421,9 @@ export const sduiTemplates = sqliteTable("sdui_templates", {
   contentSection: text("content_section", { mode: 'json' }).$type<any>(),
   ctaConfig: text("cta_config", { mode: 'json' }).$type<any>(),
   ticketDetailSection: text("ticket_detail_section", { mode: 'json' }).$type<any>(),
+  tenantId: text("tenant_id"), // null/empty for global templates, or specific vendor tenantId
+  isGlobal: integer("is_global").default(1), // 1 = visible to all vendors, 0 = private to tenantId
+  createdBy: text("created_by"), // vendor/user name or email
   isActive: integer("is_active").default(1),
   createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
   updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`),

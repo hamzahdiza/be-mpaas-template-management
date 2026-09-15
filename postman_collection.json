@@ -63,6 +63,69 @@
   ],
   "item": [
     {
+      "name": "SDUI Templates",
+      "item": [
+        {
+          "name": "Get Templates (Multi-Tenant Scoped)",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates?tenantId={{tenantId}}",
+            "header": []
+          }
+        },
+        {
+          "name": "Get Template Detail by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": []
+          }
+        },
+        {
+          "name": "Create Custom Template (Vendor)",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/api/v1/templates",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateId\": \"template-custom-vendor-1\",\n  \"templateName\": \"Neon Sporty Theme\",\n  \"description\": \"Custom neon theme for marathons\",\n  \"category\": \"events\",\n  \"pageBackground\": \"#0F172A\",\n  \"tenantId\": \"tenant-123\",\n  \"isGlobal\": 0,\n  \"createdBy\": \"Vendor User\",\n  \"headerSection\": {\n    \"headerConfig\": {\n      \"showBackButton\": true,\n      \"titleKey\": \"name\",\n      \"fallbackTitle\": \"Event Info\",\n      \"background\": \"#0F172A\",\n      \"color\": \"#06B6D4\"\n    },\n    \"fields\": []\n  },\n  \"contentSection\": {\n    \"fields\": []\n  },\n  \"ctaConfig\": {\n    \"label\": \"Beli Tiket Sekarang\",\n    \"background\": \"#06B6D4\",\n    \"color\": \"#FFFFFF\"\n  }\n}"
+            }
+          }
+        },
+        {
+          "name": "Update Custom Template",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"templateName\": \"Updated Theme Name\",\n  \"pageBackground\": \"#FFFFFF\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Custom Template",
+          "request": {
+            "method": "DELETE",
+            "url": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+            "header": []
+          }
+        }
+      ]
+    },
+    {
       "name": "Auth",
       "item": [
         {
@@ -2598,6 +2661,1308 @@
             "url": "{{baseUrl}}/lifestyle/v1/all-umkms",
             "description": "Mengambil data seluruh UMKM aktif"
           }
+        }
+      ]
+    },
+    {
+      "name": "🛡️ Admin API",
+      "description": "Kumpulan seluruh endpoint khusus Super Admin: Autentikasi, Dashboard, Moderasi Event, Manajemen Tenant, Global Orders, SDUI Templates, dan System Settings.",
+      "item": [
+        {
+          "name": "1. Autentikasi Admin",
+          "description": "Sesi login admin dan perolehan token JWT Super Admin",
+          "item": [
+            {
+              "name": "1.1 Admin Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/login",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "login"
+                  ]
+                },
+                "description": "Melakukan autentikasi kredensial Admin dan menyimpan token ke variable adminToken",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"superadmin@wondr.id\",\n  \"password\": \"AdminPassword123!\"\n}"
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "var jsonData = pm.response.json();",
+                      "if (jsonData.token) {",
+                      "    pm.collectionVariables.set(\"adminToken\", jsonData.token);",
+                      "    pm.environment.set(\"adminToken\", jsonData.token);",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "1.2 Register Akun Baru / Tenant",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/auth/register",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "auth",
+                    "register"
+                  ]
+                },
+                "description": "Mendaftarkan akun vendor/tenant baru dari sisi registrasi publik/admin",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"tenant.baru@wondr.id\",\n  \"password\": \"SecurePassword123!\",\n  \"tenantName\": \"PT Kreatif Kreasi Mandiri\",\n  \"picName\": \"Budi Santoso\",\n  \"picPhone\": \"+62 812-3456-7890\",\n  \"picEmail\": \"budi@kreatifkreasi.id\",\n  \"category\": \"Lari / Sports\",\n  \"accountNumberBNI\": \"988 0145 2026 8888\",\n  \"description\": \"Tenant resmi penyelenggara marathon dan festival olahraga\"\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Dashboard & Analytics Admin",
+          "description": "Metrik agregat platform, statistik penjualan seluruh tenant, dan moderasi summary",
+          "item": [
+            {
+              "name": "2.1 Get Admin Dashboard Metrics & Stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/dashboard",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "dashboard"
+                  ]
+                },
+                "description": "Mengambil seluruh statistik pendapatan total, persentase pertumbuhan, ringkasan moderasi, recent order activities, dan tabel approved events"
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Moderasi Konten & Review Event",
+          "description": "Pengawasan kurasi event seluruh tenant, approval, penolakan, dan live status toggle",
+          "item": [
+            {
+              "name": "3.1 Get All Events for Review (Semua Event)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events?status=ALL",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "ALL"
+                    }
+                  ]
+                },
+                "description": "Mengambil semua event tanpa filter status beserta summary counter (waiting, approved, rejected)"
+              }
+            },
+            {
+              "name": "3.2 Get Waiting Review Events (Menunggu Review)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events?status=WAITING",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "WAITING"
+                    }
+                  ]
+                },
+                "description": "Mengambil hanya event yang berstatus WAITING atau REQUESTED untuk di-review admin"
+              }
+            },
+            {
+              "name": "3.3 Get Approved Events (Disetujui)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events?status=APPROVED",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "APPROVED"
+                    }
+                  ]
+                },
+                "description": "Mengambil daftar event yang telah disetujui admin dan siap tayang di catalog Mini Program"
+              }
+            },
+            {
+              "name": "3.4 Get Rejected Events (Ditolak)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events?status=REJECTED",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "REJECTED"
+                    }
+                  ]
+                },
+                "description": "Mengambil daftar event yang ditolak kurasi admin beserta catatan perbaikan (rejectionNote)"
+              }
+            },
+            {
+              "name": "3.5 Search Events for Review",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events?search=Hindia",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "Hindia"
+                    }
+                  ]
+                },
+                "description": "Pencarian event untuk kurasi admin berdasarkan nama event, kategori, atau nama tenant"
+              }
+            },
+            {
+              "name": "3.6 Get Event Review Detail & Diff",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events/{{eventId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events",
+                    "{{eventId}}"
+                  ]
+                },
+                "description": "Mengambil detail lengkap data event yang diajukan vendor, perbandingan (diff) dengan live version, dan daftar tier tiket"
+              }
+            },
+            {
+              "name": "3.7 Approve Event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events",
+                    "{{eventId}}",
+                    "review"
+                  ]
+                },
+                "description": "Menyetujui (APPROVE) pengajuan event sehingga status berubah menjadi APPROVED dan live di Mini Program",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"approve\",\n  \"note\": \"Konten dan visual telah memenuhi standar mutu ekosistem wondr.\"\n}"
+                }
+              }
+            },
+            {
+              "name": "3.8 Reject Event",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events",
+                    "{{eventId}}",
+                    "review"
+                  ]
+                },
+                "description": "Menolak (REJECT) pengajuan event dengan catatan perbaikan untuk diperbaiki oleh pihak vendor",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"action\": \"reject\",\n  \"note\": \"Mohon perbaiki resolusi gambar banner minimal 1080x1080 px dan lengkapi deskripsi tiket VIP.\"\n}"
+                }
+              }
+            },
+            {
+              "name": "3.9 Toggle Live Status Event",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/events/{{eventId}}/live-status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "events",
+                    "{{eventId}}",
+                    "live-status"
+                  ]
+                },
+                "description": "Mengaktifkan atau menonaktifkan status penayangan event di aplikasi secara instan (on/off)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"isActive\": true\n}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Manajemen Tenant & Vendor",
+          "description": "CRUD data mitra bisnis, hak akses modul, reset password, dan status suspend/aktif",
+          "item": [
+            {
+              "name": "4.1 Get All Tenants",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants"
+                  ]
+                },
+                "description": "Mengambil daftar seluruh tenant/vendor mitra yang terdaftar di platform"
+              }
+            },
+            {
+              "name": "4.2 Filter Tenants by Status (Active / Suspended)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants?status=active",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "active"
+                    }
+                  ]
+                },
+                "description": "Memfilter tenant berdasarkan status keaktifan akun mitra"
+              }
+            },
+            {
+              "name": "4.3 Search Tenants",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants?search=Orbital",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "Orbital"
+                    }
+                  ]
+                },
+                "description": "Mencari tenant berdasarkan nama bisnis, kode tenant, nama PIC, atau email"
+              }
+            },
+            {
+              "name": "4.4 Get Tenant Detail & Modules Access",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants/{{tenantId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants",
+                    "{{tenantId}}"
+                  ]
+                },
+                "description": "Mengambil profil mendalam tenant, metrik performa (revenue, page views), daftar event, dan status switch ON/OFF modul"
+              }
+            },
+            {
+              "name": "4.5 Create New Tenant (Admin Onboarding)",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants"
+                  ]
+                },
+                "description": "Mendaftarkan mitra tenant baru langsung dari konsol Super Admin",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"PT Java Visual Kreasi\",\n  \"tenantName\": \"Java Visual Kreasi\",\n  \"email\": \"halo@javavisual.id\",\n  \"password\": \"InitialPassword123!\",\n  \"category\": \"Konser & Musik\",\n  \"roleType\": [\n    \"Event\",\n    \"Sport\",\n    \"Workshop\"\n  ],\n  \"picName\": \"Arif Hidayat\",\n  \"picPhone\": \"+62 811-3456-7890\",\n  \"picEmail\": \"arif@javavisual.id\",\n  \"accountNumberBNI\": \"988 0145 2026 7777\",\n  \"description\": \"Penyelenggara live music event dan visual art exhibition.\"\n}"
+                }
+              }
+            },
+            {
+              "name": "4.6 Update Tenant Profile & Modules",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants/{{tenantId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants",
+                    "{{tenantId}}"
+                  ]
+                },
+                "description": "Memperbarui profil, data rekening BNI, kontak PIC, dan permission roleType tenant",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenantName\": \"Orbital Inc. Updated\",\n  \"picName\": \"Hamzah Diza S.Kom\",\n  \"picPhone\": \"+62 812-3456-9999\",\n  \"picEmail\": \"hamzah.diza@orbitalinc.com\",\n  \"accountNumberBNI\": \"988 0145 2026 0001\",\n  \"category\": \"Event & Entertainment\",\n  \"roleType\": [\n    \"Event\",\n    \"Sport\",\n    \"Workshop\",\n    \"Kuliner\"\n  ],\n  \"description\": \"Penyelenggara konser dan festival musik berskala nasional.\"\n}"
+                }
+              }
+            },
+            {
+              "name": "4.7 Reset Tenant Password",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants/{{tenantId}}/reset-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants",
+                    "{{tenantId}}",
+                    "reset-password"
+                  ]
+                },
+                "description": "Mereset password tenant menjadi password default (Password123!) untuk proses recovery akses",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "4.8 Update Tenant Status (Active / Suspended)",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants/{{tenantId}}/status",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants",
+                    "{{tenantId}}",
+                    "status"
+                  ]
+                },
+                "description": "Mengubah status akun tenant (Active, Inactive, Suspended)",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": \"Suspended\"\n}"
+                }
+              }
+            },
+            {
+              "name": "4.9 Delete Tenant",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/tenants/{{tenantId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "tenants",
+                    "{{tenantId}}"
+                  ]
+                },
+                "description": "Menghapus mitra tenant dari sistem CMS secara permanen"
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Transaksi & Pesanan Seluruh Tenant",
+          "description": "Pengawasan data transaksi global platform seluruh tenant, status pembayaran, dan nominal revenue",
+          "item": [
+            {
+              "name": "5.1 Get All Global Orders & Stats",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/orders",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "orders"
+                  ]
+                },
+                "description": "Mengambil seluruh pesanan dari seluruh vendor mitra beserta ringkasan metrik status (COMPLETED, PENDING, REFUND)"
+              }
+            },
+            {
+              "name": "5.2 Filter Orders by Status (COMPLETED / PENDING / REFUND)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/orders?status=completed",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "orders"
+                  ],
+                  "query": [
+                    {
+                      "key": "status",
+                      "value": "completed"
+                    }
+                  ]
+                },
+                "description": "Memfilter data transaksi berdasarkan status pembayaran"
+              }
+            },
+            {
+              "name": "5.3 Search Orders",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/orders?search=INV-001",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "orders"
+                  ],
+                  "query": [
+                    {
+                      "key": "search",
+                      "value": "INV-001"
+                    }
+                  ]
+                },
+                "description": "Mencari pesanan berdasarkan nomor invoice, nama pembeli tiket, atau nama event"
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Server-Driven UI (SDUI) Templates",
+          "description": "Pengelolaan template tata letak dinamis Mini Program dan Multi-Tenant Scoping",
+          "item": [
+            {
+              "name": "6.1 Get All Templates (Admin Scoped)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/templates?all=true",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "templates"
+                  ],
+                  "query": [
+                    {
+                      "key": "all",
+                      "value": "true"
+                    }
+                  ]
+                },
+                "description": "Mengambil semua template SDUI aktif (Global maupun Custom per Tenant) untuk konsol admin"
+              }
+            },
+            {
+              "name": "6.2 Get Template Schema by ID",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "templates",
+                    "{{templateId}}"
+                  ]
+                },
+                "description": "Mengambil konfigurasi layout JSON Server-Driven UI lengkap berdasarkan ID template"
+              }
+            },
+            {
+              "name": "6.3 Create New SDUI Template",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/templates",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "templates"
+                  ]
+                },
+                "description": "Membuat template tata letak dinamis baru untuk diterapkan pada event tertentu",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"templateId\": \"template-cyber-orange\",\n  \"templateName\": \"Cyber Orange Theme\",\n  \"description\": \"Futuristic dark neon theme with cyber orange accents\",\n  \"category\": \"events\",\n  \"schemaVersion\": \"1.0\",\n  \"pageBackground\": \"#18181B\",\n  \"isGlobal\": 1,\n  \"createdBy\": \"Bang Kus (Admin)\",\n  \"headerSection\": {\n    \"headerConfig\": {\n      \"showBackButton\": true,\n      \"titleKey\": \"name\",\n      \"fallbackTitle\": \"Event Info\",\n      \"background\": \"#18181B\",\n      \"color\": \"#F97316\"\n    },\n    \"fields\": [\n      {\n        \"key\": \"banner\",\n        \"component\": \"BannerImage\",\n        \"required\": true\n      },\n      {\n        \"key\": \"category\",\n        \"component\": \"CategoryBadge\",\n        \"required\": true\n      }\n    ]\n  },\n  \"contentSection\": {\n    \"fields\": [\n      {\n        \"key\": \"schedule\",\n        \"component\": \"ScheduleCard\",\n        \"required\": true\n      },\n      {\n        \"key\": \"location\",\n        \"component\": \"LocationCard\",\n        \"required\": true\n      },\n      {\n        \"key\": \"description\",\n        \"component\": \"DescriptionBox\",\n        \"required\": true\n      }\n    ]\n  },\n  \"ctaConfig\": {\n    \"label\": \"Dapatkan Tiket\",\n    \"background\": \"#F97316\",\n    \"color\": \"#FFFFFF\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "6.4 Update SDUI Template",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "templates",
+                    "{{templateId}}"
+                  ]
+                },
+                "description": "Memperbarui tata letak field, warna, atau konfigurasi CTA pada template SDUI",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"templateName\": \"Classic Clean Premium\",\n  \"pageBackground\": \"#F1F5F9\",\n  \"ctaConfig\": {\n    \"label\": \"Beli Tiket Sekarang - Promo BNI\",\n    \"background\": \"#FF8736\",\n    \"color\": \"#FFFFFF\"\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "6.5 Deactivate SDUI Template",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/templates/{{templateId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "templates",
+                    "{{templateId}}"
+                  ]
+                },
+                "description": "Menonaktifkan template SDUI agar tidak dapat dipilih lagi oleh tenant"
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Pengaturan Sistem & Platform Fee",
+          "description": "Konfigurasi tarif platform fee, mode pemeliharaan, email operasional, dan reset default",
+          "item": [
+            {
+              "name": "7.1 Get System Settings",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "settings"
+                  ]
+                },
+                "description": "Mengambil seluruh konfigurasi platform fee dan technical parameters CMS"
+              }
+            },
+            {
+              "name": "7.2 Update System Settings",
+              "request": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/settings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "settings"
+                  ]
+                },
+                "description": "Memperbarui konfigurasi tarif platform fee, batas transaksi, status mode pemeliharaan, dan email notifikasi",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"platformFee\": {\n    \"feeType\": \"percentage\",\n    \"percentage\": 5,\n    \"minimumFee\": 15000,\n    \"maximumFee\": 200000,\n    \"fixedAmount\": 10000\n  },\n  \"technical\": {\n    \"mode\": \"production\",\n    \"maintenanceMode\": false,\n    \"systemVersion\": \"v2.4.1\",\n    \"uptime\": \"99.98%\",\n    \"notificationEmail\": \"ops@cms-admin.id\",\n    \"autoBackup\": true,\n    \"backupSchedule\": \"daily\",\n    \"requireBNIAccount\": true,\n    \"autoApproveFreeEvents\": false,\n    \"maxTicketsPerOrder\": 10,\n    \"miniProgramSync\": true\n  }\n}"
+                }
+              }
+            },
+            {
+              "name": "7.3 Clear System Cache",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/settings/clear-cache",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "settings",
+                    "clear-cache"
+                  ]
+                },
+                "description": "Membersihkan cache template SDUI dan cache query database di memori sistem",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            },
+            {
+              "name": "7.4 Reset Settings to Defaults",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/api/v1/admin/settings/reset-defaults",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "v1",
+                    "admin",
+                    "settings",
+                    "reset-defaults"
+                  ]
+                },
+                "description": "Mengembalikan seluruh parameter sistem dan tarif fee ke konfigurasi default",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Katalog & Mini Program Inspection",
+          "description": "Inspeksi data katalog Mini Program dari sudut pandang kurasi admin",
+          "item": [
+            {
+              "name": "8.1 Get All Published Events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-events"
+                  ]
+                },
+                "description": "Mengambil semua event yang aktif dan berstatus APPROVED di katalog utama"
+              }
+            },
+            {
+              "name": "8.2 Get All Running Events",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-running-events",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-running-events"
+                  ]
+                },
+                "description": "Mengambil semua event kategori olahraga/lari"
+              }
+            },
+            {
+              "name": "8.3 Get All Hotels",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-hotels",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-hotels"
+                  ]
+                },
+                "description": "Mengambil data seluruh hotel"
+              }
+            },
+            {
+              "name": "8.4 Get All Cafes",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-cafes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-cafes"
+                  ]
+                },
+                "description": "Mengambil data seluruh kafe"
+              }
+            },
+            {
+              "name": "8.5 Get All Restaurants",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-restaurants",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-restaurants"
+                  ]
+                },
+                "description": "Mengambil data seluruh restoran"
+              }
+            },
+            {
+              "name": "8.6 Get All Rentals",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-rentals",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-rentals"
+                  ]
+                },
+                "description": "Mengambil data seluruh persewaan"
+              }
+            },
+            {
+              "name": "8.7 Get All UMKM",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{adminToken}}",
+                    "type": "text"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/lifestyle/v1/all-umkms",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "lifestyle",
+                    "v1",
+                    "all-umkms"
+                  ]
+                },
+                "description": "Mengambil data seluruh mitra UMKM"
+              }
+            }
+          ]
         }
       ]
     }

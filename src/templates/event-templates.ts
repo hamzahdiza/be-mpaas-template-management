@@ -1,5 +1,6 @@
 export interface SduiHeaderConfig {
   showBackButton?: boolean;
+  title?: string;
   titleKey?: string;
   fallbackTitle?: string;
   background?: string;

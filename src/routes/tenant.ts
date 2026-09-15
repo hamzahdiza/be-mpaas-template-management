@@ -228,12 +228,13 @@ tenantRoutes.get('/products-performance', async (c) => {
       });
 
       const totalRevenue = orders.reduce((sum, ord) => sum + (ord.totalAmount || 0), 0);
-      const ticketsSold = orders.reduce((sum, ord) => sum + (ord.quantity || 1), 0);
+      const catTicketsSold = ev.ticketCategories.reduce((sum, cat) => sum + (cat.ticketsSold || 0), 0);
+      const ticketsSold = orders.length > 0 ? orders.reduce((sum, ord) => sum + (ord.quantity || 1), 0) : catTicketsSold;
       const totalTickets = ev.ticketCategories.reduce((sum, cat) => sum + (cat.stock || 0), 0);
       const remainingStock = Math.max(0, totalTickets - ticketsSold);
       const ticketTypesCount = ev.ticketCategories.length;
-      const viewsDetail = ev.viewsDetail || 1580;
-      const viewsConfirm = ev.viewsConfirm || 1500;
+      const viewsDetail = ev.viewsDetail || 0;
+      const viewsConfirm = ev.viewsConfirm || 0;
 
       const conversionRate = viewsDetail > 0 ? `${((ticketsSold / viewsDetail) * 100).toFixed(1)}%` : '0%';
       const revenueDisplay = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
@@ -251,8 +252,8 @@ tenantRoutes.get('/products-performance', async (c) => {
         event_format: ev.eventType || 'Offline Event',
         event_type: ev.eventType || 'Offline Event',
         type: ev.eventType || 'Offline Event',
-        event_category: ev.category || 'Lari',
-        category: ev.category || 'Lari',
+        event_category: ev.category || 'Lari / Sports',
+        category: ev.category || 'Lari / Sports',
         ticket_types_count: ticketTypesCount,
         ticketTypesCount,
         total_tickets: totalTickets,
@@ -301,10 +302,25 @@ tenantRoutes.get('/profile', async (c) => {
       return c.json({ error: 'Akun tidak ditemukan' }, 404);
     }
 
-    const totalEvents = await db.select({ count: sql<number>`count(*)` })
-      .from(events)
-      .where(user.role === 'admin' ? undefined : eq(events.userId, tenantUser.id));
-    const eventsCount = totalEvents[0]?.count || 0;
+    const tenantEvents = await db.query.events.findMany({
+      where: user.role === 'admin' ? undefined : eq(events.userId, tenantUser.id)
+    });
+    const eventsCount = tenantEvents.length;
+
+    const tenantOrders = await db.query.serviceOrders.findMany({
+      where: user.role === 'admin' ? undefined : eq(serviceOrders.vendorUserId, tenantUser.id)
+    });
+    const completedOrders = tenantOrders.filter(o => o.status === 'completed');
+    const totalRevenueNum = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+    const totalTicketsSold = completedOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+    const totalPageViews = tenantEvents.reduce((sum, e) => sum + (e.viewsDetail || 0), 0);
+    const conversionRate = totalPageViews > 0 ? `${((totalTicketsSold / totalPageViews) * 100).toFixed(1)}%` : '0.0%';
+
+    const revenueDisplay = totalRevenueNum >= 1_000_000_000
+      ? `Rp ${(totalRevenueNum / 1_000_000_000).toFixed(1)} M`
+      : totalRevenueNum >= 1_000_000
+      ? `Rp ${(totalRevenueNum / 1_000_000).toFixed(0)} jt`
+      : `Rp ${totalRevenueNum.toLocaleString('id-ID')}`;
 
     const accessList = [
       { id: "acc-1", name: "Create & Edit Event", isEnabled: true, is_enabled: true },
@@ -326,7 +342,7 @@ tenantRoutes.get('/profile', async (c) => {
       .toUpperCase() || 'VN';
 
     const tenantCode = tenantUser.tenantCode || `CMS-${tenantUser.id.slice(0, 6).toUpperCase()}`;
-    const monthlyRevenue = tenantUser.monthlyRevenue || 'Rp 0 / bln';
+    const monthlyRevenue = totalRevenueNum > 0 ? `${revenueDisplay} / bln` : (tenantUser.monthlyRevenue || 'Rp 0 / bln');
     const joinDate = tenantUser.joinDate || new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
     const joinDateDisplay = tenantUser.joinDateDisplay || `Bergabung ${new Date().toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}`;
 
@@ -355,10 +371,10 @@ tenantRoutes.get('/profile', async (c) => {
     return c.json({
       tenant: tenantInfo,
       kpis: [
-        { label: "TOTAL REVENUE", value: monthlyRevenue.split(' /')?.[0] || "Rp 0", caption: "All Time", isPrimary: true, is_primary: true },
+        { label: "TOTAL REVENUE", value: revenueDisplay, caption: "All Time", isPrimary: true, is_primary: true },
         { label: "TOTAL PRODUK", value: `${eventsCount}`, caption: "Active & Draft", isPrimary: false, is_primary: false },
-        { label: "TOTAL PAGE VIEWS", value: "0", caption: "All Time", isPrimary: false, is_primary: false },
-        { label: "AVG. CONVERSION", value: "0%", caption: "All Time", isPrimary: false, is_primary: false }
+        { label: "TOTAL PAGE VIEWS", value: totalPageViews.toLocaleString('id-ID'), caption: "All Time", isPrimary: false, is_primary: false },
+        { label: "AVG. CONVERSION", value: conversionRate, caption: "All Time", isPrimary: false, is_primary: false }
       ],
       accessList,
       access_list: accessList

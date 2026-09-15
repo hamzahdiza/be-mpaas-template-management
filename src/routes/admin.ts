@@ -86,7 +86,7 @@ adminRoutes.get('/events', async (c) => {
   const items = filtered.map(ev => {
     const detail = formatEventDetail(ev, ev.ticketCategories, true);
     const rawSubDate = ev.submittedDate || ev.createdAt || '';
-    let subDisplay = '01 Oct 2023';
+    let subDisplay = '-';
     if (rawSubDate) {
       try {
         const d = new Date(rawSubDate);
@@ -122,6 +122,10 @@ adminRoutes.get('/events', async (c) => {
       totalTickets: detail.totalTickets,
       ticketsSold: detail.ticketsSold,
       remainingTickets: detail.remainingTickets,
+      templateId: detail.templateId || '1',
+      selected_template: detail.selected_template || detail.templateId || '1',
+      selectedTemplate: detail.selectedTemplate || detail.templateId || '1',
+      templateSelection: detail.templateSelection || `Template ${detail.templateId || 1}`,
       tenantName: ev.user?.tenantName || 'Vendor Partner',
       vendor: {
         id: ev.user?.id || ev.userId,
@@ -246,7 +250,15 @@ adminRoutes.post('/events/:id/review', async (c) => {
       const feePayer = p.fee_payer || p.feePayer || ev.feePayer;
       const paymentMethod = p.payment_method || p.paymentMethod || ev.paymentMethod;
       const accountNumberBNI = p.bni_account_number || p.accountNumberBNI || ev.accountNumberBNI;
-      const templateId = p.selected_template ? Number(p.selected_template) : (p.templateId ? Number(p.templateId) : ev.templateId);
+      const templateId = p.selected_template !== undefined
+        ? String(p.selected_template)
+        : (p.selectedTemplate !== undefined
+          ? String(p.selectedTemplate)
+          : (p.templateId !== undefined
+            ? String(p.templateId)
+            : (p.template_id !== undefined
+              ? String(p.template_id)
+              : ev.templateId)));
 
       const ticketTiers = p.ticket_tiers || p.tickets;
       let lowestPrice = ev.price;
@@ -380,10 +392,23 @@ adminRoutes.get('/dashboard', async (c) => {
   const rejectedCount = allEvents.filter(e => (e.approvalStatus || '').toUpperCase() === 'REJECTED').length;
   const draftCount = allEvents.filter(e => (e.approvalStatus || 'DRAFT').toUpperCase() === 'DRAFT').length;
 
-  // Recent order activities (combining live db orders and sample activities for rich UI)
+  // Recent order activities
   const recentActivities = allOrders.slice(0, 10).map((ord) => {
     const formattedAmount = `Rp ${(ord.totalAmount || 0).toLocaleString('id-ID')}`;
     const statusUpper = (ord.status || 'PENDING').toUpperCase();
+    const rawDate = ord.completedAt || ord.createdAt;
+    let dateDisplay = '-';
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          dateDisplay = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+      } catch {
+        dateDisplay = String(rawDate);
+      }
+    }
+
     return {
       id: ord.id,
       customerName: ord.customerName || 'Pembeli Tiket',
@@ -391,8 +416,8 @@ adminRoutes.get('/dashboard', async (c) => {
       status: statusUpper,
       amount: ord.totalAmount || 0,
       amountDisplay: formattedAmount,
-      dateDisplay: 'Hari ini, 09:14',
-      createdAt: ord.completedAt || new Date().toISOString(),
+      dateDisplay,
+      createdAt: ord.completedAt || ord.createdAt || new Date().toISOString(),
     };
   });
 
@@ -402,20 +427,20 @@ adminRoutes.get('/dashboard', async (c) => {
     const evOrders = completedOrdersList.filter(o => o.serviceId === ev.id);
     const evRevenue = evOrders.length > 0
       ? evOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0)
-      : (detail.ticketsSold * (detail.price || 50000));
+      : (detail.ticketsSold * (detail.price || 0));
 
     return {
       id: ev.id,
       name: ev.name,
       eventName: ev.name,
-      startDate: ev.startDate || '15 Oct 2026',
+      startDate: ev.startDate || '-',
       eventType: ev.eventType || 'Offline Event',
       format: ev.eventFormat || 'Offline',
       bannerUrl: ev.bannerUrl || (ev.bannerUrls && ev.bannerUrls[0]) || '',
-      tenantName: ev.user?.tenantName || 'Orbital Inc.',
+      tenantName: ev.user?.tenantName || ev.user?.name || '-',
       vendorName: ev.user?.name || ev.user?.tenantName || 'Vendor Partner',
       ticketsSold: detail.ticketsSold || evOrders.reduce((sum, o) => sum + (o.quantity || 1), 0),
-      totalTickets: detail.totalTickets || 1000,
+      totalTickets: detail.totalTickets || 0,
       remainingTickets: detail.remainingTickets,
       revenue: evRevenue,
       revenueDisplay: `Rp ${evRevenue.toLocaleString('id-ID')}`,
@@ -427,55 +452,18 @@ adminRoutes.get('/dashboard', async (c) => {
     success: true,
     data: {
       stats: {
-        totalOrders: 15240 + dbTotalOrders,
-        totalOrdersGrowth: '+12%',
-        completedOrders: 14800 + dbCompleted,
-        completedOrdersGrowth: '+8%',
-        pendingOrders: 415 + dbPending,
-        pendingOrdersGrowth: '2%',
-        refundOrders: 25 + dbRefund,
-        refundOrdersGrowth: '5%',
+        totalOrders: dbTotalOrders,
+        totalOrdersGrowth: dbTotalOrders > 0 ? '+12%' : '0%',
+        completedOrders: dbCompleted,
+        completedOrdersGrowth: dbCompleted > 0 ? '+8%' : '0%',
+        pendingOrders: dbPending,
+        pendingOrdersGrowth: dbPending > 0 ? '2%' : '0%',
+        refundOrders: dbRefund,
+        refundOrdersGrowth: dbRefund > 0 ? '5%' : '0%',
         totalRevenue: totalRevenueNum,
         totalRevenueDisplay: `Rp ${totalRevenueNum.toLocaleString('id-ID')}`,
       },
-      recentActivities: recentActivities.length > 0 ? recentActivities : [
-        {
-          id: 'ORD-DEMO-1',
-          customerName: 'Syamsul Bahri',
-          serviceName: 'Jakarta Running Festival 2026',
-          status: 'COMPLETED',
-          amount: 24000000,
-          amountDisplay: 'Rp 24.000.000',
-          dateDisplay: 'Hari ini, 09:14',
-        },
-        {
-          id: 'ORD-DEMO-2',
-          customerName: 'Syamsul Bahri',
-          serviceName: 'Hindia - Tur Menari Dalam Bayangan 2026',
-          status: 'PENDING',
-          amount: 24000000,
-          amountDisplay: 'Rp 24.000.000',
-          dateDisplay: 'Hari ini, 09:14',
-        },
-        {
-          id: 'ORD-DEMO-3',
-          customerName: 'Syamsul Bahri',
-          serviceName: 'Hindia - Tur Menari Dalam Bayangan 2026',
-          status: 'PENDING',
-          amount: 24000000,
-          amountDisplay: 'Rp 24.000.000',
-          dateDisplay: '23 Agu, 09:14',
-        },
-        {
-          id: 'ORD-DEMO-4',
-          customerName: 'Syamsul Bahri',
-          serviceName: 'Melawai Running 2026',
-          status: 'REFUND',
-          amount: 24000000,
-          amountDisplay: 'Rp 24.000.000',
-          dateDisplay: 'Hari ini, 09:14',
-        }
-      ],
+      recentActivities,
       approvedEvents: approvedEventsTable,
       moderationSummary: {
         totalEvents: allEvents.length,
@@ -745,24 +733,40 @@ adminRoutes.get('/tenants/:id', async (c) => {
 
   const vEvents = vendor.events || [];
   const activeEvents = vEvents.filter(e => e.isActive && e.approvalStatus === 'APPROVED').length;
-  const draftEvents = vEvents.filter(e => e.approvalStatus === 'DRAFT' || e.approvalStatus === 'WAITING').length;
-  const totalEvents = vEvents.length > 0 ? vEvents.length : 6;
+  const draftEvents = vEvents.length - activeEvents;
+  const totalEvents = vEvents.length;
+
+  const vendorOrders = await db.query.serviceOrders.findMany({
+    where: eq(serviceOrders.vendorUserId, vendor.id)
+  });
+  const completedVendorOrders = vendorOrders.filter(o => o.status === 'completed');
+  const totalRevenue = completedVendorOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+  const totalTicketsSold = completedVendorOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+  const totalPageViews = vEvents.reduce((sum, e) => sum + (e.viewsDetail || 0), 0);
+  const conversionRate = totalPageViews > 0 ? `${((totalTicketsSold / totalPageViews) * 100).toFixed(1)}%` : '0.0%';
+
+  const totalRevenueDisplay = totalRevenue >= 1_000_000_000
+    ? `Rp ${(totalRevenue / 1_000_000_000).toFixed(1)} M`
+    : totalRevenue >= 1_000_000
+    ? `Rp ${(totalRevenue / 1_000_000).toFixed(0)} jt`
+    : `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+  const monthlyRevenue = totalRevenue > 0 ? `${totalRevenueDisplay} / bln` : 'Rp 0 / bln';
 
   let tenantAccess = 'Event';
   let roleTypeArr: string[] = ['Event'];
   if (vendor.roleType && Array.isArray(vendor.roleType) && vendor.roleType.length > 0) {
     roleTypeArr = vendor.roleType;
     tenantAccess = vendor.roleType.join(', ');
-  } else if (typeof vendor.tenantAccess === 'string') {
-    roleTypeArr = vendor.tenantAccess.split(',').map((s: string) => s.trim()).filter(Boolean);
-    tenantAccess = vendor.tenantAccess;
+  } else if (typeof (vendor as any).tenantAccess === 'string') {
+    roleTypeArr = (vendor as any).tenantAccess.split(',').map((s: string) => s.trim()).filter(Boolean);
+    tenantAccess = (vendor as any).tenantAccess;
   } else if (vendor.category) {
     tenantAccess = vendor.category;
     roleTypeArr = [vendor.category];
   }
 
-  const tName = vendor.tenantName || vendor.name || 'Orbital Inc.';
-  const initials = tName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() || 'OI';
+  const tName = vendor.tenantName || vendor.name || 'Tenant Partner';
+  const initials = tName.split(' ').map((w: string) => w[0]).slice(0, 2).join('').toUpperCase() || 'TP';
 
   // Standard modules list to show ON/OFF
   const standardModules = ['Event', 'Sport', 'Workshop', 'Hotel', 'Automotive', 'Kuliner', 'E-commerce', 'Restaurant', 'Real Estate'];
@@ -791,7 +795,7 @@ adminRoutes.get('/tenants/:id', async (c) => {
     data: {
       tenant: {
         id: vendor.id,
-        tenantCode: vendor.tenantCode || `CMS-${vendor.id.slice(0, 3).toUpperCase()}-23`,
+        tenantCode: vendor.tenantCode || `CMS-${vendor.id.slice(0, 6).toUpperCase()}`,
         tenantName: tName,
         initials,
         name: vendor.name || tName,
@@ -799,23 +803,23 @@ adminRoutes.get('/tenants/:id', async (c) => {
         category: vendor.category || 'Event & Lifestyle',
         tenantAccess,
         roleType: roleTypeArr,
-        picName: vendor.picName || 'Hamzah Diza',
-        picPhone: vendor.picPhone || '+1 (415) 882-7634',
-        picEmail: vendor.picEmail || vendor.email || 'hamzah.diza@orbitalinc.com',
+        picName: vendor.picName || vendor.name || '-',
+        picPhone: vendor.picPhone || '-',
+        picEmail: vendor.picEmail || vendor.email || '-',
         accountNumberBNI: vendor.accountNumberBNI || '988 0145 2026 0001',
         status: vendor.status || 'Active',
         joinDate: joinDateRaw,
         joinDateFormatted,
         joinBadge,
-        monthlyRevenue: 'Rp 63 jt / bln',
-        totalRevenue: 63000000,
-        totalRevenueDisplay: 'Rp 63 jt',
+        monthlyRevenue,
+        totalRevenue,
+        totalRevenueDisplay,
         totalProduct: totalEvents,
-        activeEvents: activeEvents > 0 ? activeEvents : 3,
-        draftEvents: draftEvents > 0 ? draftEvents : 3,
-        totalPageViews: 62948,
-        totalPageViewsDisplay: '62.948',
-        conversionRate: '2.7%',
+        activeEvents,
+        draftEvents,
+        totalPageViews,
+        totalPageViewsDisplay: totalPageViews.toLocaleString('id-ID'),
+        conversionRate,
         accessModules,
         description: vendor.description || 'Tenant mitra resmi ekosistem Lifestyle CMS.',
       },
@@ -1049,246 +1053,69 @@ adminRoutes.get('/orders', async (c) => {
     orderBy: [desc(serviceOrders.completedAt), desc(serviceOrders.id)]
   });
 
-  const dbCompleted = allOrders.filter(o => o.status === 'completed').length;
-  const dbPending = allOrders.filter(o => o.status === 'pending').length;
-  const dbRefund = allOrders.filter(o => o.status === 'refund' || o.status === 'canceled').length;
+  const completedOrders = allOrders.filter(o => o.status === 'completed');
+  const pendingOrders = allOrders.filter(o => o.status === 'pending');
+  const refundOrders = allOrders.filter(o => o.status === 'refund' || o.status === 'canceled');
+
+  const totalCompletedRev = completedOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+  const totalRefundAmount = refundOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0);
+
+  const completedPercent = allOrders.length > 0 ? `${Math.round((completedOrders.length / allOrders.length) * 100)}%` : '0%';
+  const pendingPercent = allOrders.length > 0 ? `${Math.round((pendingOrders.length / allOrders.length) * 100)}%` : '0%';
+  const refundPercent = allOrders.length > 0 ? `${Math.round((refundOrders.length / allOrders.length) * 100)}%` : '0%';
 
   const stats = {
-    totalOrders: 15240 + allOrders.length,
-    totalOrdersGrowth: '+12%',
-    totalOrdersCaption: 'Sepanjang Agustus 2026',
-    completedOrders: 14800 + dbCompleted,
-    completedPercent: '97%',
-    completedCaption: 'Rp 723 jt · lunas dan sukses',
-    pendingOrders: 310 + dbPending,
-    pendingPercent: '2%',
+    totalOrders: allOrders.length,
+    totalOrdersGrowth: allOrders.length > 0 ? '+12%' : '0%',
+    totalOrdersCaption: 'Seluruh Riwayat',
+    completedOrders: completedOrders.length,
+    completedPercent,
+    completedCaption: `Rp ${totalCompletedRev.toLocaleString('id-ID')} · lunas dan sukses`,
+    pendingOrders: pendingOrders.length,
+    pendingPercent,
     pendingCaption: 'Menunggu verifikasi pembayaran',
-    refundOrders: 130 + dbRefund,
-    refundPercent: '0.9%',
-    refundCaption: 'Rp 5,8 jt dikembalikan',
+    refundOrders: refundOrders.length,
+    refundPercent,
+    refundCaption: `Rp ${totalRefundAmount.toLocaleString('id-ID')} dikembalikan`,
   };
 
-  // Sample mockup base orders to guarantee rich design demonstration matching Figma
-  const sampleBaseOrders = [
-    {
-      id: 'ORD-2026-001',
-      serviceName: 'Hindia - Tur Menari Dalam Bayangan 2026',
-      serviceFormat: '15 Oct 2023 • Offline',
-      invoiceNumber: 'INV-001',
-      customerName: 'Rina Santika',
-      customerPhone: '(555) 123-4567',
-      orderDate: '15 Mar 2023, 10:00 AM',
-      amount: 50000,
-      amountDisplay: 'Rp 50.000',
-      status: 'COMPLETED',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-002',
-      serviceName: 'BNI RUNNING',
-      serviceFormat: '15 Oct 2023 • Hybrid',
-      invoiceNumber: 'INV-002',
-      customerName: 'Budi Kopi',
-      customerPhone: '(555) 987-6543',
-      orderDate: '15 Mar 2023, 11:30 AM',
-      amount: 40000,
-      amountDisplay: 'Rp 40.000',
-      status: 'PENDING',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-003',
-      serviceName: 'Run & Rave',
-      serviceFormat: '15 Oct 2023 • Online',
-      invoiceNumber: 'INV-003',
-      customerName: 'Siti Sederhana',
-      customerPhone: '(555) 234-5678',
-      orderDate: '15 Mar 2023, 1:00 PM',
-      amount: 45000,
-      amountDisplay: 'Rp 45.000',
-      status: 'REFUND',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-004',
-      serviceName: 'Melawai Running 2026',
-      serviceFormat: '15 Oct 2023 • Offline',
-      invoiceNumber: 'INV-004',
-      customerName: 'Andi Cinta',
-      customerPhone: '(555) 876-5432',
-      orderDate: '15 Mar 2023, 2:45 PM',
-      amount: 55000,
-      amountDisplay: 'Rp 55.000',
-      status: 'COMPLETED',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-005',
-      serviceName: 'Wondr Running 2026',
-      serviceFormat: '15 Oct 2023 • Offline',
-      invoiceNumber: 'INV-005',
-      customerName: 'Dewi Roti',
-      customerPhone: '(555) 345-6789',
-      orderDate: '15 Mar 2023, 4:15 PM',
-      amount: 42000,
-      amountDisplay: 'Rp 42.000',
-      status: 'COMPLETED',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-006',
-      serviceName: 'Soundrenaline Jakarta 2026',
-      serviceFormat: '20 Oct 2023 • Offline',
-      invoiceNumber: 'INV-006',
-      customerName: 'Reza Pratama',
-      customerPhone: '(555) 678-1234',
-      orderDate: '16 Mar 2023, 08:30 AM',
-      amount: 150000,
-      amountDisplay: 'Rp 150.000',
-      status: 'COMPLETED',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-007',
-      serviceName: 'Jazz Gunung Bromo 2026',
-      serviceFormat: '22 Oct 2023 • Offline',
-      invoiceNumber: 'INV-007',
-      customerName: 'Maya Indah',
-      customerPhone: '(555) 432-8765',
-      orderDate: '16 Mar 2023, 09:15 AM',
-      amount: 250000,
-      amountDisplay: 'Rp 250.000',
-      status: 'COMPLETED',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-008',
-      serviceName: 'Jakarta Marathon 2026',
-      serviceFormat: '25 Oct 2023 • Offline',
-      invoiceNumber: 'INV-008',
-      customerName: 'Fajar Nugraha',
-      customerPhone: '(555) 890-1234',
-      orderDate: '16 Mar 2023, 11:00 AM',
-      amount: 75000,
-      amountDisplay: 'Rp 75.000',
-      status: 'PENDING',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-009',
-      serviceName: 'Synchronize Fest 2026',
-      serviceFormat: '28 Oct 2023 • Offline',
-      invoiceNumber: 'INV-009',
-      customerName: 'Citra Lestari',
-      customerPhone: '(555) 321-7654',
-      orderDate: '16 Mar 2023, 01:20 PM',
-      amount: 300000,
-      amountDisplay: 'Rp 300.000',
-      status: 'COMPLETED',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-010',
-      serviceName: 'Java Jazz Festival 2026',
-      serviceFormat: '01 Nov 2023 • Offline',
-      invoiceNumber: 'INV-010',
-      customerName: 'Hendra Wijaya',
-      customerPhone: '(555) 654-9870',
-      orderDate: '16 Mar 2023, 03:45 PM',
-      amount: 450000,
-      amountDisplay: 'Rp 450.000',
-      status: 'REFUND',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-011',
-      serviceName: 'Bali Trail Run 2026',
-      serviceFormat: '05 Nov 2023 • Offline',
-      invoiceNumber: 'INV-011',
-      customerName: 'Putri Ayu',
-      customerPhone: '(555) 789-0123',
-      orderDate: '17 Mar 2023, 10:10 AM',
-      amount: 120000,
-      amountDisplay: 'Rp 120.000',
-      status: 'COMPLETED',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-012',
-      serviceName: 'Jogja Rockarta 2026',
-      serviceFormat: '10 Nov 2023 • Offline',
-      invoiceNumber: 'INV-012',
-      customerName: 'Doni Setiawan',
-      customerPhone: '(555) 210-9876',
-      orderDate: '17 Mar 2023, 02:30 PM',
-      amount: 200000,
-      amountDisplay: 'Rp 200.000',
-      status: 'PENDING',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-013',
-      serviceName: 'Djakarta Warehouse Project 2026',
-      serviceFormat: '15 Nov 2023 • Offline',
-      invoiceNumber: 'INV-013',
-      customerName: 'Sarah Jenkins',
-      customerPhone: '(555) 543-2109',
-      orderDate: '17 Mar 2023, 04:00 PM',
-      amount: 650000,
-      amountDisplay: 'Rp 650.000',
-      status: 'COMPLETED',
-      paymentMethod: 'TRANSFER',
-    },
-    {
-      id: 'ORD-2026-014',
-      serviceName: 'Bandung Art Fair 2026',
-      serviceFormat: '18 Nov 2023 • Hybrid',
-      invoiceNumber: 'INV-014',
-      customerName: 'Kevin Sanjaya',
-      customerPhone: '(555) 876-5430',
-      orderDate: '18 Mar 2023, 09:00 AM',
-      amount: 35000,
-      amountDisplay: 'Rp 35.000',
-      status: 'COMPLETED',
-      paymentMethod: 'VA',
-    },
-    {
-      id: 'ORD-2026-015',
-      serviceName: 'Prambanan Jazz 2026',
-      serviceFormat: '20 Nov 2023 • Offline',
-      invoiceNumber: 'INV-015',
-      customerName: 'Anisa Rahma',
-      customerPhone: '(555) 987-6540',
-      orderDate: '18 Mar 2023, 01:15 PM',
-      amount: 275000,
-      amountDisplay: 'Rp 275.000',
-      status: 'COMPLETED',
-      paymentMethod: 'TRANSFER',
-    },
-  ];
+  const liveOrders = allOrders.map(o => {
+    const rawDate = o.completedAt || o.createdAt;
+    let orderDateDisplay = '-';
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          orderDateDisplay = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+      } catch {
+        orderDateDisplay = String(rawDate);
+      }
+    }
 
-  const liveOrders = allOrders.map(o => ({
-    id: o.id,
-    serviceName: o.serviceName || 'BNI Lifestyle Event',
-    serviceFormat: '15 Oct 2026 • Offline',
-    invoiceNumber: o.invoiceNumber || `INV-${o.id.slice(-4)}`,
-    customerName: o.customerName || 'Pembeli Tiket',
-    customerPhone: o.customerPhone || '(555) 123-4567',
-    orderDate: o.completedAt ? 'Hari ini, 09:14' : '15 Mar 2023, 10:00 AM',
-    amount: o.totalAmount || 0,
-    amountDisplay: `Rp ${(o.totalAmount || 0).toLocaleString('id-ID')}`,
-    status: (o.status || 'pending').toUpperCase(),
-    paymentMethod: (o.paymentMethod || 'VA').toUpperCase(),
-  }));
+    return {
+      id: o.id,
+      serviceName: o.serviceName || 'Event Lifestyle',
+      serviceFormat: 'Offline Event',
+      invoiceNumber: o.invoiceNumber || `INV-${o.id.slice(-6)}`,
+      customerName: o.customerName || 'Pembeli Tiket',
+      customerPhone: o.customerPhone || '-',
+      orderDate: orderDateDisplay,
+      amount: o.totalAmount || 0,
+      amountDisplay: `Rp ${(o.totalAmount || 0).toLocaleString('id-ID')}`,
+      status: (o.status || 'pending').toUpperCase(),
+      paymentMethod: (o.paymentMethod || 'VA').toUpperCase(),
+    };
+  });
 
-  let combined = [...liveOrders, ...sampleBaseOrders];
+  let filtered = liveOrders;
 
   if (statusParam && statusParam !== 'all') {
-    combined = combined.filter(o => o.status.toLowerCase() === statusParam);
+    filtered = filtered.filter(o => o.status.toLowerCase() === statusParam);
   }
 
   if (searchParam) {
-    combined = combined.filter(o =>
+    filtered = filtered.filter(o =>
       o.serviceName.toLowerCase().includes(searchParam) ||
       o.customerName.toLowerCase().includes(searchParam) ||
       o.invoiceNumber.toLowerCase().includes(searchParam)
@@ -1298,8 +1125,8 @@ adminRoutes.get('/orders', async (c) => {
   return c.json({
     success: true,
     stats,
-    count: combined.length,
-    data: combined
+    count: filtered.length,
+    data: filtered
   });
 });
 

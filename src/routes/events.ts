@@ -3,6 +3,7 @@ import { db } from '../db';
 import { events, ticketCategories, tickets, serviceOrders, issuedTickets } from '../db/schema';
 import { eq, desc, and, sql } from 'drizzle-orm';
 import { verify } from 'hono/jwt';
+import { eventTemplatesMap } from '../templates/event-templates';
 
 export const eventRoutes = new Hono();
 
@@ -50,7 +51,7 @@ export function formatEventDetail(ev: any, cats: any[] = [], forCMS: boolean = t
       meetingUrl: p.meeting_url || p.onlineMeetingLink || ev.meetingUrl,
       bannerUrls: p.banner_urls || p.bannerUrls || ev.bannerUrls,
       bannerUrl: p.banner_urls?.[0] || p.bannerUrls?.[0] || p.bannerUrl || ev.bannerUrl,
-      templateId: p.selected_template ? Number(p.selected_template) : (p.templateId ? Number(p.templateId) : ev.templateId),
+      templateId: String(p.selected_template || p.selectedTemplate || p.templateId || p.template_id || ev.templateId || '1'),
       approvalStatus: 'WAITING',
     };
 
@@ -239,12 +240,16 @@ By purchasing a ticket, you agree to these terms.`;
     paymentMethod: displayEv.paymentMethod || 'Transfer',
     bni_account_number: displayEv.accountNumberBNI || '2132134142342',
     accountNumberBNI: displayEv.accountNumberBNI || '2132134142342',
-    selected_template: displayEv.templateId || 1,
-    templateId: displayEv.templateId || 1,
-    templateSelection: `Template ${displayEv.templateId || 1}`,
-    template_selection: `Template ${displayEv.templateId || 1}`,
+    selected_template: String(displayEv.templateId || '1'),
+    selectedTemplate: String(displayEv.templateId || '1'),
+    templateId: String(displayEv.templateId || '1'),
+    template_id: String(displayEv.templateId || '1'),
+    templateSelection: typeof displayEv.templateId === 'string' && displayEv.templateId.startsWith('template-') ? displayEv.templateId : `Template ${displayEv.templateId || 1}`,
+    template_selection: typeof displayEv.templateId === 'string' && displayEv.templateId.startsWith('template-') ? displayEv.templateId : `Template ${displayEv.templateId || 1}`,
+    templateConfig: displayEv.templateConfig || eventTemplatesMap[String(displayEv.templateId || '1')] || eventTemplatesMap[`template-${displayEv.templateId || '1'}`] || null,
+    templateSchema: displayEv.templateConfig || eventTemplatesMap[String(displayEv.templateId || '1')] || eventTemplatesMap[`template-${displayEv.templateId || '1'}`] || null,
     templates: displayEv.templates || {
-      index: { id: 1, title: 'Event Detail', bannerUrl: bannerUrls[0] || '' },
+      index: { id: displayEv.templateId || 1, title: 'Event Detail', bannerUrl: bannerUrls[0] || '' },
       bookTicket: { id: 2, title: 'Select Ticket', bannerUrl: bannerUrls[0] || '' },
       visitorList: { id: 3, title: 'Attendee List', bannerUrl: bannerUrls[0] || '' },
       visitorInput: { id: 4, title: 'Attendee Form', bannerUrl: bannerUrls[0] || '' }
@@ -388,16 +393,29 @@ export async function saveTicketTiers(eventId: string, tiers: any[]) {
     const t = tiers[i];
     const rawId = t.ticket_id || t.id || t.category_id_ref;
     const name = t.ticket_name || t.name || `Tiket ${i + 1}`;
-    const price = Number(t.ticket_price ?? t.price ?? 0);
-    const maxPrice = t.ticket_normal_price ?? t.normalPrice ?? t.maxPrice ?? price;
-    const discountedPrice = t.ticket_discounted_price ?? t.discountedPrice ?? null;
-    const stock = Number(t.ticket_stock ?? t.stock ?? 100);
-    const description = t.ticket_description || t.description || '';
-    const type = t.ticket_type || t.type || 'Normal';
+    const priceNum = Math.round(Number(t.ticket_price ?? t.price ?? 0));
+    const maxPriceNum = Math.round(Number(t.ticket_normal_price ?? t.normalPrice ?? t.maxPrice ?? priceNum));
+    const rawDisc = t.ticket_discounted_price ?? t.discountedPrice;
+    const discountedPriceNum = (rawDisc !== undefined && rawDisc !== null && rawDisc !== '' && !isNaN(Number(rawDisc)))
+      ? Math.round(Number(rawDisc))
+      : null;
+    const stockNum = Math.round(Number(t.ticket_stock ?? t.stock ?? 100));
+    const description = String(t.ticket_description || t.description || '');
+    const type = String(t.ticket_type || t.type || 'Normal');
     const isPromoActive = (t.is_promo_active || t.isPromoActive) ? 1 : 0;
 
     const existingCat = existingCategories.find(c => (rawId && c.id === rawId) || c.name === name);
-    const catId = existingCat ? existingCat.id : (rawId || crypto.randomUUID());
+    let catId: string;
+    if (existingCat?.id) {
+      catId = existingCat.id;
+    } else if (rawId) {
+      const existingGlobal = await db.query.ticketCategories.findFirst({
+        where: eq(ticketCategories.id, rawId),
+      });
+      catId = existingGlobal ? `${rawId}-${crypto.randomUUID().slice(0, 8)}` : rawId;
+    } else {
+      catId = crypto.randomUUID();
+    }
     incomingIds.add(catId);
 
     if (existingCat) {
@@ -406,12 +424,12 @@ export async function saveTicketTiers(eventId: string, tiers: any[]) {
         name,
         type,
         description,
-        price,
-        maxPrice: Number(maxPrice),
-        discountedPrice: discountedPrice ? Number(discountedPrice) : null,
+        price: priceNum,
+        maxPrice: maxPriceNum,
+        discountedPrice: discountedPriceNum,
         isPromoActive,
-        stock,
-        status: sold >= stock ? 'sold_out' : 'available',
+        stock: stockNum,
+        status: sold >= stockNum ? 'sold_out' : 'available',
         isAvailable: 1,
         order: i,
         updatedAt: new Date().toISOString(),
@@ -425,25 +443,25 @@ export async function saveTicketTiers(eventId: string, tiers: any[]) {
         await db.update(tickets).set({
           name,
           description,
-          price,
-          normalPrice: Number(maxPrice),
-          discountedPrice: discountedPrice ? Number(discountedPrice) : null,
-          stock,
+          price: priceNum,
+          normalPrice: maxPriceNum,
+          discountedPrice: discountedPriceNum,
+          stock: stockNum,
           isAvailable: 1,
           order: i,
           updatedAt: new Date().toISOString(),
         }).where(eq(tickets.id, existingTix.id));
       } else {
         await db.insert(tickets).values({
-          id: `tix-${existingCat.id}`,
+          id: crypto.randomUUID(),
           categoryId: existingCat.id,
           name,
           description,
           type: 'normal',
-          price,
-          normalPrice: Number(maxPrice),
-          discountedPrice: discountedPrice ? Number(discountedPrice) : null,
-          stock,
+          price: priceNum,
+          normalPrice: maxPriceNum,
+          discountedPrice: discountedPriceNum,
+          stock: stockNum,
           isAvailable: 1,
           order: i,
         });
@@ -455,11 +473,11 @@ export async function saveTicketTiers(eventId: string, tiers: any[]) {
         name,
         type,
         description,
-        price,
-        maxPrice: Number(maxPrice),
-        discountedPrice: discountedPrice ? Number(discountedPrice) : null,
+        price: priceNum,
+        maxPrice: maxPriceNum,
+        discountedPrice: discountedPriceNum,
         isPromoActive,
-        stock,
+        stock: stockNum,
         ticketsSold: 0,
         status: 'available',
         isAvailable: 1,
@@ -467,15 +485,15 @@ export async function saveTicketTiers(eventId: string, tiers: any[]) {
       });
 
       await db.insert(tickets).values({
-        id: `tix-${catId}`,
+        id: crypto.randomUUID(),
         categoryId: catId,
         name,
         description,
         type: 'normal',
-        price,
-        normalPrice: Number(maxPrice),
-        discountedPrice: discountedPrice ? Number(discountedPrice) : null,
-        stock,
+        price: priceNum,
+        normalPrice: maxPriceNum,
+        discountedPrice: discountedPriceNum,
+        stock: stockNum,
         isAvailable: 1,
         order: i,
       });
@@ -507,93 +525,116 @@ eventRoutes.post('/', async (c) => {
     return c.json({ error: 'Unauthorized: Harap login terlebih dahulu' }, 401);
   }
 
-  const body = await c.req.json();
+  try {
+    const body = await c.req.json();
 
-  const id = body.id || crypto.randomUUID();
-  const name = body.event_name || body.name || 'Event Baru';
-  const category = body.event_category || body.category || 'Lari / Sports';
-  const eventType = body.type || body.event_type || 'Offline Event';
-  const eventFormat = body.event_format || body.format || 'offline';
-  const entryMode = body.entry_mode || 'manual';
-  const externalProvider = body.external_provider || '';
-  const externalUrl = body.external_url || '';
-  const description = body.description || '';
-  const termsAndConditions = body.terms_and_conditions || body.termsAndConditions || '';
-  const bannerUrls = body.banner_urls || body.bannerUrls || [];
-  const bannerUrl = bannerUrls[0] || body.bannerUrl || '';
-  const startDate = body.start_date || body.startDate || new Date().toISOString().split('T')[0];
-  const endDate = body.end_date || body.endDate || startDate;
-  const isOneDayEvent = body.is_one_day_event || body.isOneDayEvent ? 1 : 0;
-  const startTime = body.event_start_time || body.startTime || '06:00';
-  const timezone = body.timezone || 'WIB';
-  const location = body.location_name || body.location || body.venueLocation || '';
-  const locationAddress = body.locationAddress || '';
-  const locationUrl = body.locationUrl || '';
-  const meetingUrl = body.meeting_url || body.onlineMeetingLink || '';
-  const isPaymentEnabled = body.is_payment_enabled !== false ? 1 : 0;
-  const paymentChannels = body.payment_channels || body.paymentChannels || ['bni_va'];
-  const feePayer = body.fee_payer || body.feePayer || 'customer';
-  const paymentMethod = body.payment_method || body.paymentMethod || 'VA';
-  const accountNumberBNI = body.bni_account_number || body.accountNumberBNI || '';
-  const templateId = Number(body.selected_template || body.templateId || 1);
-  const submissionOption = body.submission_option || body.submissionOption || 'draft';
-  const approvalStatus = submissionOption === 'review' ? 'WAITING' : (body.approval_status || body.approvalStatus || 'DRAFT');
+    const id = body.id || crypto.randomUUID();
+    const name = body.event_name || body.name || 'Event Baru';
+    const category = body.event_category || body.category || 'Lari / Sports';
+    const eventType = body.type || body.event_type || 'Offline Event';
+    const eventFormat = body.event_format || body.format || 'offline';
+    const entryMode = body.entry_mode || body.entryMode || 'manual';
+    const externalProvider = body.external_provider || body.externalProvider || '';
+    const externalUrl = body.external_url || body.externalUrl || '';
+    const description = body.description || '';
+    const termsAndConditions = body.terms_and_conditions || body.termsAndConditions || '';
+    
+    const bannerUrls = Array.isArray(body.banner_urls)
+      ? body.banner_urls
+      : (Array.isArray(body.bannerUrls) ? body.bannerUrls : (body.bannerUrl ? [body.bannerUrl] : []));
+    const bannerUrl = bannerUrls[0] || body.bannerUrl || '';
 
-  const ticketTiers = body.ticket_tiers || body.tickets || [];
-  const lowestPrice = ticketTiers.length
-    ? Math.min(...ticketTiers.map((t: any) => Number(t.ticket_price ?? t.price ?? 0)))
-    : Number(body.price || 0);
+    const startDate = body.start_date || body.startDate || new Date().toISOString().split('T')[0];
+    const endDate = body.end_date || body.endDate || startDate;
+    const isOneDayEvent = body.is_one_day_event || body.isOneDayEvent ? 1 : 0;
+    const startTime = body.event_start_time || body.startTime || '06:00';
+    const timezone = body.timezone || 'WIB';
+    const location = body.location_name || body.location || body.venueLocation || '';
+    const locationAddress = body.locationAddress || '';
+    const locationUrl = body.locationUrl || '';
+    const meetingUrl = body.meeting_url || body.onlineMeetingLink || '';
+    const isPaymentEnabled = body.is_payment_enabled !== false ? 1 : 0;
+    
+    const paymentChannels = Array.isArray(body.payment_channels)
+      ? body.payment_channels
+      : (Array.isArray(body.paymentChannels) ? body.paymentChannels : ['bni_va']);
+    
+    const feePayer = body.fee_payer || body.feePayer || 'customer';
+    const paymentMethod = body.payment_method || body.paymentMethod || 'VA';
+    const accountNumberBNI = body.bni_account_number || body.accountNumberBNI || '';
+    const templateId = String(body.selected_template || body.selectedTemplate || body.templateId || body.template_id || '1');
+    const submissionOption = body.submission_option || body.submissionOption || 'draft';
+    const approvalStatus = submissionOption === 'review' ? 'WAITING' : (body.approval_status || body.approvalStatus || 'DRAFT');
 
-  await db.insert(events).values({
-    id,
-    name,
-    category,
-    eventType,
-    eventFormat,
-    entryMode,
-    externalProvider,
-    externalUrl,
-    description,
-    termsAndConditions,
-    startDate,
-    endDate,
-    isOneDayEvent,
-    startTime,
-    timezone,
-    price: lowestPrice,
-    location,
-    locationAddress,
-    locationUrl,
-    meetingUrl,
-    bannerUrl,
-    bannerUrls,
-    isPaymentEnabled,
-    paymentChannels,
-    feePayer,
-    paymentMethod,
-    accountNumberBNI,
-    templateId,
-    userId: user.sub,
-    isActive: 0,
-    approvalStatus: approvalStatus as any,
-    submissionOption,
-    submittedDate: submissionOption === 'review' ? new Date().toISOString() : null,
-    savedDate: new Date().toISOString(),
-    comments: [],
-  });
+    const ticketTiers = body.ticket_tiers || body.tickets || [];
+    const lowestPrice = ticketTiers.length
+      ? Math.min(...ticketTiers.map((t: any) => Number(t.ticket_price ?? t.price ?? 0)))
+      : Number(body.price || 0);
 
-  await saveTicketTiers(id, ticketTiers);
+    await db.insert(events).values({
+      id,
+      name,
+      category,
+      eventType,
+      eventFormat,
+      entryMode,
+      externalProvider,
+      externalUrl,
+      description,
+      termsAndConditions,
+      startDate,
+      endDate,
+      isOneDayEvent,
+      startTime,
+      timezone,
+      price: lowestPrice,
+      location,
+      locationAddress,
+      locationUrl,
+      meetingUrl,
+      bannerUrl,
+      bannerUrls,
+      isPaymentEnabled,
+      paymentChannels,
+      feePayer,
+      paymentMethod,
+      accountNumberBNI,
+      templateId,
+      userId: user.sub,
+      isActive: 0,
+      approvalStatus: approvalStatus as any,
+      submissionOption,
+      submittedDate: submissionOption === 'review' ? new Date().toISOString() : null,
+      savedDate: new Date().toISOString(),
+      comments: [],
+    });
 
-  const created = await db.query.events.findFirst({
-    where: eq(events.id, id),
-    with: { ticketCategories: { with: { tickets: true } } }
-  });
+    try {
+      await saveTicketTiers(id, ticketTiers);
+    } catch (saveTierErr: any) {
+      // Rollback newly inserted event so orphaned draft rows are not left in DB
+      await db.delete(events).where(eq(events.id, id));
+      throw saveTierErr;
+    }
 
-  return c.json({
-    success: true,
-    message: 'Event berhasil dibuat',
-    data: formatEventDetail(created, created?.ticketCategories || [])
-  }, 201);
+    const created = await db.query.events.findFirst({
+      where: eq(events.id, id),
+      with: { ticketCategories: { with: { tickets: true } } }
+    });
+
+    return c.json({
+      success: true,
+      message: 'Event berhasil dibuat',
+      data: formatEventDetail(created, created?.ticketCategories || [])
+    }, 201);
+  } catch (error: any) {
+    console.error('[EventRoutes] Error creating event:', error);
+    return c.json({
+      error: 'Failed to create event',
+      message: error?.message || 'Terjadi kesalahan saat membuat event',
+      details: error?.message
+    }, 500);
+  }
 });
 
 // ----------------------------------------------------------------------
@@ -648,7 +689,15 @@ eventRoutes.put('/:id', async (c) => {
     const feePayer = body.fee_payer || body.feePayer || existing.feePayer;
     const paymentMethod = body.payment_method || body.paymentMethod || existing.paymentMethod;
     const accountNumberBNI = body.bni_account_number || body.accountNumberBNI || existing.accountNumberBNI;
-    const templateId = body.selected_template ? Number(body.selected_template) : (body.templateId ? Number(body.templateId) : existing.templateId);
+    const templateId = body.selected_template !== undefined
+      ? String(body.selected_template)
+      : (body.selectedTemplate !== undefined
+        ? String(body.selectedTemplate)
+        : (body.templateId !== undefined
+          ? String(body.templateId)
+          : (body.template_id !== undefined
+            ? String(body.template_id)
+            : existing.templateId)));
 
     const ticketTiers = body.ticket_tiers || body.tickets;
     let lowestPrice = existing.price;
@@ -787,7 +836,15 @@ eventRoutes.post('/:id/review', async (c) => {
       const feePayer = p.fee_payer || p.feePayer || ev.feePayer;
       const paymentMethod = p.payment_method || p.paymentMethod || ev.paymentMethod;
       const accountNumberBNI = p.bni_account_number || p.accountNumberBNI || ev.accountNumberBNI;
-      const templateId = p.selected_template ? Number(p.selected_template) : (p.templateId ? Number(p.templateId) : ev.templateId);
+      const templateId = p.selected_template !== undefined
+        ? String(p.selected_template)
+        : (p.selectedTemplate !== undefined
+          ? String(p.selectedTemplate)
+          : (p.templateId !== undefined
+            ? String(p.templateId)
+            : (p.template_id !== undefined
+              ? String(p.template_id)
+              : ev.templateId)));
 
       const ticketTiers = p.ticket_tiers || p.tickets;
       let lowestPrice = ev.price;
@@ -1008,26 +1065,26 @@ eventRoutes.get('/:id/sales-summary', async (c) => {
 
   const dbRevenue = orders.reduce((sum, ord) => sum + (ord.totalAmount || 0), 0);
   const dbTicketsSold = orders.reduce((sum, ord) => sum + (ord.quantity || 1), 0);
-  const totalStock = ev.ticketCategories.reduce((sum, c) => sum + (c.stock || 0), 0) || 20000;
+  const totalStock = ev.ticketCategories.reduce((sum, c) => sum + (c.stock || 0), 0);
   
-  const ticketsSold = dbTicketsSold > 0 ? dbTicketsSold : 15240;
-  const totalRevenue = dbRevenue > 0 ? dbRevenue : 14800;
+  const ticketsSold = dbTicketsSold;
+  const totalRevenue = dbRevenue;
   const remainingStock = Math.max(0, totalStock - ticketsSold);
-  const transactionsCount = orders.length > 0 ? orders.length : 310;
-  const attendanceRate = totalStock > 0 ? `${((ticketsSold / totalStock) * 100).toFixed(1)}%` : '95.2%';
+  const transactionsCount = orders.length;
+  const attendanceRate = totalStock > 0 ? `${((ticketsSold / totalStock) * 100).toFixed(1)}%` : '0.0%';
 
   const revenueDisplay = dbRevenue >= 1_000_000_000
     ? `Rp ${(dbRevenue / 1_000_000_000).toFixed(1)} M`
     : dbRevenue >= 1_000_000
     ? `Rp ${(dbRevenue / 1_000_000).toFixed(1)} jt`
-    : 'Rp 723 jt · lunas dan sukses';
+    : `Rp ${dbRevenue.toLocaleString('id-ID')}`;
 
-  const dailySales = [
+  const dailySales = orders.length > 0 ? [
     { date: "01 Oct 2026", amount: Math.round(totalRevenue * 0.15), tickets: Math.round(ticketsSold * 0.15) },
     { date: "05 Oct 2026", amount: Math.round(totalRevenue * 0.25), tickets: Math.round(ticketsSold * 0.25) },
     { date: "10 Oct 2026", amount: Math.round(totalRevenue * 0.35), tickets: Math.round(ticketsSold * 0.35) },
     { date: "15 Oct 2026", amount: Math.round(totalRevenue * 0.25), tickets: Math.round(ticketsSold * 0.25) },
-  ];
+  ] : [];
 
   return c.json({
     event_id: ev.id,
@@ -1126,262 +1183,7 @@ eventRoutes.get('/:id/attendees', async (c) => {
     purchaseDate: a.purchaseDate || a.createdAt || '',
   }));
 
-  const sampleAttendees = [
-    {
-      id: 'att-figma-001',
-      order_id: 'ORD-2026-001',
-      orderId: 'ORD-2026-001',
-      participant_name: 'Andi Prasetyo',
-      participantName: 'Andi Prasetyo',
-      nik: '3671060808950005',
-      ticket_name: 'Ticket Type Alpha',
-      ticketName: 'Ticket Type Alpha',
-      ticket_category: 'VIP',
-      ticketCategory: 'VIP',
-      category_id_ref: 'cat-01',
-      buyer_name: 'Andi Prasetyo',
-      buyerName: 'Andi Prasetyo',
-      buyer_phone: '(555) 123-4567',
-      buyerPhone: '(555) 123-4567',
-      ticket_quantity: 3,
-      ticketQuantity: 3,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 50000,
-      status: 'COMPLETED' as const,
-      purchase_date: '01 Jan 2023, 12 00',
-      purchaseDate: '01 Jan 2023, 12 00',
-    },
-    {
-      id: 'att-figma-002',
-      order_id: 'ORD-2026-001',
-      orderId: 'ORD-2026-001',
-      participant_name: 'Siti Nurhaliza',
-      participantName: 'Siti Nurhaliza',
-      nik: '3671060808950005',
-      ticket_name: 'Ticket Type Beta',
-      ticketName: 'Ticket Type Beta',
-      ticket_category: 'Regular',
-      ticketCategory: 'Regular',
-      category_id_ref: 'cat-02',
-      buyer_name: 'Andi Prasetyo',
-      buyerName: 'Andi Prasetyo',
-      buyer_phone: '(555) 987-6543',
-      buyerPhone: '(555) 987-6543',
-      ticket_quantity: 3,
-      ticketQuantity: 3,
-      ticket_index: 2,
-      ticketIndex: 2,
-      nominal: 40000,
-      status: 'PENDING' as const,
-      purchase_date: '01 Jan 2023, 12 00',
-      purchaseDate: '01 Jan 2023, 12 00',
-    },
-    {
-      id: 'att-figma-003',
-      order_id: 'ORD-2026-001',
-      orderId: 'ORD-2026-001',
-      participant_name: 'Budi Santoso',
-      participantName: 'Budi Santoso',
-      nik: '3671060808950005',
-      ticket_name: 'Ticket Type Gamma',
-      ticketName: 'Ticket Type Gamma',
-      ticket_category: 'Early Bird',
-      ticketCategory: 'Early Bird',
-      category_id_ref: 'cat-03',
-      buyer_name: 'Andi Prasetyo',
-      buyerName: 'Andi Prasetyo',
-      buyer_phone: '(555) 234-5678',
-      buyerPhone: '(555) 234-5678',
-      ticket_quantity: 3,
-      ticketQuantity: 3,
-      ticket_index: 3,
-      ticketIndex: 3,
-      nominal: 45000,
-      status: 'REFUND' as const,
-      purchase_date: '01 Jan 2023, 12 00',
-      purchaseDate: '01 Jan 2023, 12 00',
-    },
-    {
-      id: 'att-figma-004',
-      order_id: 'ORD-2026-002',
-      orderId: 'ORD-2026-002',
-      participant_name: 'Rina Amelia',
-      participantName: 'Rina Amelia',
-      nik: '3671060808950005',
-      ticket_name: 'Ticket Type Delta',
-      ticketName: 'Ticket Type Delta',
-      ticket_category: 'VIP',
-      ticketCategory: 'VIP',
-      category_id_ref: 'cat-01',
-      buyer_name: 'Rina Amelia',
-      buyerName: 'Rina Amelia',
-      buyer_phone: '(555) 876-5432',
-      buyerPhone: '(555) 876-5432',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 55000,
-      status: 'COMPLETED' as const,
-      purchase_date: '01 Jan 2023, 12 00',
-      purchaseDate: '01 Jan 2023, 12 00',
-    },
-    {
-      id: 'att-figma-005',
-      order_id: 'ORD-2026-003',
-      orderId: 'ORD-2026-003',
-      participant_name: 'Joko Susilo',
-      participantName: 'Joko Susilo',
-      nik: '3671060808950005',
-      ticket_name: 'Ticket Type Epsilon',
-      ticketName: 'Ticket Type Epsilon',
-      ticket_category: 'Regular',
-      ticketCategory: 'Regular',
-      category_id_ref: 'cat-02',
-      buyer_name: 'Joko Susilo',
-      buyerName: 'Joko Susilo',
-      buyer_phone: '(555) 345-6789',
-      buyerPhone: '(555) 345-6789',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 42000,
-      status: 'COMPLETED' as const,
-      purchase_date: '01 Jan 2023, 12 00',
-      purchaseDate: '01 Jan 2023, 12 00',
-    },
-    {
-      id: 'att-figma-006',
-      order_id: 'ORD-2026-004',
-      orderId: 'ORD-2026-004',
-      participant_name: 'Reza Pratama',
-      participantName: 'Reza Pratama',
-      nik: '3671060808950006',
-      ticket_name: 'Ticket Type Alpha',
-      ticketName: 'Ticket Type Alpha',
-      ticket_category: 'VIP',
-      ticketCategory: 'VIP',
-      category_id_ref: 'cat-01',
-      buyer_name: 'Reza Pratama',
-      buyerName: 'Reza Pratama',
-      buyer_phone: '(555) 678-1234',
-      buyerPhone: '(555) 678-1234',
-      ticket_quantity: 2,
-      ticketQuantity: 2,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 50000,
-      status: 'COMPLETED' as const,
-      purchase_date: '02 Jan 2023, 10 00',
-      purchaseDate: '02 Jan 2023, 10 00',
-    },
-    {
-      id: 'att-figma-007',
-      order_id: 'ORD-2026-005',
-      orderId: 'ORD-2026-005',
-      participant_name: 'Maya Indah',
-      participantName: 'Maya Indah',
-      nik: '3671060808950007',
-      ticket_name: 'Ticket Type Beta',
-      ticketName: 'Ticket Type Beta',
-      ticket_category: 'Regular',
-      ticketCategory: 'Regular',
-      category_id_ref: 'cat-02',
-      buyer_name: 'Maya Indah',
-      buyerName: 'Maya Indah',
-      buyer_phone: '(555) 432-8765',
-      buyerPhone: '(555) 432-8765',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 40000,
-      status: 'COMPLETED' as const,
-      purchase_date: '02 Jan 2023, 14 30',
-      purchaseDate: '02 Jan 2023, 14 30',
-    },
-    {
-      id: 'att-figma-008',
-      order_id: 'ORD-2026-006',
-      orderId: 'ORD-2026-006',
-      participant_name: 'Fajar Nugraha',
-      participantName: 'Fajar Nugraha',
-      nik: '3671060808950008',
-      ticket_name: 'Ticket Type Gamma',
-      ticketName: 'Ticket Type Gamma',
-      ticket_category: 'Early Bird',
-      ticketCategory: 'Early Bird',
-      category_id_ref: 'cat-03',
-      buyer_name: 'Fajar Nugraha',
-      buyerName: 'Fajar Nugraha',
-      buyer_phone: '(555) 890-1234',
-      buyerPhone: '(555) 890-1234',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 45000,
-      status: 'PENDING' as const,
-      purchase_date: '03 Jan 2023, 09 15',
-      purchaseDate: '03 Jan 2023, 09 15',
-    },
-    {
-      id: 'att-figma-009',
-      order_id: 'ORD-2026-007',
-      orderId: 'ORD-2026-007',
-      participant_name: 'Citra Lestari',
-      participantName: 'Citra Lestari',
-      nik: '3671060808950009',
-      ticket_name: 'Ticket Type Delta',
-      ticketName: 'Ticket Type Delta',
-      ticket_category: 'VIP',
-      ticketCategory: 'VIP',
-      category_id_ref: 'cat-01',
-      buyer_name: 'Citra Lestari',
-      buyerName: 'Citra Lestari',
-      buyer_phone: '(555) 321-7654',
-      buyerPhone: '(555) 321-7654',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 55000,
-      status: 'COMPLETED' as const,
-      purchase_date: '03 Jan 2023, 16 00',
-      purchaseDate: '03 Jan 2023, 16 00',
-    },
-    {
-      id: 'att-figma-010',
-      order_id: 'ORD-2026-008',
-      orderId: 'ORD-2026-008',
-      participant_name: 'Hendra Wijaya',
-      participantName: 'Hendra Wijaya',
-      nik: '3671060808950010',
-      ticket_name: 'Ticket Type Epsilon',
-      ticketName: 'Ticket Type Epsilon',
-      ticket_category: 'Regular',
-      ticketCategory: 'Regular',
-      category_id_ref: 'cat-02',
-      buyer_name: 'Hendra Wijaya',
-      buyerName: 'Hendra Wijaya',
-      buyer_phone: '(555) 654-9870',
-      buyerPhone: '(555) 654-9870',
-      ticket_quantity: 1,
-      ticketQuantity: 1,
-      ticket_index: 1,
-      ticketIndex: 1,
-      nominal: 42000,
-      status: 'REFUND' as const,
-      purchase_date: '04 Jan 2023, 11 20',
-      purchaseDate: '04 Jan 2023, 11 20',
-    }
-  ];
-
-  let combinedAttendees = formattedAttendees.length > 0
-    ? [...formattedAttendees, ...sampleAttendees]
-    : sampleAttendees;
+  let combinedAttendees = formattedAttendees;
 
   if (statusParam && statusParam !== 'ALL') {
     combinedAttendees = combinedAttendees.filter(a => a.status.toUpperCase() === statusParam.toUpperCase());

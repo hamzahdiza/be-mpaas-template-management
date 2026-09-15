@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { ticketCategories, tickets, events as eventsTable } from '../db/schema';
+import { getSingleTemplate } from './templates';
 
 export const javajazzRoutes = new Hono();
 
@@ -36,6 +37,7 @@ javajazzRoutes.get('/v1/category-ticket', async (c) => {
     });
 
     if (event) {
+      const templateConfig = await getSingleTemplate(event.templateId || '1');
       const categories = await db.query.ticketCategories.findMany({
         where: eq(ticketCategories.eventId, eventId),
         orderBy: (ticketCategories, { asc }) => [asc(ticketCategories.order)]
@@ -45,17 +47,28 @@ javajazzRoutes.get('/v1/category-ticket', async (c) => {
         dataProtected: {
           detailEvent: {
             id: event.id,
+            name: event.name,
             eventName: event.name,
+            category: event.category,
             eventDate: event.startDate,
+            startDate: event.startDate,
+            endDate: event.endDate,
             location: event.location,
             locationAddress: event.locationAddress,
             description: event.description,
             banner: event.bannerUrls || [event.bannerUrl],
             bannerUrls: event.bannerUrls || [event.bannerUrl],
+            bannerUrl: event.bannerUrl || (event.bannerUrls && event.bannerUrls[0]) || '',
             seatingPlanUrl: event.seatingPlanUrl,
             termsAndConditions: event.termsAndConditions,
-            templateId: event.templateId,
-            templates: event.templates,
+            templateId: event.templateId || '1',
+            selected_template: event.templateId || '1',
+            selectedTemplate: event.templateId || '1',
+            templateConfig: templateConfig || null,
+            templateSchema: templateConfig || null,
+            templates: event.templates || {
+              index: { id: event.templateId || 1, title: 'Event Detail', bannerUrl: (event.bannerUrls && event.bannerUrls[0]) || event.bannerUrl || '' }
+            },
             socials: event.socials,
             instagram: event.socials?.instagram?.url || "",
             website: event.socials?.website?.url || "",
@@ -97,6 +110,7 @@ javajazzRoutes.get('/v1/landing-data', async (c) => {
       return c.json({ error: 'Event not found' }, 404);
     }
 
+    const templateConfig = await getSingleTemplate(event.templateId || '1');
     const categories = await db.query.ticketCategories.findMany({
       where: eq(ticketCategories.eventId, eventId),
       orderBy: (ticketCategories, { asc }) => [asc(ticketCategories.order)]
@@ -106,17 +120,28 @@ javajazzRoutes.get('/v1/landing-data', async (c) => {
       dataProtected: {
         detailEvent: {
           id: event.id,
+          name: event.name,
           eventName: event.name,
+          category: event.category,
           eventDate: event.startDate,
+          startDate: event.startDate,
+          endDate: event.endDate,
           location: event.location,
           locationAddress: event.locationAddress,
           description: event.description,
           banner: event.bannerUrls || [event.bannerUrl],
           bannerUrls: event.bannerUrls || [event.bannerUrl],
+          bannerUrl: event.bannerUrl || (event.bannerUrls && event.bannerUrls[0]) || '',
           seatingPlanUrl: event.seatingPlanUrl,
           termsAndConditions: event.termsAndConditions,
-          templateId: event.templateId,
-          templates: event.templates,
+          templateId: event.templateId || '1',
+          selected_template: event.templateId || '1',
+          selectedTemplate: event.templateId || '1',
+          templateConfig: templateConfig || null,
+          templateSchema: templateConfig || null,
+          templates: event.templates || {
+            index: { id: event.templateId || 1, title: 'Event Detail', bannerUrl: (event.bannerUrls && event.bannerUrls[0]) || event.bannerUrl || '' }
+          },
           socials: event.socials,
           instagram: event.socials?.instagram?.url || "",
           website: event.socials?.website?.url || "",
