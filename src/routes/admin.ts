@@ -425,6 +425,8 @@ adminRoutes.get('/dashboard', async (c) => {
   const approvedEventsTable = approvedEventsList.map((ev) => {
     const detail = formatEventDetail(ev, ev.ticketCategories, false);
     const evOrders = completedOrdersList.filter(o => o.serviceId === ev.id);
+    const isExternal = ev.entryMode === 'external' || Boolean(ev.externalUrl) || (ev.name || '').toLowerCase().includes('webview');
+    const entryMode = isExternal ? 'external' : (ev.entryMode || 'manual');
     const evRevenue = evOrders.length > 0
       ? evOrders.reduce((sum, o) => sum + (o.totalAmount || 0), 0)
       : (detail.ticketsSold * (detail.price || 0));
@@ -436,14 +438,18 @@ adminRoutes.get('/dashboard', async (c) => {
       startDate: ev.startDate || '-',
       eventType: ev.eventType || 'Offline Event',
       format: ev.eventFormat || 'Offline',
+      entry_mode: entryMode,
+      entryMode: entryMode,
+      external_url: ev.externalUrl || '',
+      externalUrl: ev.externalUrl || '',
       bannerUrl: ev.bannerUrl || (ev.bannerUrls && ev.bannerUrls[0]) || '',
       tenantName: ev.user?.tenantName || ev.user?.name || '-',
       vendorName: ev.user?.name || ev.user?.tenantName || 'Vendor Partner',
-      ticketsSold: detail.ticketsSold || evOrders.reduce((sum, o) => sum + (o.quantity || 1), 0),
-      totalTickets: detail.totalTickets || 0,
-      remainingTickets: detail.remainingTickets,
-      revenue: evRevenue,
-      revenueDisplay: `Rp ${evRevenue.toLocaleString('id-ID')}`,
+      ticketsSold: isExternal ? 0 : (detail.ticketsSold || evOrders.reduce((sum, o) => sum + (o.quantity || 1), 0)),
+      totalTickets: isExternal ? 0 : (detail.totalTickets || 0),
+      remainingTickets: isExternal ? 0 : detail.remainingTickets,
+      revenue: isExternal ? 0 : evRevenue,
+      revenueDisplay: isExternal ? '-' : `Rp ${evRevenue.toLocaleString('id-ID')}`,
       isActive: Boolean(ev.isActive),
     };
   });
